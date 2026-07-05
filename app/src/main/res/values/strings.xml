@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">Money Wear</string>
+    <string name="tile_label">Currency Rate</string>
+    <string name="complication_label">Currency Complication</string>
+    <string name="base_currency_setting">Base Currency</string>
+    <string name="interested_currencies_setting">Interested Currencies</string>
+    <string name="refresh_interval_setting">Refresh Interval</string>
+    <string name="unknown_error">Unknown Error Occurred</string>
+    <string name="network_error">Network Unavailable. Showing cached data.</string>
+</resources>
