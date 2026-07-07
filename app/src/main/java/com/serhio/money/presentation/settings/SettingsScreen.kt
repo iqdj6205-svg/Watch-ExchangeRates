@@ -1,16 +1,24 @@
 package com.serhio.money.presentation.settings
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.foundation.lazy.rememberScalingLazyListState
 import androidx.wear.compose.material3.*
-import androidx.wear.compose.material3.ButtonDefaults
+import com.serhio.money.R
+import com.serhio.money.presentation.components.currencyFlag
 
 @Composable
 fun SettingsScreen(
@@ -27,31 +35,43 @@ fun SettingsScreen(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         item {
-            ListHeader {
-                Text("Base Currency", fontWeight = FontWeight.Bold)
-            }
+            ListHeader { Text(stringResource(R.string.section_base), fontWeight = FontWeight.Bold) }
         }
 
-        val currencies = listOf("USD", "EUR", "PLN", "UAH", "GBP", "JPY", "CHF", "CZK", "BTC", "ETH", "XAU", "XAG")
+        item {
+            Text(
+                text = "${currencyFlag(baseCurrency)} $baseCurrency",
+                style = MaterialTheme.typography.labelMedium,
+                modifier = Modifier.padding(vertical = 2.dp)
+            )
+        }
 
-        val chunked = currencies.chunked(3)
-        chunked.forEach { row ->
+        val currencies = listOf(
+            "USD", "EUR", "GBP", "JPY", "CHF", "AUD", "CAD", "CNY",
+            "PLN", "UAH", "CZK", "DKK", "NOK", "SEK", "HUF", "RON",
+            "INR", "KRW", "SGD", "HKD", "MXN", "BRL", "ZAR", "TRY",
+            "RUB", "ILS", "NZD", "BTC", "ETH", "XAU", "XAG"
+        )
+
+        currencies.chunked(2).forEach { row ->
             item {
                 Row(
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp),
-                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp),
+                    horizontalArrangement = Arrangement.spacedBy(2.dp)
                 ) {
                     row.forEach { currency ->
                         val selected = currency == baseCurrency
-                        Button(
-                            onClick = { viewModel.setBaseCurrency(currency) },
-                            modifier = Modifier.weight(1f),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = if (selected) MaterialTheme.colorScheme.primary else Color(0xFF2C2C2C),
-                                contentColor = if (selected) MaterialTheme.colorScheme.onPrimary else Color.White
-                            )
+                        val bg = if (selected) MaterialTheme.colorScheme.primary.copy(alpha = 0.15f) else Color.Transparent
+                        Row(
+                            modifier = Modifier
+                                .weight(1f)
+                                .clickable { viewModel.setBaseCurrency(currency) }
+                                .padding(horizontal = 8.dp, vertical = 8.dp),
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text(currency, maxLines = 1)
+                            Text("${currencyFlag(currency)} $currency",
+                                fontSize = 11.sp,
+                                fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal)
                         }
                     }
                 }
@@ -59,33 +79,35 @@ fun SettingsScreen(
         }
 
         item {
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(Modifier.height(8.dp))
+            ListHeader { Text(stringResource(R.string.section_interested), fontWeight = FontWeight.Bold) }
         }
 
-        item {
-            ListHeader {
-                Text("Interested Currencies", fontWeight = FontWeight.Bold)
-            }
-        }
-
-        val interestedChunked = currencies.chunked(3)
-        interestedChunked.forEach { row ->
+        currencies.chunked(2).forEach { row ->
             item {
                 Row(
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp),
-                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp),
+                    horizontalArrangement = Arrangement.spacedBy(2.dp)
                 ) {
                     row.forEach { currency ->
                         val selected = interestedCurrencies.contains(currency)
-                        Button(
-                            onClick = { viewModel.toggleInterestedCurrency(currency) },
-                            modifier = Modifier.weight(1f),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = if (selected) MaterialTheme.colorScheme.primary else Color(0xFF2C2C2C),
-                                contentColor = if (selected) MaterialTheme.colorScheme.onPrimary else Color.White
-                            )
+                        val bg = if (selected) MaterialTheme.colorScheme.primary.copy(alpha = 0.15f) else Color.Transparent
+                        Row(
+                            modifier = Modifier
+                                .weight(1f)
+                                .clickable { viewModel.toggleInterestedCurrency(currency) }
+                                .padding(horizontal = 8.dp, vertical = 8.dp),
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text(if (selected) "\u2713 $currency" else currency, maxLines = 1)
+                            Text(
+                                if (selected) "\u2611" else "\u2610",
+                                fontSize = 14.sp,
+                                color = if (selected) MaterialTheme.colorScheme.primary else Color.White,
+                                modifier = Modifier.padding(end = 4.dp)
+                            )
+                            Text("${currencyFlag(currency)} $currency",
+                                fontSize = 11.sp,
+                                fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal)
                         }
                     }
                 }
@@ -93,42 +115,73 @@ fun SettingsScreen(
         }
 
         item {
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(Modifier.height(8.dp))
+            ListHeader { Text(stringResource(R.string.section_interval), fontWeight = FontWeight.Bold) }
         }
 
         item {
-            ListHeader {
-                Text("Update Interval", fontWeight = FontWeight.Bold)
-            }
-        }
+            var showPopup by remember { mutableStateOf(false) }
+            val intervals = listOf(
+                "15m" to (15 * 60 * 1000L),
+                "30m" to (30 * 60 * 1000L),
+                "1h" to (60 * 60 * 1000L),
+                "2h" to (2 * 60 * 60 * 1000L),
+                "6h" to (6 * 60 * 60 * 1000L),
+                "12h" to (12 * 60 * 60 * 1000L),
+                "24h" to (24 * 60 * 60 * 1000L)
+            )
+            val currentLabel = intervals.find { it.second == updateInterval }?.first ?: "—"
 
-        val intervals = listOf(
-            "15 min" to (15 * 60 * 1000L),
-            "30 min" to (30 * 60 * 1000L),
-            "1 hour" to (60 * 60 * 1000L),
-            "2 hours" to (2 * 60 * 60 * 1000L),
-            "6 hours" to (6 * 60 * 60 * 1000L),
-            "12 hours" to (12 * 60 * 60 * 1000L),
-            "24 hours" to (24 * 60 * 60 * 1000L)
-        )
-
-        intervals.chunked(2).forEach { row ->
-            item {
+            Box(Modifier.fillMaxWidth()) {
                 Row(
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp),
-                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { showPopup = true }
+                        .padding(horizontal = 12.dp, vertical = 10.dp),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    row.forEach { (label, ms) ->
-                        val selected = ms == updateInterval
-                        Button(
-                            onClick = { viewModel.setUpdateInterval(ms) },
-                            modifier = Modifier.weight(1f),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = if (selected) MaterialTheme.colorScheme.primary else Color(0xFF2C2C2C),
-                                contentColor = if (selected) MaterialTheme.colorScheme.onPrimary else Color.White
-                            )
-                        ) {
-                            Text(label, maxLines = 1)
+                    Text(currentLabel,
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary)
+                    Text(" \u25BC",
+                        fontSize = 10.sp,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+                        modifier = Modifier.padding(start = 4.dp))
+                }
+
+                AnimatedVisibility(
+                    visible = showPopup,
+                    enter = fadeIn(),
+                    exit = fadeOut()
+                ) {
+                    Card(
+                        onClick = {},
+                        modifier = Modifier.align(Alignment.Center).padding(horizontal = 8.dp),
+                        shape = RoundedCornerShape(16.dp)
+                    ) {
+                        Column(Modifier.padding(vertical = 4.dp)) {
+                            intervals.forEach { (label, ms) ->
+                                val selected = ms == updateInterval
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .clickable { viewModel.setUpdateInterval(ms); showPopup = false }
+                                        .padding(horizontal = 12.dp, vertical = 10.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text(
+                                        if (selected) "\u25C9" else "\u25CB",
+                                        fontSize = 14.sp,
+                                        color = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
+                                        modifier = Modifier.padding(end = 8.dp)
+                                    )
+                                    Text(label,
+                                        fontSize = 13.sp,
+                                        fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal)
+                                }
+                            }
                         }
                     }
                 }

@@ -4,12 +4,14 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.foundation.lazy.rememberScalingLazyListState
 import androidx.wear.compose.material3.*
 import androidx.wear.compose.material3.ButtonDefaults
+import com.serhio.money.R
 
 @Composable
 fun TileComplicationConfigScreen(
@@ -32,17 +34,20 @@ fun TileComplicationConfigScreen(
     ) {
         item {
             ListHeader {
-                Text("Tile Configuration", fontWeight = FontWeight.Bold)
+                Text(stringResource(R.string.section_tile_config), fontWeight = FontWeight.Bold)
             }
         }
 
         item {
             ListHeader {
-                Text("Display Currency", fontWeight = FontWeight.Bold)
+                Text(stringResource(R.string.section_tile_currency), fontWeight = FontWeight.Bold)
             }
         }
 
-        val currencies = listOf("USD", "EUR", "PLN", "UAH", "GBP", "JPY", "CHF", "CZK", "BTC")
+        val currencies = listOf(
+            "USD", "EUR", "GBP", "JPY", "CHF", "AUD", "CAD", "CNY",
+            "PLN", "UAH", "CZK", "SEK", "INR", "KRW", "SGD", "TRY"
+        )
         val currencyChunks = currencies.chunked(3)
         currencyChunks.forEach { row ->
             item {
@@ -70,18 +75,23 @@ fun TileComplicationConfigScreen(
 
         item {
             ListHeader {
-                Text("Display Mode", fontWeight = FontWeight.Bold)
+                Text(stringResource(R.string.section_tile_mode), fontWeight = FontWeight.Bold)
             }
         }
 
-        val modes = listOf("rate" to "Rate", "change" to "Change %", "arrow" to "Arrow", "date" to "Date")
+        val modes = listOf(
+            "rate" to R.string.mode_rate,
+            "change" to R.string.mode_change_pct,
+            "arrow" to R.string.mode_arrow,
+            "date" to R.string.mode_date
+        )
         modes.chunked(2).forEach { row ->
             item {
                 Row(
                     modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp),
                     horizontalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
-                    row.forEach { (key, label) ->
+                    row.forEach { (key, labelRes) ->
                         Button(
                             onClick = { onTileModeChange(key) },
                             modifier = Modifier.weight(1f),
@@ -92,7 +102,7 @@ fun TileComplicationConfigScreen(
                                     MaterialTheme.colorScheme.secondaryContainer
                             )
                         ) {
-                            Text(label, maxLines = 1)
+                            Text(stringResource(labelRes), maxLines = 1)
                         }
                     }
                 }
@@ -103,13 +113,13 @@ fun TileComplicationConfigScreen(
 
         item {
             ListHeader {
-                Text("Complication Configuration", fontWeight = FontWeight.Bold)
+                Text(stringResource(R.string.section_complication_config), fontWeight = FontWeight.Bold)
             }
         }
 
         item {
             ListHeader {
-                Text("Display Currency", fontWeight = FontWeight.Bold)
+                Text(stringResource(R.string.section_tile_currency), fontWeight = FontWeight.Bold)
             }
         }
 
@@ -139,7 +149,7 @@ fun TileComplicationConfigScreen(
 
         item {
             ListHeader {
-                Text("Display Mode", fontWeight = FontWeight.Bold)
+                Text(stringResource(R.string.section_tile_mode), fontWeight = FontWeight.Bold)
             }
         }
 
@@ -149,7 +159,7 @@ fun TileComplicationConfigScreen(
                     modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp),
                     horizontalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
-                    row.forEach { (key, label) ->
+                    row.forEach { (key, labelRes) ->
                         Button(
                             onClick = { onComplicationModeChange(key) },
                             modifier = Modifier.weight(1f),
@@ -160,7 +170,7 @@ fun TileComplicationConfigScreen(
                                     MaterialTheme.colorScheme.secondaryContainer
                             )
                         ) {
-                            Text(label, maxLines = 1)
+                            Text(stringResource(labelRes), maxLines = 1)
                         }
                     }
                 }
@@ -170,7 +180,7 @@ fun TileComplicationConfigScreen(
         item {
             Spacer(modifier = Modifier.height(12.dp))
             Button(onClick = onBack) {
-                Text("Back")
+                Text(stringResource(R.string.back))
             }
         }
     }

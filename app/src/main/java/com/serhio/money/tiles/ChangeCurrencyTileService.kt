@@ -12,6 +12,7 @@ import com.serhio.money.data.settings.SettingsManager
 import com.serhio.money.domain.repository.CurrencyRepository
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.first
+import java.util.Locale
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -40,7 +41,7 @@ class ChangeCurrencyTileService : SuspendingTileService() {
                 0.0
             }
             val arrow = if (change > 0) "▲" else if (change < 0) "▼" else "—"
-            "$arrow ${String.format("%.2f", change)}%"
+            "$arrow ${String.format(Locale.ROOT, "%.2f", change)}%"
         } else {
             "--%"
         }

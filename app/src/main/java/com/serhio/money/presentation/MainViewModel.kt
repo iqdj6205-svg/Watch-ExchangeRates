@@ -69,7 +69,8 @@ class MainViewModel @Inject constructor(
 
                 _uiState.value = MainUiState.Success(
                     baseCurrency = currentBase,
-                    rates = rate.rates.filterKeys { it in currentInterested },
+                    rates = rate.rates,
+                    interestedCurrencies = currentInterested,
                     lastUpdate = rate.lastUpdate,
                     history = historyMap,
                     isFromCache = isFromCache
@@ -79,7 +80,7 @@ class MainViewModel @Inject constructor(
                     repository.saveRateToHistory(rate)
                 }
             } else {
-                val errorMsg = result.exceptionOrNull()?.message ?: "Unknown error"
+                val errorMsg = result.exceptionOrNull()?.message
                 _uiState.value = MainUiState.Error(errorMsg)
             }
         }
@@ -91,9 +92,10 @@ sealed class MainUiState {
     data class Success(
         val baseCurrency: String,
         val rates: Map<String, Double>,
+        val interestedCurrencies: Set<String>,
         val lastUpdate: Long,
         val history: Map<String, List<Double>> = emptyMap(),
         val isFromCache: Boolean = false
     ) : MainUiState()
-    data class Error(val message: String) : MainUiState()
+    data class Error(val message: String? = null) : MainUiState()
 }

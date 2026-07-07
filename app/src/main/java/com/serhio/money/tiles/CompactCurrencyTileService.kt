@@ -12,6 +12,7 @@ import com.serhio.money.data.settings.SettingsManager
 import com.serhio.money.domain.repository.CurrencyRepository
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.first
+import java.util.Locale
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -31,7 +32,7 @@ class CompactCurrencyTileService : SuspendingTileService() {
         val result = repository.fetchLatestRates(baseCurrency)
         val rateText = if (result.isSuccess) {
             val rate = result.getOrThrow().rates[target]
-            String.format("%.2f", rate ?: 0.0)
+            String.format(Locale.ROOT, "%.2f", rate ?: 0.0)
         } else {
             "--"
         }

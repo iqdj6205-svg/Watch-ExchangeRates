@@ -40,9 +40,13 @@ android {
     }
 
     buildTypes {
+        debug {
+            ndk { abiFilters += listOf("arm64-v8a", "armeabi-v7a", "x86") }
+        }
         release {
             isMinifyEnabled = true
             isShrinkResources = true
+            ndk { abiFilters += listOf("arm64-v8a", "armeabi-v7a") }
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -59,6 +63,10 @@ android {
         compose = true
         buildConfig = true
     }
+
+    lint {
+        disable += setOf("ChromeOsAbiSupport", "UnusedResources", "AndroidGradlePluginVersion", "GradleDependency")
+    }
 }
 
 dependencies {
@@ -74,6 +82,7 @@ dependencies {
     implementation(libs.androidx.wear.compose.material3)
     implementation(libs.androidx.wear.compose.foundation)
     implementation(libs.androidx.wear.compose.navigation)
+    implementation(libs.androidx.foundation)
     
     // Hilt
     implementation(libs.hilt.android)

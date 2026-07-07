@@ -11,22 +11,24 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.foundation.lazy.rememberScalingLazyListState
 import androidx.wear.compose.material3.*
+import com.serhio.money.R
 import java.text.SimpleDateFormat
 import java.util.*
 
-enum class ChartPeriod(val label: String, val millis: Long) {
-    DAY("24h", 24 * 60 * 60 * 1000L),
-    WEEK("7d", 7 * 24 * 60 * 60 * 1000L),
-    MONTH("30d", 30 * 24 * 60 * 60 * 1000L),
-    QUARTER("90d", 90 * 24 * 60 * 60 * 1000L),
-    YEAR("1y", 365 * 24 * 60 * 60 * 1000L),
-    ALL("All", Long.MAX_VALUE)
+enum class ChartPeriod(@androidx.annotation.StringRes val labelRes: Int, val millis: Long) {
+    DAY(R.string.period_24h, 24 * 60 * 60 * 1000L),
+    WEEK(R.string.period_7d, 7 * 24 * 60 * 60 * 1000L),
+    MONTH(R.string.period_30d, 30 * 24 * 60 * 60 * 1000L),
+    QUARTER(R.string.period_90d, 90 * 24 * 60 * 60 * 1000L),
+    YEAR(R.string.period_1y, 365 * 24 * 60 * 60 * 1000L),
+    ALL(R.string.period_all, Long.MAX_VALUE)
 }
 
 data class ChartDataPoint(
@@ -74,7 +76,7 @@ fun GraphsScreen(
                         ),
                         contentPadding = PaddingValues(horizontal = 16.dp, vertical = 0.dp)
                     ) {
-                        Text(period.label, fontSize = 12.sp)
+                        Text(stringResource(period.labelRes), fontSize = 12.sp)
                     }
                 }
             }
@@ -94,7 +96,9 @@ fun GraphsScreen(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
-                        text = "Change: ${String.format("%.4f", change)} (${String.format("%.2f", changePercent)}%)",
+                        text = stringResource(R.string.graph_change,
+                            String.format(Locale.ROOT, "%.4f", change),
+                            String.format(Locale.ROOT, "%.2f", changePercent)),
                         style = MaterialTheme.typography.labelSmall,
                         color = if (change >= 0) Color(0xFF4CAF50) else Color(0xFFF44336)
                     )
@@ -128,13 +132,15 @@ fun GraphsScreen(
                     Spacer(modifier = Modifier.height(4.dp))
 
                     Text(
-                        text = "High: ${String.format("%.4f", maxVal)}  Low: ${String.format("%.4f", minVal)}",
+                        text = stringResource(R.string.graph_high_low,
+                            String.format(Locale.ROOT, "%.4f", maxVal),
+                            String.format(Locale.ROOT, "%.4f", minVal)),
                         style = MaterialTheme.typography.labelSmall
                     )
                 }
             } else {
                 Text(
-                    text = "Not enough data for this period",
+                    text = stringResource(R.string.graph_no_data),
                     style = MaterialTheme.typography.bodySmall,
                     modifier = Modifier.padding(16.dp)
                 )
@@ -144,7 +150,7 @@ fun GraphsScreen(
         item {
             Spacer(modifier = Modifier.height(8.dp))
             Button(onClick = onBack) {
-                Text("Back")
+                Text(stringResource(R.string.back))
             }
         }
     }

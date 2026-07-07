@@ -3,6 +3,7 @@ package com.serhio.money.complications
 import androidx.wear.watchface.complications.data.*
 import androidx.wear.watchface.complications.datasource.ComplicationRequest
 import androidx.wear.watchface.complications.datasource.ComplicationDataSourceService
+import com.serhio.money.R
 import com.serhio.money.data.settings.SettingsManager
 import com.serhio.money.domain.repository.CurrencyRepository
 import dagger.hilt.android.AndroidEntryPoint
@@ -50,7 +51,7 @@ class CurrencyComplicationService : ComplicationDataSourceService() {
                 ComplicationType.LONG_TEXT -> LongTextComplicationData.Builder(
                     text = PlainComplicationText.Builder(text = "$target: $rateText").build(),
                     contentDescription = PlainComplicationText.Builder(text = "$target Exchange Rate").build()
-                ).setTitle(PlainComplicationText.Builder(text = "Currency").build())
+                ).setTitle(PlainComplicationText.Builder(text = getString(R.string.complication_title)).build())
                     .build()
 
                 ComplicationType.RANGED_VALUE -> RangedValueComplicationData.Builder(
@@ -65,7 +66,7 @@ class CurrencyComplicationService : ComplicationDataSourceService() {
                     monochromaticImage = MonochromaticImage.Builder(
                         image = android.graphics.drawable.Icon.createWithResource(
                             this@CurrencyComplicationService,
-                            com.serhio.money.R.drawable.ic_trending_up
+                            com.serhio.money.R.drawable.ic_exchange
                         )
                     ).build(),
                     contentDescription = PlainComplicationText.Builder(text = rateText).build()
@@ -79,10 +80,14 @@ class CurrencyComplicationService : ComplicationDataSourceService() {
 
     override fun getPreviewData(type: ComplicationType): ComplicationData? {
         return ShortTextComplicationData.Builder(
-            text = PlainComplicationText.Builder(text = "1.23").build(),
-            contentDescription = PlainComplicationText.Builder(text = "Preview").build()
-        ).setTitle(PlainComplicationText.Builder(text = "EUR").build())
+            text = PlainComplicationText.Builder(text = getString(R.string.complication_preview_value)).build(),
+            contentDescription = PlainComplicationText.Builder(text = getString(R.string.complication_preview_desc)).build()
+        ).setTitle(PlainComplicationText.Builder(text = target).build())
             .build()
+    }
+
+    private val target: String get() = runBlocking {
+        settingsManager.interestedCurrenciesFlow.first().firstOrNull() ?: "EUR"
     }
 
     override fun onDestroy() {

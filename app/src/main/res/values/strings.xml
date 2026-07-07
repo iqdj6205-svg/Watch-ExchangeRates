@@ -1,10 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Money Wear</string>
     <string name="tile_label">Currency Rate</string>
     <string name="complication_label">Currency Complication</string>
-    <string name="base_currency_setting">Base Currency</string>
-    <string name="interested_currencies_setting">Interested Currencies</string>
-    <string name="refresh_interval_setting">Refresh Interval</string>
-    <string name="unknown_error">Unknown Error Occurred</string>
-    <string name="network_error">Network Unavailable. Showing cached data.</string>
+
+    <!-- Main Screen -->
+    <string name="menu_settings">⚙ Settings</string>
+    <string name="menu_tiles">◻ Tiles &amp; Complication</string>
+    <string name="menu_refresh">↻ Refresh</string>
+    <string name="retry">Retry</string>
+    <string name="empty_currencies">Add currencies in Settings</string>
+    <string name="page_favorites">★ Favorites</string>
+    <string name="page_all">☆ All</string>
+    <string name="status_offline">Offline</string>
+    <string name="status_cached">Cached</string>
+
+    <!-- Settings Screen -->
+    <string name="section_base">Base</string>
+    <string name="section_interested">Interested</string>
+    <string name="section_interval">Interval</string>
+
+    <!-- Graphs Screen -->
+    <string name="graph_change">Change: %1$s (%2$s%%)</string>
+    <string name="graph_high_low">High: %1$s  Low: %2$s</string>
+    <string name="graph_no_data">Not enough data for this period</string>
+    <string name="back">Back</string>
+    <string name="period_24h">24h</string>
+    <string name="period_7d">7d</string>
+    <string name="period_30d">30d</string>
+    <string name="period_90d">90d</string>
+    <string name="period_1y">1y</string>
+    <string name="period_all">All</string>
+
+    <!-- Tile &amp; Complication Config -->
+    <string name="section_tile_config">Tile Configuration</string>
+    <string name="section_tile_currency">Display Currency</string>
+    <string name="section_tile_mode">Display Mode</string>
+    <string name="section_complication_config">Complication Configuration</string>
+    <string name="mode_rate">Rate</string>
+    <string name="mode_change_pct">Change %</string>
+    <string name="mode_arrow">Arrow</string>
+    <string name="mode_date">Date</string>
+
+    <!-- Complication -->
+    <string name="complication_title">Currency</string>
+    <string name="complication_preview_value">1.23</string>
+    <string name="complication_preview_desc">Preview</string>
+
+    <!-- Errors -->
+    <string name="unknown_error">Unknown error</string>
+    <string name="tile_error">Error</string>
 </resources>

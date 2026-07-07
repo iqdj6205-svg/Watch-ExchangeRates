@@ -8,10 +8,12 @@ import androidx.wear.protolayout.TimelineBuilders
 import androidx.wear.tiles.RequestBuilders
 import androidx.wear.tiles.TileBuilders
 import com.google.android.horologist.tiles.SuspendingTileService
+import com.serhio.money.R
 import com.serhio.money.data.settings.SettingsManager
 import com.serhio.money.domain.repository.CurrencyRepository
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.first
+import java.util.Locale
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -33,7 +35,7 @@ class MultiCurrencyTileService : SuspendingTileService() {
         if (result.isSuccess) {
             val rates = result.getOrThrow().rates
             interested.take(3).forEach { target ->
-                val valStr = String.format("%.2f", rates[target] ?: 0.0)
+                val valStr = String.format(Locale.ROOT, "%.2f", rates[target] ?: 0.0)
                 column.addContent(
                     LayoutElementBuilders.Text.Builder()
                         .setText("$target: $valStr")
@@ -42,7 +44,7 @@ class MultiCurrencyTileService : SuspendingTileService() {
             }
         } else {
             column.addContent(
-                LayoutElementBuilders.Text.Builder().setText("Error").build()
+                LayoutElementBuilders.Text.Builder().setText(getString(R.string.tile_error)).build()
             )
         }
 

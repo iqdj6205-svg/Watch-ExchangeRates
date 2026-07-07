@@ -9,8 +9,8 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
-import androidx.wear.compose.material3.MaterialTheme
 import androidx.wear.compose.navigation.SwipeDismissableNavHost
+import com.serhio.money.presentation.theme.MoneyTheme
 import androidx.wear.compose.navigation.composable
 import androidx.wear.compose.navigation.rememberSwipeDismissableNavController
 import com.serhio.money.data.settings.SettingsManager
@@ -45,7 +45,7 @@ class MainActivity : ComponentActivity() {
         }
 
         setContent {
-            MaterialTheme {
+            MoneyTheme {
                 val navController = rememberSwipeDismissableNavController()
 
                 SwipeDismissableNavHost(
