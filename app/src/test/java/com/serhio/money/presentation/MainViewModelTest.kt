@@ -40,7 +40,7 @@ class MainViewModelTest {
         networkMonitor = mockk()
 
         every { settingsManager.baseCurrencyFlow } returns flowOf("USD")
-        every { settingsManager.interestedCurrenciesFlow } returns flowOf(setOf("EUR", "PLN"))
+        every { settingsManager.interestedCurrenciesFlow } returns flowOf(listOf("EUR", "PLN"))
         every { networkMonitor.isOnline } returns flowOf(true)
     }
 

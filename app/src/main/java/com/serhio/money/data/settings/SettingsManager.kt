@@ -6,7 +6,6 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
-import androidx.datastore.preferences.core.stringSetPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
@@ -22,7 +21,7 @@ class SettingsManager @Inject constructor(
 ) {
     companion object {
         private val BASE_CURRENCY = stringPreferencesKey("base_currency")
-        private val INTERESTED_CURRENCIES = stringSetPreferencesKey("interested_currencies")
+        private val INTERESTED_CURRENCIES = stringPreferencesKey("interested_currencies_list")
         private val UPDATE_INTERVAL_MS = longPreferencesKey("update_interval_ms")
         private val LAST_UPDATE_TIMESTAMP = longPreferencesKey("last_update_timestamp")
     }
@@ -31,20 +30,21 @@ class SettingsManager @Inject constructor(
         preferences[BASE_CURRENCY] ?: "USD"
     }
 
-    val interestedCurrenciesFlow: Flow<Set<String>> = context.dataStore.data.map { preferences ->
-        preferences[INTERESTED_CURRENCIES] ?: setOf("EUR", "PLN", "UAH")
+    val interestedCurrenciesFlow: Flow<List<String>> = context.dataStore.data.map { preferences ->
+        val raw = preferences[INTERESTED_CURRENCIES] ?: "EUR,PLN,UAH"
+        raw.split(",").filter { it.isNotBlank() }
     }
 
     val updateIntervalFlow: Flow<Long> = context.dataStore.data.map { preferences ->
-        preferences[UPDATE_INTERVAL_MS] ?: (3600 * 1000L) // По умолчанию 1 час
+        preferences[UPDATE_INTERVAL_MS] ?: (3600 * 1000L)
     }
 
     suspend fun setBaseCurrency(currency: String) {
         context.dataStore.edit { it[BASE_CURRENCY] = currency }
     }
 
-    suspend fun setInterestedCurrencies(currencies: Set<String>) {
-        context.dataStore.edit { it[INTERESTED_CURRENCIES] = currencies }
+    suspend fun setInterestedCurrencies(currencies: List<String>) {
+        context.dataStore.edit { it[INTERESTED_CURRENCIES] = currencies.joinToString(",") }
     }
 
     suspend fun setUpdateInterval(intervalMs: Long) {

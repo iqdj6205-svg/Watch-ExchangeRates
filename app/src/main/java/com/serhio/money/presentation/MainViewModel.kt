@@ -48,7 +48,7 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    fun refreshRates(base: String? = null, interested: Set<String>? = null) {
+    fun refreshRates(base: String? = null, interested: List<String>? = null) {
         viewModelScope.launch {
             _uiState.value = MainUiState.Loading
 
@@ -92,7 +92,7 @@ sealed class MainUiState {
     data class Success(
         val baseCurrency: String,
         val rates: Map<String, Double>,
-        val interestedCurrencies: Set<String>,
+        val interestedCurrencies: List<String>,
         val lastUpdate: Long,
         val history: Map<String, List<Double>> = emptyMap(),
         val isFromCache: Boolean = false

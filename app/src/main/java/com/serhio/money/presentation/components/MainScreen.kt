@@ -3,6 +3,10 @@ package com.serhio.money.presentation.components
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
@@ -10,6 +14,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -31,7 +36,8 @@ fun MainScreen(
     onRefresh: () -> Unit,
     onOpenSettings: () -> Unit,
     onOpenTileConfig: () -> Unit = {},
-    onOpenGraphs: (String, String) -> Unit = { _, _ -> }
+    onOpenGraphs: (String, String) -> Unit = { _, _ -> },
+    onMoveCurrency: (String, Int) -> Unit = { _, _ -> }
 ) {
     when (uiState) {
         is MainUiState.Loading -> {
@@ -46,7 +52,8 @@ fun MainScreen(
                 onRefresh = onRefresh,
                 onOpenSettings = onOpenSettings,
                 onOpenTileConfig = onOpenTileConfig,
-                onOpenGraphs = onOpenGraphs
+                onOpenGraphs = onOpenGraphs,
+                onMoveCurrency = onMoveCurrency
             )
         }
         is MainUiState.Error -> {
@@ -77,18 +84,18 @@ private fun MainContent(
     onRefresh: () -> Unit,
     onOpenSettings: () -> Unit,
     onOpenTileConfig: () -> Unit,
-    onOpenGraphs: (String, String) -> Unit
+    onOpenGraphs: (String, String) -> Unit,
+    onMoveCurrency: (String, Int) -> Unit
 ) {
     val pagerState = rememberPagerState(pageCount = { 2 })
     var showMenu by remember { mutableStateOf(false) }
-    val dateFormat = remember { SimpleDateFormat("HH:mm", Locale.getDefault()) }
 
     Box(Modifier.fillMaxSize()) {
         HorizontalPager(
             state = pagerState,
             modifier = Modifier.fillMaxSize()
         ) { page ->
-            PageContent(page, state, isOnline, onOpenGraphs)
+            PageContent(page, state, isOnline, onOpenGraphs, onMoveCurrency)
         }
 
         Column(
@@ -144,13 +151,17 @@ private fun PageContent(
     page: Int,
     state: MainUiState.Success,
     isOnline: Boolean,
-    onOpenGraphs: (String, String) -> Unit
+    onOpenGraphs: (String, String) -> Unit,
+    onMoveCurrency: (String, Int) -> Unit
 ) {
     val entries = if (page == 0) {
-        state.rates.filterKeys { it in state.interestedCurrencies }.entries.toList()
+        state.interestedCurrencies
+            .mapNotNull { code -> state.rates[code]?.let { rate -> java.util.AbstractMap.SimpleEntry(code, rate) } }
     } else {
         state.rates.entries.toList()
     }
+
+    var selectedForReorder by remember { mutableStateOf<String?>(null) }
 
     ScalingLazyColumn(
         state = rememberScalingLazyListState(),
@@ -179,13 +190,23 @@ private fun PageContent(
 
         items(entries.size) { index ->
             val entry = entries[index]
+            val isSelected = selectedForReorder == entry.key
             CurrencyCard(
                 baseCurrency = state.baseCurrency,
                 currencyCode = entry.key,
                 rateValue = entry.value,
                 history = state.history[entry.key],
                 isFavorite = entry.key in state.interestedCurrencies,
-                onOpenGraphs = onOpenGraphs
+                onOpenGraphs = onOpenGraphs,
+                isReorderSelected = isSelected,
+                canMoveUp = isSelected && index > 0,
+                canMoveDown = isSelected && index < entries.size - 1,
+                onLongPress = if (page == 0 && state.interestedCurrencies.size > 1) {
+                    { selectedForReorder = if (isSelected) null else entry.key }
+                } else null,
+                onMove = { direction ->
+                    onMoveCurrency(entry.key, direction)
+                }
             )
         }
 
@@ -214,6 +235,7 @@ private fun PageContent(
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun CurrencyCard(
     baseCurrency: String,
@@ -221,7 +243,12 @@ private fun CurrencyCard(
     rateValue: Double,
     history: List<Double>?,
     isFavorite: Boolean,
-    onOpenGraphs: (String, String) -> Unit
+    onOpenGraphs: (String, String) -> Unit,
+    isReorderSelected: Boolean = false,
+    canMoveUp: Boolean = false,
+    canMoveDown: Boolean = false,
+    onLongPress: (() -> Unit)? = null,
+    onMove: (Int) -> Unit = {}
 ) {
     val reciprocal = 1.0 / rateValue
 
@@ -239,9 +266,19 @@ private fun CurrencyCard(
         else -> Color(0xFFF44336)
     }
 
-    Card(
-        onClick = { onOpenGraphs(baseCurrency, currencyCode) },
-        modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 4.dp)
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 8.dp, vertical = 4.dp)
+            .clip(RoundedCornerShape(12.dp))
+            .background(
+                if (isReorderSelected) MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)
+                else Color(0xFF2C2C2C)
+            )
+            .combinedClickable(
+                onClick = { onOpenGraphs(baseCurrency, currencyCode) },
+                onLongClick = onLongPress ?: {}
+            )
     ) {
         Column(Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 10.dp)) {
             Row(
@@ -297,19 +334,31 @@ private fun CurrencyCard(
                 }
 
                 Column(horizontalAlignment = Alignment.End) {
-                    if (change != null) {
-                        Text(
-                            if (change > 0) "\u25B2" else "\u25BC",
-                            color = changeColor, fontSize = 16.sp
-                        )
-                    }
-                    if (history != null && history.isNotEmpty()) {
-                        Spacer(Modifier.height(6.dp))
-                        SparklineChart(
-                            data = history,
-                            modifier = Modifier.width(56.dp).height(22.dp),
-                            color = changeColor
-                        )
+                    if (isReorderSelected) {
+                        Text("\u25B2",
+                            fontSize = 18.sp,
+                            color = if (canMoveUp) MaterialTheme.colorScheme.primary else Color.Gray,
+                            modifier = Modifier.clickable(enabled = canMoveUp) { onMove(-1) })
+                        Spacer(Modifier.height(2.dp))
+                        Text("\u25BC",
+                            fontSize = 18.sp,
+                            color = if (canMoveDown) MaterialTheme.colorScheme.primary else Color.Gray,
+                            modifier = Modifier.clickable(enabled = canMoveDown) { onMove(1) })
+                    } else {
+                        if (change != null) {
+                            Text(
+                                if (change > 0) "\u25B2" else "\u25BC",
+                                color = changeColor, fontSize = 16.sp
+                            )
+                        }
+                        if (history != null && history.isNotEmpty()) {
+                            Spacer(Modifier.height(6.dp))
+                            SparklineChart(
+                                data = history,
+                                modifier = Modifier.width(56.dp).height(22.dp),
+                                color = changeColor
+                            )
+                        }
                     }
                 }
             }

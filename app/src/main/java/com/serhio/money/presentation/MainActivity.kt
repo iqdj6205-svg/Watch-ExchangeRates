@@ -54,6 +54,7 @@ class MainActivity : ComponentActivity() {
                 ) {
                     composable(Screen.Main.route) {
                         val mainViewModel: MainViewModel = hiltViewModel()
+                        val settingsViewModel: SettingsViewModel = hiltViewModel()
                         val uiState by mainViewModel.uiState.collectAsState()
                         val isOnline by mainViewModel.isOnline.collectAsState()
                         MainScreen(
@@ -64,7 +65,8 @@ class MainActivity : ComponentActivity() {
                             onOpenTileConfig = { navController.navigate(Screen.TileConfig.route) },
                             onOpenGraphs = { base, target ->
                                 navController.navigate(Screen.Graphs.createRoute(base, target))
-                            }
+                            },
+                            onMoveCurrency = { code, dir -> settingsViewModel.moveCurrency(code, dir) }
                         )
                     }
                     composable(Screen.Settings.route) {

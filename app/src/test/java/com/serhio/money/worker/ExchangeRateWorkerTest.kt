@@ -24,7 +24,7 @@ class ExchangeRateWorkerTest {
         settingsManager = mockk()
 
         every { settingsManager.baseCurrencyFlow } returns flowOf("USD")
-        every { settingsManager.interestedCurrenciesFlow } returns flowOf(setOf("EUR", "PLN"))
+        every { settingsManager.interestedCurrenciesFlow } returns flowOf(listOf("EUR", "PLN"))
     }
 
     @Test

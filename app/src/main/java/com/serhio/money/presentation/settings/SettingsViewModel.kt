@@ -23,8 +23,8 @@ class SettingsViewModel @Inject constructor(
         viewModelScope, SharingStarted.WhileSubscribed(5000), "USD"
     )
 
-    val interestedCurrencies: StateFlow<Set<String>> = settingsManager.interestedCurrenciesFlow.stateIn(
-        viewModelScope, SharingStarted.WhileSubscribed(5000), setOf("EUR", "PLN", "UAH")
+    val interestedCurrencies: StateFlow<List<String>> = settingsManager.interestedCurrenciesFlow.stateIn(
+        viewModelScope, SharingStarted.WhileSubscribed(5000), listOf("EUR", "PLN", "UAH")
     )
 
     val updateInterval: StateFlow<Long> = settingsManager.updateIntervalFlow.stateIn(
@@ -46,12 +46,25 @@ class SettingsViewModel @Inject constructor(
 
     fun toggleInterestedCurrency(currency: String) {
         viewModelScope.launch {
-            val current = interestedCurrencies.value.toMutableSet()
+            val current = interestedCurrencies.value.toMutableList()
             if (current.contains(currency)) {
                 current.remove(currency)
             } else {
                 current.add(currency)
             }
+            settingsManager.setInterestedCurrencies(current)
+        }
+    }
+
+    fun moveCurrency(currency: String, direction: Int) {
+        viewModelScope.launch {
+            val current = interestedCurrencies.value.toMutableList()
+            val index = current.indexOf(currency)
+            if (index < 0) return@launch
+            val newIndex = (index + direction).coerceIn(0, current.size - 1)
+            if (newIndex == index) return@launch
+            current.removeAt(index)
+            current.add(newIndex, currency)
             settingsManager.setInterestedCurrencies(current)
         }
     }
