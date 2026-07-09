@@ -34,7 +34,7 @@ class CurrencyRepositoryImpl @Inject constructor(
             if (response.isSuccessful && response.body() != null) {
                 val dto = response.body()!!
                 val domainModel = mapper.toDomain(dto)
-                dao.insertHistoryRecords(mapper.toEntities(domainModel))
+                // Удалено автоматическое сохранение в БД всех курсов подряд
                 Result.success(domainModel)
             } else {
                 Timber.w("API error: ${response.code()} ${response.message()}")

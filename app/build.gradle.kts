@@ -21,12 +21,12 @@ val apiKey = localProperties.getProperty("EXCHANGE_RATE_API_KEY")
 
 android {
     namespace = "com.serhio.money"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.serhio.money"
         minSdk = 30
-        targetSdk = 34
+        targetSdk = 36
         versionCode = 1
         versionName = "1.0"
 
@@ -124,7 +124,9 @@ dependencies {
     implementation(libs.androidx.wear.tiles.material)
     implementation(libs.androidx.wear.protolayout)
     implementation(libs.androidx.wear.protolayout.material)
-    implementation(libs.androidx.wear.watchface.complications.datasource)
+    implementation(libs.androidx.wear.protolayout.material3)
+    implementation(libs.androidx.wear.watchface.complications.data.source)
+    implementation(libs.androidx.wear.watchface.complications.data.source.ktx)
 
     // Horologist
     implementation(libs.horologist.compose.layout)

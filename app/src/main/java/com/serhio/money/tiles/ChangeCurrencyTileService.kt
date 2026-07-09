@@ -2,9 +2,15 @@
 
 package com.serhio.money.tiles
 
+import android.content.Context
+import androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters
 import androidx.wear.protolayout.LayoutElementBuilders
 import androidx.wear.protolayout.ResourceBuilders
 import androidx.wear.protolayout.TimelineBuilders
+import androidx.wear.protolayout.material3.materialScope
+import androidx.wear.protolayout.material3.primaryLayout
+import androidx.wear.protolayout.material3.text
+import androidx.wear.protolayout.types.layoutString
 import androidx.wear.tiles.RequestBuilders
 import androidx.wear.tiles.TileBuilders
 import com.google.android.horologist.tiles.SuspendingTileService
@@ -28,34 +34,30 @@ class ChangeCurrencyTileService : SuspendingTileService() {
         val baseCurrency = settingsManager.baseCurrencyFlow.first()
         val interested = settingsManager.interestedCurrenciesFlow.first()
         val target = interested.firstOrNull() ?: "EUR"
-
+        
         val result = repository.fetchLatestRates(baseCurrency)
-        val changeText = if (result.isSuccess) {
-            val rate = result.getOrThrow()
-            val currentValue = rate.rates[target] ?: 0.0
-            val history = repository.getRecentHistory(baseCurrency, target, 2).first()
-            val change = if (history.size >= 2) {
-                val prev = history.last().rates[target] ?: currentValue
-                if (prev != 0.0) ((currentValue - prev) / prev * 100) else 0.0
-            } else {
-                0.0
-            }
-            val arrow = if (change > 0) "▲" else if (change < 0) "▼" else "—"
-            "$arrow ${String.format(Locale.ROOT, "%.2f", change)}%"
+        val history = repository.getRecentHistory(baseCurrency, target, 2).first()
+        
+        val changeText = if (history.size >= 2) {
+            val last = history[0].rates[target] ?: 0.0
+            val prev = history[1].rates[target] ?: 0.0
+            val diff = last - prev
+            val prefix = if (diff > 0) "+" else ""
+            String.format(Locale.US, "%s%.2f", prefix, diff)
         } else {
-            "--%"
+            "No data"
         }
 
         return TileBuilders.Tile.Builder()
             .setResourcesVersion("1")
-            .setFreshnessIntervalMillis(1800 * 1000)
+            .setFreshnessIntervalMillis(3600 * 1000)
             .setTileTimeline(
                 TimelineBuilders.Timeline.Builder()
                     .addTimelineEntry(
                         TimelineBuilders.TimelineEntry.Builder()
                             .setLayout(
                                 LayoutElementBuilders.Layout.Builder()
-                                    .setRoot(createLayout(target, changeText))
+                                    .setRoot(createLayout(this, requestParams.deviceConfiguration, target, changeText))
                                     .build()
                             )
                             .build()
@@ -65,10 +67,19 @@ class ChangeCurrencyTileService : SuspendingTileService() {
             .build()
     }
 
-    private fun createLayout(currency: String, change: String): LayoutElementBuilders.LayoutElement {
-        return LayoutElementBuilders.Text.Builder()
-            .setText("$currency $change")
-            .build()
+    private fun createLayout(
+        context: Context,
+        deviceConfiguration: DeviceParameters,
+        currency: String,
+        change: String
+    ): LayoutElementBuilders.LayoutElement {
+        return materialScope(context, deviceConfiguration) {
+            primaryLayout(
+                mainSlot = {
+                    text("$currency Change: $change".layoutString)
+                }
+            )
+        }
     }
 
     override suspend fun resourcesRequest(requestParams: RequestBuilders.ResourcesRequest): ResourceBuilders.Resources {

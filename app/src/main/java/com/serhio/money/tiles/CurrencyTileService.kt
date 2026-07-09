@@ -2,9 +2,15 @@
 
 package com.serhio.money.tiles
 
+import android.content.Context
+import androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters
 import androidx.wear.protolayout.LayoutElementBuilders
 import androidx.wear.protolayout.ResourceBuilders
 import androidx.wear.protolayout.TimelineBuilders
+import androidx.wear.protolayout.material3.materialScope
+import androidx.wear.protolayout.material3.primaryLayout
+import androidx.wear.protolayout.material3.text
+import androidx.wear.protolayout.types.layoutString
 import androidx.wear.tiles.RequestBuilders
 import androidx.wear.tiles.TileBuilders
 import com.google.android.horologist.tiles.SuspendingTileService
@@ -30,12 +36,8 @@ class CurrencyTileService : SuspendingTileService() {
         val target = interested.firstOrNull() ?: "EUR"
         
         val result = repository.fetchLatestRates(baseCurrency)
-        val rateText = if (result.isSuccess) {
-            val rate = result.getOrThrow().rates[target]
-            String.format(Locale.ROOT, "%.2f", rate ?: 0.0)
-        } else {
-            "--"
-        }
+        val rateValue = result.getOrNull()?.rates?.get(target) ?: 0.0
+        val rateText = String.format(Locale.US, "%.2f", rateValue)
 
         return TileBuilders.Tile.Builder()
             .setResourcesVersion("1")
@@ -46,7 +48,7 @@ class CurrencyTileService : SuspendingTileService() {
                         TimelineBuilders.TimelineEntry.Builder()
                             .setLayout(
                                 LayoutElementBuilders.Layout.Builder()
-                                    .setRoot(createLayout(target, rateText))
+                                    .setRoot(createLayout(this, requestParams.deviceConfiguration, target, rateText))
                                     .build()
                             )
                             .build()
@@ -56,10 +58,19 @@ class CurrencyTileService : SuspendingTileService() {
             .build()
     }
 
-    private fun createLayout(currency: String, rate: String): LayoutElementBuilders.LayoutElement {
-        return LayoutElementBuilders.Text.Builder()
-            .setText("$currency: $rate")
-            .build()
+    private fun createLayout(
+        context: Context,
+        deviceConfiguration: DeviceParameters,
+        currency: String,
+        rate: String
+    ): LayoutElementBuilders.LayoutElement {
+        return materialScope(context, deviceConfiguration) {
+            primaryLayout(
+                mainSlot = {
+                    text("$currency: $rate".layoutString)
+                }
+            )
+        }
     }
 
     override suspend fun resourcesRequest(requestParams: RequestBuilders.ResourcesRequest): ResourceBuilders.Resources {

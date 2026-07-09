@@ -1,6 +1,12 @@
 package com.serhio.money.presentation.components
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -238,6 +244,7 @@ private fun PageContent(
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun CurrencyCard(
+    modifier: Modifier = Modifier,
     baseCurrency: String,
     currencyCode: String,
     rateValue: Double,
@@ -250,7 +257,7 @@ private fun CurrencyCard(
     onLongPress: (() -> Unit)? = null,
     onMove: (Int) -> Unit = {}
 ) {
-    val reciprocal = 1.0 / rateValue
+    val reciprocal = if (rateValue != 0.0) 1.0 / rateValue else 0.0
 
     val change = if (history != null && history.size >= 2) {
         history.last() - history[history.size - 2]
@@ -266,13 +273,41 @@ private fun CurrencyCard(
         else -> Color(0xFFF44336)
     }
 
+    val animatedRate by animateFloatAsState(
+        targetValue = rateValue.toFloat(),
+        animationSpec = tween(400)
+    )
+    val animatedRecip by animateFloatAsState(
+        targetValue = reciprocal.toFloat(),
+        animationSpec = tween(400)
+    )
+
+    val infiniteTransition = rememberInfiniteTransition(label = "pulse")
+    val pulseAlpha: Float by infiniteTransition.animateFloat(
+        initialValue = 0.06f,
+        targetValue = 0.18f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(600),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "pulseAlpha"
+    )
+
+    fun formatRate(v: Float): String {
+        return when {
+            v >= 100f -> String.format(Locale.ROOT, "%.1f", v)
+            v >= 1f -> String.format(Locale.ROOT, "%.4f", v)
+            else -> String.format(Locale.ROOT, "%.6f", v)
+        }
+    }
+
     Box(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = 8.dp, vertical = 4.dp)
             .clip(RoundedCornerShape(12.dp))
             .background(
-                if (isReorderSelected) MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)
+                if (isReorderSelected) MaterialTheme.colorScheme.primary.copy(alpha = pulseAlpha)
                 else Color(0xFF2C2C2C)
             )
             .combinedClickable(
@@ -314,20 +349,12 @@ private fun CurrencyCard(
             ) {
                 Column {
                     Text(
-                        "1 $baseCurrency = ${
-                            if (rateValue >= 100) String.format(Locale.ROOT, "%.1f", rateValue)
-                            else if (rateValue >= 1) String.format(Locale.ROOT, "%.4f", rateValue)
-                            else String.format(Locale.ROOT, "%.6f", rateValue)
-                        }",
+                        "1 $baseCurrency = ${formatRate(animatedRate)}",
                         fontSize = 13.sp
                     )
                     Spacer(Modifier.height(2.dp))
                     Text(
-                        "1 $currencyCode = ${
-                            if (reciprocal >= 100) String.format(Locale.ROOT, "%.1f", reciprocal)
-                            else if (reciprocal >= 1) String.format(Locale.ROOT, "%.4f", reciprocal)
-                            else String.format(Locale.ROOT, "%.6f", reciprocal)
-                        }",
+                        "1 $currencyCode = ${formatRate(animatedRecip)}",
                         fontSize = 11.sp,
                         color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
                     )
