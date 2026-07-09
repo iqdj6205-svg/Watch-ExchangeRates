@@ -50,6 +50,7 @@
             android:name=".tiles.CurrencyTileService"
             android:exported="true"
             android:label="@string/tile_label"
+            android:icon="@drawable/ic_exchange"
             android:permission="com.google.android.wearable.permission.BIND_TILE_INSTANCE">
             <intent-filter>
                 <action android:name="androidx.wear.tiles.action.BIND_TILE_SERVICE" />
@@ -63,6 +64,7 @@
             android:name=".tiles.MultiCurrencyTileService"
             android:exported="true"
             android:label="Multi Currency Tile"
+            android:icon="@drawable/ic_exchange"
             android:permission="com.google.android.wearable.permission.BIND_TILE_INSTANCE">
             <intent-filter>
                 <action android:name="androidx.wear.tiles.action.BIND_TILE_SERVICE" />
@@ -76,6 +78,7 @@
             android:name=".tiles.BigNumberCurrencyTileService"
             android:exported="true"
             android:label="Big Number Rate"
+            android:icon="@drawable/ic_exchange"
             android:permission="com.google.android.wearable.permission.BIND_TILE_INSTANCE">
             <intent-filter>
                 <action android:name="androidx.wear.tiles.action.BIND_TILE_SERVICE" />
@@ -89,6 +92,7 @@
             android:name=".tiles.CompactCurrencyTileService"
             android:exported="true"
             android:label="Compact Rate"
+            android:icon="@drawable/ic_exchange"
             android:permission="com.google.android.wearable.permission.BIND_TILE_INSTANCE">
             <intent-filter>
                 <action android:name="androidx.wear.tiles.action.BIND_TILE_SERVICE" />
@@ -102,6 +106,7 @@
             android:name=".tiles.ChangeCurrencyTileService"
             android:exported="true"
             android:label="Rate Change"
+            android:icon="@drawable/ic_exchange"
             android:permission="com.google.android.wearable.permission.BIND_TILE_INSTANCE">
             <intent-filter>
                 <action android:name="androidx.wear.tiles.action.BIND_TILE_SERVICE" />
@@ -115,6 +120,7 @@
             android:name=".complications.CurrencyComplicationService"
             android:exported="true"
             android:label="@string/complication_label"
+            android:icon="@drawable/ic_exchange"
             android:permission="com.google.android.wearable.permission.BIND_COMPLICATION_PROVIDER">
             <intent-filter>
                 <action android:name="android.support.wearable.complications.ACTION_COMPLICATION_UPDATE_REQUEST" />
