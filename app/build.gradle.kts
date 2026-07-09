@@ -35,6 +35,11 @@ android {
         buildConfigField("String", "API_KEY", "\"$apiKey\"")
     }
 
+    androidResources {
+        // Шаг 1: Оставляем только нужные локали
+        localeFilters += listOf("en", "ru")
+    }
+
     kotlin {
         jvmToolchain(17)
     }
@@ -54,6 +59,7 @@ android {
             signingConfig = signingConfigs.getByName("debug")
         }
     }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
@@ -62,6 +68,16 @@ android {
     buildFeatures {
         compose = true
         buildConfig = true
+    }
+
+    packaging {
+        // Шаг 5: Сжимаем DEX для уменьшения размера APK (совместимо с AGP 8+)
+        jniLibs {
+            useLegacyPackaging = true
+        }
+        resources {
+            excludes += "/META-INF/{AL2.0,LGPL2.1}"
+        }
     }
 
     lint {
@@ -104,7 +120,8 @@ dependencies {
 
     // Moshi
     implementation(libs.moshi)
-    implementation(libs.moshi.kotlin)
+    // Шаг 4: Используем только кодогенерацию
+    ksp(libs.moshi.kotlin.codegen)
 
     // WorkManager
     implementation(libs.androidx.work.runtime.ktx)
