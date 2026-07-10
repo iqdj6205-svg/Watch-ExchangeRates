@@ -11,7 +11,6 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.*
@@ -22,9 +21,9 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalView
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -323,22 +322,6 @@ private fun CurrencyCard(
                 onClick = onClick,
                 onLongClick = onLongPress ?: {}
             )
-            .pointerInput(isReorderSelected) {
-                if (!isReorderSelected) return@pointerInput
-                detectVerticalDragGestures(
-                    onDragEnd = { },
-                    onVerticalDrag = { change, dragAmount ->
-                        change.consume()
-                        if (dragAmount < -30f) {
-                            view.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
-                            onMove(-1)
-                        } else if (dragAmount > 30f) {
-                            view.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
-                            onMove(1)
-                        }
-                    }
-                )
-            }
     ) {
         Column(Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 10.dp)) {
             Row(
@@ -387,7 +370,37 @@ private fun CurrencyCard(
 
                 Column(horizontalAlignment = Alignment.End) {
                     if (isReorderSelected) {
-                        Text("\u2630", fontSize = 16.sp, color = MaterialTheme.colorScheme.primary)
+                        Box(
+                            modifier = Modifier
+                                .pointerInput(Unit) {
+                                    var moved = false
+                                    detectVerticalDragGestures(
+                                        onDragStart = { moved = false },
+                                        onDragEnd = { },
+                                        onVerticalDrag = { change, dragAmount ->
+                                            if (!moved) {
+                                                if (dragAmount < -30f) {
+                                                    change.consume()
+                                                    moved = true
+                                                    view.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
+                                                    onMove(-1)
+                                                } else if (dragAmount > 30f) {
+                                                    change.consume()
+                                                    moved = true
+                                                    view.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
+                                                    onMove(1)
+                                                }
+                                            } else {
+                                                change.consume()
+                                            }
+                                        }
+                                    )
+                                }
+                                .size(48.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text("\u2630", fontSize = 16.sp, color = MaterialTheme.colorScheme.primary)
+                        }
                     } else {
                         if (change != null) {
                             Text(
