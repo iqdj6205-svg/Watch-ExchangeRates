@@ -21,20 +21,19 @@ class ExchangeRateWorker @AssistedInject constructor(
 
     override suspend fun doWork(): Result {
         return try {
-            val baseCurrency = settingsManager.baseCurrencyFlow.first()
             val interestedCurrencies = settingsManager.interestedCurrenciesFlow.first()
             
-            Timber.d("Starting background update for $baseCurrency")
+            Timber.d("Starting background update")
             
-            val result = repository.fetchLatestRates(baseCurrency)
+            val result = repository.fetchLatestRates()
             
             if (result.isSuccess) {
                 val rate = result.getOrThrow()
                 // Фильтруем только интересующие валюты для истории, чтобы не забивать базу
                 val filteredRates = rate.rates.filterKeys { it in interestedCurrencies }
-                val filteredRate = rate.copy(rates = filteredRates)
+                val filteredRate = rate.copy(baseCurrency = "USD", rates = filteredRates)
                 
-                repository.saveRateToHistory(filteredRate)
+                repository.saveRates(filteredRate)
                 settingsManager.updateLastUpdateTimestamp(System.currentTimeMillis())
                 
                 Timber.d("Background update successful")

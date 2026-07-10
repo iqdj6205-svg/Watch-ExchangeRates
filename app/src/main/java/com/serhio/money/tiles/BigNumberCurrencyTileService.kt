@@ -25,8 +25,7 @@ class BigNumberCurrencyTileService : BaseCurrencyTileService() {
         val interested = settingsManager.interestedCurrenciesFlow.first()
         val target = interested.firstOrNull() ?: "EUR"
 
-        val result = repository.fetchLatestRates(baseCurrency)
-        val rateValue = result.getOrNull()?.rates?.get(target)
+        val rateValue = fetchRate(baseCurrency, target)
         val rateText = if (rateValue != null) {
             String.format(Locale.US, "%.2f", rateValue)
         } else {

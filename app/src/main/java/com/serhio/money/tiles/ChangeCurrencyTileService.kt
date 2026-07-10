@@ -24,17 +24,33 @@ class ChangeCurrencyTileService : BaseCurrencyTileService() {
         val interested = settingsManager.interestedCurrenciesFlow.first()
         val target = interested.firstOrNull() ?: "EUR"
 
-        val result = repository.fetchLatestRates(baseCurrency)
-        val history = repository.getRecentHistory(baseCurrency, target, 2).first()
-
-        val changeText = if (history.size >= 2) {
-            val last = history[0].rates[target] ?: 0.0
-            val prev = history[1].rates[target] ?: 0.0
-            val diff = last - prev
-            val prefix = if (diff > 0) "+" else ""
-            String.format(Locale.US, "%s%.2f", prefix, diff)
+        val changeText = if (baseCurrency == "USD") {
+            val history = repository.getRecentHistory("USD", target, 2).first()
+            if (history.size >= 2) {
+                val last = history[0].rates[target] ?: 0.0
+                val prev = history[1].rates[target] ?: 0.0
+                val diff = last - prev
+                val prefix = if (diff > 0) "+" else ""
+                String.format(Locale.US, "%s%.2f", prefix, diff)
+            } else {
+                null
+            }
         } else {
-            null
+            val targetHistory = repository.getRecentHistory("USD", target, 2).first()
+            val baseHistory = repository.getRecentHistory("USD", baseCurrency, 2).first()
+            if (targetHistory.size >= 2 && baseHistory.size >= 2) {
+                val lastTarget = targetHistory[0].rates[target] ?: 0.0
+                val lastBase = baseHistory[0].rates[baseCurrency] ?: 1.0
+                val prevTarget = targetHistory[1].rates[target] ?: 0.0
+                val prevBase = baseHistory[1].rates[baseCurrency] ?: 1.0
+                val last = lastTarget / lastBase
+                val prev = prevTarget / prevBase
+                val diff = last - prev
+                val prefix = if (diff > 0) "+" else ""
+                String.format(Locale.US, "%s%.2f", prefix, diff)
+            } else {
+                null
+            }
         }
 
         val layout = createLayout(this, requestParams.deviceConfiguration, target, changeText)

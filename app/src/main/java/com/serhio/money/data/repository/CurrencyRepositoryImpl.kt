@@ -22,6 +22,11 @@ class CurrencyRepositoryImpl @Inject constructor(
     private val networkMonitor: NetworkMonitor
 ) : CurrencyRepository {
 
+    override suspend fun fetchLatestRates(): Result<ExchangeRate> {
+        return fetchLatestRates("USD")
+    }
+
+    @Suppress("OVERRIDE_DEPRECATION")
     override suspend fun fetchLatestRates(baseCurrency: String): Result<ExchangeRate> {
         val isOnline = networkMonitor.isOnline.first()
 
@@ -102,6 +107,10 @@ class CurrencyRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun saveRates(rate: ExchangeRate) {
+        saveRateToHistory(rate)
+    }
+
     override suspend fun saveRateToHistory(rate: ExchangeRate) {
         rate.rates.forEach { (targetCurrency, value) ->
             val entity = CurrencyHistoryEntity(
@@ -113,6 +122,10 @@ class CurrencyRepositoryImpl @Inject constructor(
             )
             dao.insertHistoryRecord(entity)
         }
+    }
+
+    override fun getRecentHistory(target: String, limit: Int): Flow<List<ExchangeRate>> {
+        return getRecentHistory("USD", target, limit)
     }
 
     override suspend fun clearOldRecords(threshold: Long) {

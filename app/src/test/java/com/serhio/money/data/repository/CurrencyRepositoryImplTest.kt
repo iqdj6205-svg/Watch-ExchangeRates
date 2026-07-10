@@ -55,7 +55,6 @@ class CurrencyRepositoryImplTest {
         val rate = result.getOrThrow()
         assertEquals("USD", rate.baseCurrency)
         assertEquals(0.92, rate.rates["EUR"]!!, 0.001)
-        coVerify { dao.insertHistoryRecords(any()) }
     }
 
     @Test

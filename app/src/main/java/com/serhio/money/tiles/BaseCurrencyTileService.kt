@@ -22,8 +22,11 @@ abstract class BaseCurrencyTileService : SuspendingTileService() {
 
     protected suspend fun fetchRate(baseCurrency: String, target: String): Double? {
         return withContext(Dispatchers.IO) {
-            repository.fetchLatestRates(baseCurrency)
-                .getOrNull()?.rates?.get(target)
+            val result = repository.fetchLatestRates()
+            val usdRates = result.getOrNull()?.rates ?: return@withContext null
+            val baseRate = usdRates[baseCurrency] ?: return@withContext null
+            val targetRate = usdRates[target] ?: return@withContext null
+            targetRate / baseRate
         }
     }
 

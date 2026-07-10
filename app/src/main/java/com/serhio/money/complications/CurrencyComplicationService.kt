@@ -35,9 +35,12 @@ class CurrencyComplicationService : SuspendingComplicationDataSourceService() {
             val interested = settingsManager.interestedCurrenciesFlow.first()
             val target = interested.firstOrNull() ?: "EUR"
 
-            val result = repository.fetchLatestRates(baseCurrency)
-            val rateValue = if (result.isSuccess) {
-                result.getOrThrow().rates[target] ?: 0.0
+            val usdResult = repository.fetchLatestRates()
+            val rateValue = if (usdResult.isSuccess) {
+                val usdRates = usdResult.getOrThrow().rates
+                val baseRate = usdRates[baseCurrency] ?: 1.0
+                val targetRate = usdRates[target] ?: 0.0
+                targetRate / baseRate
             } else {
                 0.0
             }

@@ -13,6 +13,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
@@ -21,6 +22,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -32,6 +35,7 @@ import androidx.wear.compose.foundation.lazy.rememberScalingLazyListState
 import androidx.wear.compose.material3.*
 import com.serhio.money.R
 import com.serhio.money.presentation.MainUiState
+import android.view.HapticFeedbackConstants
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -171,7 +175,8 @@ private fun PageContent(
 
     ScalingLazyColumn(
         state = rememberScalingLazyListState(),
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally,
+        userScrollEnabled = selectedForReorder == null
     ) {
         if (entries.isEmpty() && page == 0) {
             item {
@@ -203,10 +208,14 @@ private fun PageContent(
                 rateValue = entry.value,
                 history = state.history[entry.key],
                 isFavorite = entry.key in state.interestedCurrencies,
-                onOpenGraphs = onOpenGraphs,
                 isReorderSelected = isSelected,
-                canMoveUp = isSelected && index > 0,
-                canMoveDown = isSelected && index < entries.size - 1,
+                onClick = {
+                    if (isSelected) {
+                        selectedForReorder = null
+                    } else {
+                        onOpenGraphs(state.baseCurrency, entry.key)
+                    }
+                },
                 onLongPress = if (page == 0 && state.interestedCurrencies.size > 1) {
                     { selectedForReorder = if (isSelected) null else entry.key }
                 } else null,
@@ -250,10 +259,8 @@ private fun CurrencyCard(
     rateValue: Double,
     history: List<Double>?,
     isFavorite: Boolean,
-    onOpenGraphs: (String, String) -> Unit,
+    onClick: () -> Unit,
     isReorderSelected: Boolean = false,
-    canMoveUp: Boolean = false,
-    canMoveDown: Boolean = false,
     onLongPress: (() -> Unit)? = null,
     onMove: (Int) -> Unit = {}
 ) {
@@ -293,6 +300,8 @@ private fun CurrencyCard(
         label = "pulseAlpha"
     )
 
+    val view = LocalView.current
+
     fun formatRate(v: Float): String {
         return when {
             v >= 100f -> String.format(Locale.ROOT, "%.1f", v)
@@ -311,9 +320,25 @@ private fun CurrencyCard(
                 else Color(0xFF2C2C2C)
             )
             .combinedClickable(
-                onClick = { onOpenGraphs(baseCurrency, currencyCode) },
+                onClick = onClick,
                 onLongClick = onLongPress ?: {}
             )
+            .pointerInput(isReorderSelected) {
+                if (!isReorderSelected) return@pointerInput
+                detectVerticalDragGestures(
+                    onDragEnd = { },
+                    onVerticalDrag = { change, dragAmount ->
+                        change.consume()
+                        if (dragAmount < -30f) {
+                            view.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
+                            onMove(-1)
+                        } else if (dragAmount > 30f) {
+                            view.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
+                            onMove(1)
+                        }
+                    }
+                )
+            }
     ) {
         Column(Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 10.dp)) {
             Row(
@@ -362,15 +387,7 @@ private fun CurrencyCard(
 
                 Column(horizontalAlignment = Alignment.End) {
                     if (isReorderSelected) {
-                        Text("\u25B2",
-                            fontSize = 18.sp,
-                            color = if (canMoveUp) MaterialTheme.colorScheme.primary else Color.Gray,
-                            modifier = Modifier.clickable(enabled = canMoveUp) { onMove(-1) })
-                        Spacer(Modifier.height(2.dp))
-                        Text("\u25BC",
-                            fontSize = 18.sp,
-                            color = if (canMoveDown) MaterialTheme.colorScheme.primary else Color.Gray,
-                            modifier = Modifier.clickable(enabled = canMoveDown) { onMove(1) })
+                        Text("\u2630", fontSize = 16.sp, color = MaterialTheme.colorScheme.primary)
                     } else {
                         if (change != null) {
                             Text(

@@ -56,14 +56,14 @@ class MainViewModelTest {
             rates = mapOf("EUR" to 0.92, "PLN" to 4.05),
             lastUpdate = System.currentTimeMillis()
         )
-        coEvery { repository.fetchLatestRates("USD") } returns Result.success(exchangeRate)
+        coEvery { repository.fetchLatestRates() } returns Result.success(exchangeRate)
         coEvery { repository.getRecentHistory("USD", "EUR", 50) } returns flowOf(
             listOf(ExchangeRate("USD", mapOf("EUR" to 0.92), 1000L))
         )
         coEvery { repository.getRecentHistory("USD", "PLN", 50) } returns flowOf(
             listOf(ExchangeRate("USD", mapOf("PLN" to 4.05), 1000L))
         )
-        coEvery { repository.saveRateToHistory(any()) } returns Unit
+        coEvery { repository.saveRates(any()) } returns Unit
 
         viewModel = MainViewModel(repository, settingsManager, networkMonitor)
         advanceUntilIdle()
@@ -79,7 +79,7 @@ class MainViewModelTest {
 
     @Test
     fun `uiState is Error when repository fails`() = runTest {
-        coEvery { repository.fetchLatestRates("USD") } returns Result.failure(Exception("API Error"))
+        coEvery { repository.fetchLatestRates() } returns Result.failure(Exception("API Error"))
 
         viewModel = MainViewModel(repository, settingsManager, networkMonitor)
         advanceUntilIdle()
@@ -96,14 +96,14 @@ class MainViewModelTest {
             rates = mapOf("EUR" to 0.92),
             lastUpdate = System.currentTimeMillis()
         )
-        coEvery { repository.fetchLatestRates("USD") } returns Result.success(exchangeRate)
+        coEvery { repository.fetchLatestRates() } returns Result.success(exchangeRate)
         coEvery { repository.getRecentHistory("USD", "EUR", 50) } returns flowOf(
             listOf(ExchangeRate("USD", mapOf("EUR" to 0.92), 1000L))
         )
         coEvery { repository.getRecentHistory("USD", "PLN", 50) } returns flowOf(
             listOf(ExchangeRate("USD", mapOf("PLN" to 4.05), 1000L))
         )
-        coEvery { repository.saveRateToHistory(any()) } returns Unit
+        coEvery { repository.saveRates(any()) } returns Unit
 
         viewModel = MainViewModel(repository, settingsManager, networkMonitor)
         advanceUntilIdle()
