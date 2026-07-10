@@ -2,7 +2,6 @@ import java.util.Properties
 
 plugins {
     alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.hilt)
     alias(libs.plugins.ksp)
@@ -21,12 +20,12 @@ val apiKey = localProperties.getProperty("EXCHANGE_RATE_API_KEY")
 
 android {
     namespace = "com.serhio.money"
-    compileSdk = 36
+    compileSdk = 37
 
     defaultConfig {
         applicationId = "com.serhio.money"
         minSdk = 30
-        targetSdk = 36
+        targetSdk = 37
         versionCode = 1
         versionName = "1.0"
 
@@ -38,10 +37,6 @@ android {
     androidResources {
         // Шаг 1: Оставляем только нужные локали
         localeFilters += listOf("en", "ru")
-    }
-
-    kotlin {
-        jvmToolchain(17)
     }
 
     buildTypes {
@@ -83,6 +78,10 @@ android {
     lint {
         disable += setOf("ChromeOsAbiSupport", "UnusedResources", "AndroidGradlePluginVersion", "GradleDependency")
     }
+}
+
+kotlin {
+    jvmToolchain(17)
 }
 
 dependencies {
