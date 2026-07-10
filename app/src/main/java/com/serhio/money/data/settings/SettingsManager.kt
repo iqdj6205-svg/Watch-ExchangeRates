@@ -24,6 +24,11 @@ class SettingsManager @Inject constructor(
         private val INTERESTED_CURRENCIES = stringPreferencesKey("interested_currencies_list")
         private val UPDATE_INTERVAL_MS = longPreferencesKey("update_interval_ms")
         private val LAST_UPDATE_TIMESTAMP = longPreferencesKey("last_update_timestamp")
+
+        private val tileDisplayCurrency = stringPreferencesKey("tile_display_currency")
+        private val tileDisplayMode = stringPreferencesKey("tile_display_mode")
+        private val complicationDisplayCurrency = stringPreferencesKey("complication_display_currency")
+        private val complicationDisplayMode = stringPreferencesKey("complication_display_mode")
     }
 
     val baseCurrencyFlow: Flow<String> = context.dataStore.data.map { preferences ->
@@ -37,6 +42,22 @@ class SettingsManager @Inject constructor(
 
     val updateIntervalFlow: Flow<Long> = context.dataStore.data.map { preferences ->
         preferences[UPDATE_INTERVAL_MS] ?: (3600 * 1000L)
+    }
+
+    val tileDisplayCurrencyFlow: Flow<String> = context.dataStore.data.map { preferences ->
+        preferences[tileDisplayCurrency] ?: "EUR"
+    }
+
+    val tileDisplayModeFlow: Flow<String> = context.dataStore.data.map { preferences ->
+        preferences[tileDisplayMode] ?: "rate"
+    }
+
+    val complicationDisplayCurrencyFlow: Flow<String> = context.dataStore.data.map { preferences ->
+        preferences[complicationDisplayCurrency] ?: "EUR"
+    }
+
+    val complicationDisplayModeFlow: Flow<String> = context.dataStore.data.map { preferences ->
+        preferences[complicationDisplayMode] ?: "rate"
     }
 
     suspend fun setBaseCurrency(currency: String) {
@@ -53,5 +74,21 @@ class SettingsManager @Inject constructor(
 
     suspend fun updateLastUpdateTimestamp(timestamp: Long) {
         context.dataStore.edit { it[LAST_UPDATE_TIMESTAMP] = timestamp }
+    }
+
+    suspend fun setTileDisplayCurrency(currency: String) {
+        context.dataStore.edit { it[tileDisplayCurrency] = currency }
+    }
+
+    suspend fun setTileDisplayMode(mode: String) {
+        context.dataStore.edit { it[tileDisplayMode] = mode }
+    }
+
+    suspend fun setComplicationDisplayCurrency(currency: String) {
+        context.dataStore.edit { it[complicationDisplayCurrency] = currency }
+    }
+
+    suspend fun setComplicationDisplayMode(mode: String) {
+        context.dataStore.edit { it[complicationDisplayMode] = mode }
     }
 }

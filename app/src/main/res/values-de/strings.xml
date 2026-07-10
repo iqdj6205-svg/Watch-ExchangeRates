@@ -33,6 +33,7 @@
     <string name="section_tile_currency">Anzeigewährung</string>
     <string name="section_tile_mode">Anzeigemodus</string>
     <string name="section_complication_config">Komplikationskonfiguration</string>
+    <string name="section_complication_currency">Komplikationswährung</string>
     <string name="mode_rate">Kurs</string>
     <string name="mode_change_pct">Änderung %</string>
     <string name="mode_arrow">Pfeil</string>

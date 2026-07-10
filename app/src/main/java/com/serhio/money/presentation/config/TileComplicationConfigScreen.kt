@@ -119,7 +119,7 @@ fun TileComplicationConfigScreen(
 
         item {
             ListHeader {
-                Text(stringResource(R.string.section_tile_currency), fontWeight = FontWeight.Bold)
+                Text(stringResource(R.string.section_complication_currency), fontWeight = FontWeight.Bold)
             }
         }
 

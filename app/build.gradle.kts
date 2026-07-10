@@ -139,6 +139,7 @@ dependencies {
     // Wear OS Tiles & Complications
     implementation(libs.androidx.wear.tiles)
     implementation(libs.androidx.wear.tiles.material)
+    implementation(libs.androidx.wear.tiles.renderer)
     implementation(libs.androidx.wear.protolayout)
     implementation(libs.androidx.wear.protolayout.material)
     implementation(libs.androidx.wear.protolayout.material3)
@@ -157,6 +158,7 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.ui.test.junit4)
+    androidTestImplementation(libs.androidx.wear.tiles.testing)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 }

@@ -33,6 +33,7 @@
     <string name="section_tile_currency">Devise</string>
     <string name="section_tile_mode">Mode d\'affichage</string>
     <string name="section_complication_config">Configuration de la complication</string>
+    <string name="section_complication_currency">Devise de complication</string>
     <string name="mode_rate">Taux</string>
     <string name="mode_change_pct">Variation %</string>
     <string name="mode_arrow">Flèche</string>

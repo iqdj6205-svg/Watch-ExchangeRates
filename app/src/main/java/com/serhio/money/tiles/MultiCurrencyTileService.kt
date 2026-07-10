@@ -6,54 +6,28 @@ import android.content.Context
 import androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters
 import androidx.wear.protolayout.LayoutElementBuilders
 import androidx.wear.protolayout.ResourceBuilders
-import androidx.wear.protolayout.TimelineBuilders
 import androidx.wear.protolayout.material3.materialScope
 import androidx.wear.protolayout.material3.primaryLayout
 import androidx.wear.protolayout.material3.text
 import androidx.wear.protolayout.types.layoutString
 import androidx.wear.tiles.RequestBuilders
 import androidx.wear.tiles.TileBuilders
-import com.google.android.horologist.tiles.SuspendingTileService
-import com.serhio.money.data.settings.SettingsManager
-import com.serhio.money.domain.repository.CurrencyRepository
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.first
 import java.util.Locale
-import javax.inject.Inject
 
 @AndroidEntryPoint
-class MultiCurrencyTileService : SuspendingTileService() {
+class MultiCurrencyTileService : BaseCurrencyTileService() {
 
-    @Inject
-    lateinit var repository: CurrencyRepository
-
-    @Inject
-    lateinit var settingsManager: SettingsManager
-
-    override suspend fun tileRequest(requestParams: RequestBuilders.TileRequest): TileBuilders.Tile {
+    override suspend fun buildTile(requestParams: RequestBuilders.TileRequest): TileBuilders.Tile {
         val baseCurrency = settingsManager.baseCurrencyFlow.first()
         val interested = settingsManager.interestedCurrenciesFlow.first()
-        
+
         val result = repository.fetchLatestRates(baseCurrency)
         val rates = result.getOrNull()?.rates ?: emptyMap()
 
-        return TileBuilders.Tile.Builder()
-            .setResourcesVersion("1")
-            .setFreshnessIntervalMillis(3600 * 1000)
-            .setTileTimeline(
-                TimelineBuilders.Timeline.Builder()
-                    .addTimelineEntry(
-                        TimelineBuilders.TimelineEntry.Builder()
-                            .setLayout(
-                                LayoutElementBuilders.Layout.Builder()
-                                    .setRoot(createLayout(this, requestParams.deviceConfiguration, interested, rates))
-                                    .build()
-                            )
-                            .build()
-                    )
-                    .build()
-            )
-            .build()
+        val layout = createLayout(this, requestParams.deviceConfiguration, interested, rates)
+        return createTimeline(layout)
     }
 
     private fun createLayout(
@@ -66,10 +40,21 @@ class MultiCurrencyTileService : SuspendingTileService() {
             primaryLayout(
                 mainSlot = {
                     val column = LayoutElementBuilders.Column.Builder()
-                    interested.take(4).forEach { target ->
-                        val valStr = String.format(Locale.US, "%.2f", rates[target] ?: 0.0)
+                    val maxItems = if (interested.size > 4) 4 else interested.size
+                    interested.take(maxItems).forEach { target ->
+                        val rateValue = rates[target]
+                        val valStr = if (rateValue != null) {
+                            String.format(Locale.US, "%.2f", rateValue)
+                        } else {
+                            "No data"
+                        }
                         column.addContent(
                             text("$target: $valStr".layoutString)
+                        )
+                    }
+                    if (interested.size > 4) {
+                        column.addContent(
+                            text("+${interested.size - 4} more".layoutString)
                         )
                     }
                     column.build()

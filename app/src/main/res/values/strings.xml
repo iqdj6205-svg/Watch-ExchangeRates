@@ -37,6 +37,7 @@
     <string name="section_tile_currency">Display Currency</string>
     <string name="section_tile_mode">Display Mode</string>
     <string name="section_complication_config">Complication Configuration</string>
+    <string name="section_complication_currency">Complication Currency</string>
     <string name="mode_rate">Rate</string>
     <string name="mode_change_pct">Change %</string>
     <string name="mode_arrow">Arrow</string>

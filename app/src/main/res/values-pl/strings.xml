@@ -33,6 +33,7 @@
     <string name="section_tile_currency">Waluta</string>
     <string name="section_tile_mode">Tryb wyświetlania</string>
     <string name="section_complication_config">Konfiguracja komplikacji</string>
+    <string name="section_complication_currency">Waluta komplikacji</string>
     <string name="mode_rate">Kurs</string>
     <string name="mode_change_pct">Zmiana %</string>
     <string name="mode_arrow">Strzałka</string>

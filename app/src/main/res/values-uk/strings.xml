@@ -33,6 +33,7 @@
     <string name="section_tile_currency">Валюта</string>
     <string name="section_tile_mode">Режим</string>
     <string name="section_complication_config">Налаштування ускладнення</string>
+    <string name="section_complication_currency">Валюта ускладнення</string>
     <string name="mode_rate">Курс</string>
     <string name="mode_change_pct">Зміна %</string>
     <string name="mode_arrow">Стрілка</string>

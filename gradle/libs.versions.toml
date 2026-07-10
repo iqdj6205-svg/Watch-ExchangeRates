@@ -20,7 +20,9 @@ work = "2.10.0"
 datastore = "1.1.3"
 timber = "5.0.1"
 playServicesWearable = "19.0.0"
-tiles = "1.5.0-alpha06"
+tiles = "1.6.0"
+protolayout = "1.4.0"
+watchfaceComplications = "1.3.0"
 horologist = "0.7.15"
 splashscreen = "1.0.1"
 mockk = "1.13.14"
@@ -84,12 +86,14 @@ timber = { group = "com.jakewharton.timber", name = "timber", version.ref = "tim
 # Wear OS Tiles & Complications
 androidx-wear-tiles = { group = "androidx.wear.tiles", name = "tiles", version.ref = "tiles" }
 androidx-wear-tiles-material = { group = "androidx.wear.tiles", name = "tiles-material", version.ref = "tiles" }
-androidx-wear-protolayout = { group = "androidx.wear.protolayout", name = "protolayout", version = "1.3.0-alpha06" }
-androidx-wear-protolayout-material = { group = "androidx.wear.protolayout", name = "protolayout-material", version = "1.3.0-alpha06" }
-androidx-wear-protolayout-material3 = { group = "androidx.wear.protolayout", name = "protolayout-material3", version = "1.3.0-alpha06" }
-androidx-wear-watchface-complications-data-source = { group = "androidx.wear.watchface", name = "watchface-complications-data-source", version = "1.2.1" }
-androidx-wear-watchface-complications-data-source-ktx = { group = "androidx.wear.watchface", name = "watchface-complications-data-source-ktx", version = "1.2.1" }
+androidx-wear-protolayout = { group = "androidx.wear.protolayout", name = "protolayout", version.ref = "protolayout" }
+androidx-wear-protolayout-material = { group = "androidx.wear.protolayout", name = "protolayout-material", version.ref = "protolayout" }
+androidx-wear-protolayout-material3 = { group = "androidx.wear.protolayout", name = "protolayout-material3", version.ref = "protolayout" }
+androidx-wear-watchface-complications-data-source = { group = "androidx.wear.watchface", name = "watchface-complications-data-source", version.ref = "watchfaceComplications" }
+androidx-wear-watchface-complications-data-source-ktx = { group = "androidx.wear.watchface", name = "watchface-complications-data-source-ktx", version.ref = "watchfaceComplications" }
 play-services-wearable = { group = "com.google.android.gms", name = "play-services-wearable", version.ref = "playServicesWearable" }
+androidx-wear-tiles-renderer = { group = "androidx.wear.tiles", name = "tiles-renderer", version.ref = "tiles" }
+androidx-wear-tiles-testing = { group = "androidx.wear.tiles", name = "tiles-testing", version.ref = "tiles" }
 
 # Horologist
 horologist-compose-layout = { group = "com.google.android.horologist", name = "horologist-compose-layout", version.ref = "horologist" }
