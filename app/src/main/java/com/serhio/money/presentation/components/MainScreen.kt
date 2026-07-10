@@ -9,9 +9,9 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.pager.HorizontalPager
@@ -198,7 +198,7 @@ private fun PageContent(
             )
         }
 
-        items(entries.size) { index ->
+        items(entries.size, key = { entries[it].key }) { index ->
             val entry = entries[index]
             val isSelected = selectedForReorder == entry.key
             CurrencyCard(
@@ -249,7 +249,6 @@ private fun PageContent(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun CurrencyCard(
     modifier: Modifier = Modifier,
@@ -318,10 +317,39 @@ private fun CurrencyCard(
                 if (isReorderSelected) MaterialTheme.colorScheme.primary.copy(alpha = pulseAlpha)
                 else Color(0xFF2C2C2C)
             )
-            .combinedClickable(
-                onClick = onClick,
-                onLongClick = onLongPress ?: {}
-            )
+            .pointerInput(isReorderSelected, onClick, onLongPress, onMove) {
+                if (isReorderSelected) {
+                    val step = 64.dp.toPx()
+                    var accumulated = 0f
+                    detectVerticalDragGestures(
+                        onDragStart = {
+                            accumulated = 0f
+                            view.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
+                        },
+                        onDragEnd = { accumulated = 0f },
+                        onDragCancel = { accumulated = 0f },
+                        onVerticalDrag = { change, dragAmount ->
+                            change.consume()
+                            accumulated += dragAmount
+                            while (accumulated <= -step) {
+                                onMove(-1)
+                                accumulated += step
+                                view.performHapticFeedback(HapticFeedbackConstants.CLOCK_TICK)
+                            }
+                            while (accumulated >= step) {
+                                onMove(1)
+                                accumulated -= step
+                                view.performHapticFeedback(HapticFeedbackConstants.CLOCK_TICK)
+                            }
+                        }
+                    )
+                } else {
+                    detectTapGestures(
+                        onTap = { onClick() },
+                        onLongPress = { onLongPress?.invoke() }
+                    )
+                }
+            }
     ) {
         Column(Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 10.dp)) {
             Row(
@@ -369,53 +397,19 @@ private fun CurrencyCard(
                 }
 
                 Column(horizontalAlignment = Alignment.End) {
-                    if (isReorderSelected) {
-                        Box(
-                            modifier = Modifier
-                                .pointerInput(Unit) {
-                                    var moved = false
-                                    detectVerticalDragGestures(
-                                        onDragStart = { moved = false },
-                                        onDragEnd = { },
-                                        onVerticalDrag = { change, dragAmount ->
-                                            if (!moved) {
-                                                if (dragAmount < -30f) {
-                                                    change.consume()
-                                                    moved = true
-                                                    view.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
-                                                    onMove(-1)
-                                                } else if (dragAmount > 30f) {
-                                                    change.consume()
-                                                    moved = true
-                                                    view.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
-                                                    onMove(1)
-                                                }
-                                            } else {
-                                                change.consume()
-                                            }
-                                        }
-                                    )
-                                }
-                                .size(48.dp),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text("\u2630", fontSize = 16.sp, color = MaterialTheme.colorScheme.primary)
-                        }
-                    } else {
-                        if (change != null) {
-                            Text(
-                                if (change > 0) "\u25B2" else "\u25BC",
-                                color = changeColor, fontSize = 16.sp
-                            )
-                        }
-                        if (history != null && history.isNotEmpty()) {
-                            Spacer(Modifier.height(6.dp))
-                            SparklineChart(
-                                data = history,
-                                modifier = Modifier.width(56.dp).height(22.dp),
-                                color = changeColor
-                            )
-                        }
+                    if (change != null) {
+                        Text(
+                            if (change > 0) "\u25B2" else "\u25BC",
+                            color = changeColor, fontSize = 16.sp
+                        )
+                    }
+                    if (history != null && history.isNotEmpty()) {
+                        Spacer(Modifier.height(6.dp))
+                        SparklineChart(
+                            data = history,
+                            modifier = Modifier.width(56.dp).height(22.dp),
+                            color = changeColor
+                        )
                     }
                 }
             }

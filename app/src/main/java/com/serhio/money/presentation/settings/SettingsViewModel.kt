@@ -44,27 +44,31 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
+    private var pendingOrder: List<String>? = null
+
     fun toggleInterestedCurrency(currency: String) {
+        val current = (pendingOrder ?: interestedCurrencies.value).toMutableList()
+        if (current.contains(currency)) {
+            current.remove(currency)
+        } else {
+            current.add(currency)
+        }
+        pendingOrder = current
         viewModelScope.launch {
-            val current = interestedCurrencies.value.toMutableList()
-            if (current.contains(currency)) {
-                current.remove(currency)
-            } else {
-                current.add(currency)
-            }
             settingsManager.setInterestedCurrencies(current)
         }
     }
 
     fun moveCurrency(currency: String, direction: Int) {
+        val current = (pendingOrder ?: interestedCurrencies.value).toMutableList()
+        val index = current.indexOf(currency)
+        if (index < 0) return
+        val newIndex = (index + direction).coerceIn(0, current.size - 1)
+        if (newIndex == index) return
+        current.removeAt(index)
+        current.add(newIndex, currency)
+        pendingOrder = current
         viewModelScope.launch {
-            val current = interestedCurrencies.value.toMutableList()
-            val index = current.indexOf(currency)
-            if (index < 0) return@launch
-            val newIndex = (index + direction).coerceIn(0, current.size - 1)
-            if (newIndex == index) return@launch
-            current.removeAt(index)
-            current.add(newIndex, currency)
             settingsManager.setInterestedCurrencies(current)
         }
     }
