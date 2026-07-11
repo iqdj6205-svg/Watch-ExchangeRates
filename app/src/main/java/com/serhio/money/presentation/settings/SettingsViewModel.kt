@@ -59,17 +59,12 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
-    fun moveCurrency(currency: String, direction: Int) {
-        val current = (pendingOrder ?: interestedCurrencies.value).toMutableList()
-        val index = current.indexOf(currency)
-        if (index < 0) return
-        val newIndex = (index + direction).coerceIn(0, current.size - 1)
-        if (newIndex == index) return
-        current.removeAt(index)
-        current.add(newIndex, currency)
-        pendingOrder = current
+    fun reorderCurrencies(newOrder: List<String>) {
+        val existing = pendingOrder ?: interestedCurrencies.value
+        val merged = newOrder + existing.filter { it !in newOrder }
+        pendingOrder = merged
         viewModelScope.launch {
-            settingsManager.setInterestedCurrencies(current)
+            settingsManager.setInterestedCurrencies(merged)
         }
     }
 }

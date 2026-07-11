@@ -98,6 +98,8 @@ dependencies {
     implementation(libs.androidx.wear.compose.foundation)
     implementation(libs.androidx.wear.compose.navigation)
     implementation(libs.androidx.foundation)
+    implementation(libs.reorderable)
+    implementation(libs.androidx.foundation)
     
     // Hilt
     implementation(libs.hilt.android)

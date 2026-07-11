@@ -25,6 +25,7 @@ protolayout = "1.4.0"
 watchfaceComplications = "1.3.0"
 horologist = "0.7.15"
 splashscreen = "1.0.1"
+reorderable = "3.1.0"
 mockk = "1.13.14"
 
 [libraries]
@@ -99,6 +100,9 @@ androidx-wear-tiles-testing = { group = "androidx.wear.tiles", name = "tiles-tes
 horologist-compose-layout = { group = "com.google.android.horologist", name = "horologist-compose-layout", version.ref = "horologist" }
 horologist-tiles = { group = "com.google.android.horologist", name = "horologist-tiles", version.ref = "horologist" }
 androidx-core-splashscreen = { group = "androidx.core", name = "core-splashscreen", version.ref = "splashscreen" }
+
+# Reorderable
+reorderable = { module = "sh.calvin.reorderable:reorderable", version.ref = "reorderable" }
 
 # Testing
 mockk = { group = "io.mockk", name = "mockk", version.ref = "mockk" }

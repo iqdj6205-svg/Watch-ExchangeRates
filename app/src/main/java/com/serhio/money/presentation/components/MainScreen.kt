@@ -7,13 +7,16 @@ import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.detectDragGestures
-import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.gestures.detectVerticalDragGestures
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -21,10 +24,12 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -35,6 +40,8 @@ import androidx.wear.compose.material3.*
 import com.serhio.money.R
 import com.serhio.money.presentation.MainUiState
 import android.view.HapticFeedbackConstants
+import sh.calvin.reorderable.ReorderableItem
+import sh.calvin.reorderable.rememberReorderableLazyListState
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -46,7 +53,7 @@ fun MainScreen(
     onOpenSettings: () -> Unit,
     onOpenTileConfig: () -> Unit = {},
     onOpenGraphs: (String, String) -> Unit = { _, _ -> },
-    onMoveCurrency: (String, Int) -> Unit = { _, _ -> }
+    onReorderFavorites: (List<String>) -> Unit = { }
 ) {
     when (uiState) {
         is MainUiState.Loading -> {
@@ -62,7 +69,7 @@ fun MainScreen(
                 onOpenSettings = onOpenSettings,
                 onOpenTileConfig = onOpenTileConfig,
                 onOpenGraphs = onOpenGraphs,
-                onMoveCurrency = onMoveCurrency
+                onReorderFavorites = onReorderFavorites
             )
         }
         is MainUiState.Error -> {
@@ -94,7 +101,7 @@ private fun MainContent(
     onOpenSettings: () -> Unit,
     onOpenTileConfig: () -> Unit,
     onOpenGraphs: (String, String) -> Unit,
-    onMoveCurrency: (String, Int) -> Unit
+    onReorderFavorites: (List<String>) -> Unit
 ) {
     val pagerState = rememberPagerState(pageCount = { 2 })
     var showMenu by remember { mutableStateOf(false) }
@@ -104,7 +111,11 @@ private fun MainContent(
             state = pagerState,
             modifier = Modifier.fillMaxSize()
         ) { page ->
-            PageContent(page, state, isOnline, onOpenGraphs, onMoveCurrency)
+            if (page == 0) {
+                FavoritesPage(state, isOnline, onOpenGraphs, onReorderFavorites)
+            } else {
+                AllCurrenciesPage(state, isOnline, onOpenGraphs)
+            }
         }
 
         Column(
@@ -156,41 +167,101 @@ private fun MainContent(
 }
 
 @Composable
-private fun PageContent(
-    page: Int,
+private fun FavoritesPage(
     state: MainUiState.Success,
     isOnline: Boolean,
     onOpenGraphs: (String, String) -> Unit,
-    onMoveCurrency: (String, Int) -> Unit
+    onReorderFavorites: (List<String>) -> Unit
 ) {
-    val entries = if (page == 0) {
-        state.interestedCurrencies
-            .mapNotNull { code -> state.rates[code]?.let { rate -> java.util.AbstractMap.SimpleEntry(code, rate) } }
-    } else {
-        state.rates.entries.toList()
+    val view = LocalView.current
+    val displayed = state.interestedCurrencies.filter { state.rates.containsKey(it) }
+    var order by remember(displayed) { mutableStateOf(displayed) }
+
+    val lazyListState = rememberLazyListState()
+    val reorderState = rememberReorderableLazyListState(lazyListState) { from, to ->
+        order = order.toMutableList().apply { add(to.index - 1, removeAt(from.index - 1)) }
+        view.performHapticFeedback(HapticFeedbackConstants.CLOCK_TICK)
     }
 
-    var selectedForReorder by remember { mutableStateOf<String?>(null) }
-
-    ScalingLazyColumn(
-        state = rememberScalingLazyListState(),
+    LazyColumn(
+        state = lazyListState,
+        modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
-        userScrollEnabled = selectedForReorder == null
+        contentPadding = PaddingValues(top = 34.dp, bottom = 76.dp, start = 4.dp, end = 4.dp)
     ) {
-        if (entries.isEmpty() && page == 0) {
-            item {
-                Box(Modifier.fillMaxSize().padding(top = 60.dp), contentAlignment = Alignment.Center) {
+        item(key = "header") {
+            Text(
+                stringResource(R.string.page_favorites),
+                fontSize = 13.sp,
+                fontWeight = FontWeight.Medium,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.padding(bottom = 4.dp)
+            )
+        }
+
+        if (order.isEmpty()) {
+            item(key = "empty") {
+                Box(Modifier.fillMaxWidth().padding(top = 40.dp), contentAlignment = Alignment.Center) {
                     Text(stringResource(R.string.empty_currencies),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurface)
                 }
             }
-            return@ScalingLazyColumn
         }
 
+        items(order, key = { it }) { code ->
+            ReorderableItem(reorderState, key = code) { isDragging ->
+                val elevation by animateDpAsState(if (isDragging) 8.dp else 0.dp, label = "elevation")
+                val interactionSource = remember { MutableInteractionSource() }
+                CurrencyCard(
+                    modifier = Modifier
+                        .longPressDraggableHandle(
+                            onDragStarted = {
+                                view.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
+                            },
+                            onDragStopped = {
+                                view.performHapticFeedback(HapticFeedbackConstants.CONTEXT_CLICK)
+                                android.util.Log.d("REORDER_DBG", "stopped order=$order")
+                                onReorderFavorites(order)
+                            },
+                            interactionSource = interactionSource
+                        )
+                        .clickable(
+                            interactionSource = interactionSource,
+                            indication = null
+                        ) { onOpenGraphs(state.baseCurrency, code) },
+                    baseCurrency = state.baseCurrency,
+                    currencyCode = code,
+                    rateValue = state.rates[code] ?: 0.0,
+                    history = state.history[code],
+                    isFavorite = true,
+                    isDragging = isDragging,
+                    elevation = elevation
+                )
+            }
+        }
+
+        item(key = "footer") {
+            StatusFooter(isOnline = isOnline, isFromCache = state.isFromCache, lastUpdate = state.lastUpdate)
+        }
+    }
+}
+
+@Composable
+private fun AllCurrenciesPage(
+    state: MainUiState.Success,
+    isOnline: Boolean,
+    onOpenGraphs: (String, String) -> Unit
+) {
+    val entries = state.rates.entries.toList()
+
+    ScalingLazyColumn(
+        state = rememberScalingLazyListState(),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
         item {
             Text(
-                if (page == 0) stringResource(R.string.page_favorites) else stringResource(R.string.page_all),
+                stringResource(R.string.page_all),
                 fontSize = 13.sp,
                 fontWeight = FontWeight.Medium,
                 color = MaterialTheme.colorScheme.primary,
@@ -200,52 +271,43 @@ private fun PageContent(
 
         items(entries.size, key = { entries[it].key }) { index ->
             val entry = entries[index]
-            val isSelected = selectedForReorder == entry.key
             CurrencyCard(
+                modifier = Modifier.clickable { onOpenGraphs(state.baseCurrency, entry.key) },
                 baseCurrency = state.baseCurrency,
                 currencyCode = entry.key,
                 rateValue = entry.value,
                 history = state.history[entry.key],
-                isFavorite = entry.key in state.interestedCurrencies,
-                isReorderSelected = isSelected,
-                onClick = {
-                    if (isSelected) {
-                        selectedForReorder = null
-                    } else {
-                        onOpenGraphs(state.baseCurrency, entry.key)
-                    }
-                },
-                onLongPress = if (page == 0 && state.interestedCurrencies.size > 1) {
-                    { selectedForReorder = if (isSelected) null else entry.key }
-                } else null,
-                onMove = { direction ->
-                    onMoveCurrency(entry.key, direction)
-                }
+                isFavorite = entry.key in state.interestedCurrencies
             )
         }
 
         item {
-            val df = remember { SimpleDateFormat("HH:mm", Locale.getDefault()) }
-            Row(
-                Modifier.fillMaxWidth().padding(top = 6.dp, bottom = 2.dp),
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                if (!isOnline) {
-                    Text(stringResource(R.string.status_offline), color = MaterialTheme.colorScheme.error,
-                        fontSize = 9.sp, modifier = Modifier.padding(end = 4.dp))
-                } else if (state.isFromCache) {
-                    Text(stringResource(R.string.status_cached), color = MaterialTheme.colorScheme.tertiary,
-                        fontSize = 9.sp, modifier = Modifier.padding(end = 4.dp))
-                }
-                Text(df.format(Date(state.lastUpdate)),
-                    fontSize = 9.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f))
-            }
+            StatusFooter(isOnline = isOnline, isFromCache = state.isFromCache, lastUpdate = state.lastUpdate)
         }
 
         item {
             Spacer(Modifier.height(72.dp))
         }
+    }
+}
+
+@Composable
+private fun StatusFooter(isOnline: Boolean, isFromCache: Boolean, lastUpdate: Long) {
+    val df = remember { SimpleDateFormat("HH:mm", Locale.getDefault()) }
+    Row(
+        Modifier.fillMaxWidth().padding(top = 6.dp, bottom = 2.dp),
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        if (!isOnline) {
+            Text(stringResource(R.string.status_offline), color = MaterialTheme.colorScheme.error,
+                fontSize = 9.sp, modifier = Modifier.padding(end = 4.dp))
+        } else if (isFromCache) {
+            Text(stringResource(R.string.status_cached), color = MaterialTheme.colorScheme.tertiary,
+                fontSize = 9.sp, modifier = Modifier.padding(end = 4.dp))
+        }
+        Text(df.format(Date(lastUpdate)),
+            fontSize = 9.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f))
     }
 }
 
@@ -257,10 +319,8 @@ private fun CurrencyCard(
     rateValue: Double,
     history: List<Double>?,
     isFavorite: Boolean,
-    onClick: () -> Unit,
-    isReorderSelected: Boolean = false,
-    onLongPress: (() -> Unit)? = null,
-    onMove: (Int) -> Unit = {}
+    isDragging: Boolean = false,
+    elevation: androidx.compose.ui.unit.Dp = 0.dp
 ) {
     val reciprocal = if (rateValue != 0.0) 1.0 / rateValue else 0.0
 
@@ -287,19 +347,6 @@ private fun CurrencyCard(
         animationSpec = tween(400)
     )
 
-    val infiniteTransition = rememberInfiniteTransition(label = "pulse")
-    val pulseAlpha: Float by infiniteTransition.animateFloat(
-        initialValue = 0.06f,
-        targetValue = 0.18f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(600),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "pulseAlpha"
-    )
-
-    val view = LocalView.current
-
     fun formatRate(v: Float): String {
         return when {
             v >= 100f -> String.format(Locale.ROOT, "%.1f", v)
@@ -312,44 +359,13 @@ private fun CurrencyCard(
         modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = 8.dp, vertical = 4.dp)
+            .shadow(elevation, RoundedCornerShape(12.dp))
             .clip(RoundedCornerShape(12.dp))
             .background(
-                if (isReorderSelected) MaterialTheme.colorScheme.primary.copy(alpha = pulseAlpha)
+                if (isDragging) Color(0xFF3A3A3A)
                 else Color(0xFF2C2C2C)
             )
-            .pointerInput(isReorderSelected, onClick, onLongPress, onMove) {
-                if (isReorderSelected) {
-                    val step = 64.dp.toPx()
-                    var accumulated = 0f
-                    detectVerticalDragGestures(
-                        onDragStart = {
-                            accumulated = 0f
-                            view.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
-                        },
-                        onDragEnd = { accumulated = 0f },
-                        onDragCancel = { accumulated = 0f },
-                        onVerticalDrag = { change, dragAmount ->
-                            change.consume()
-                            accumulated += dragAmount
-                            while (accumulated <= -step) {
-                                onMove(-1)
-                                accumulated += step
-                                view.performHapticFeedback(HapticFeedbackConstants.CLOCK_TICK)
-                            }
-                            while (accumulated >= step) {
-                                onMove(1)
-                                accumulated -= step
-                                view.performHapticFeedback(HapticFeedbackConstants.CLOCK_TICK)
-                            }
-                        }
-                    )
-                } else {
-                    detectTapGestures(
-                        onTap = { onClick() },
-                        onLongPress = { onLongPress?.invoke() }
-                    )
-                }
-            }
+            .semantics { contentDescription = "card_$currencyCode" }
     ) {
         Column(Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 10.dp)) {
             Row(

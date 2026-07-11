@@ -66,7 +66,7 @@ class MainActivity : ComponentActivity() {
                             onOpenGraphs = { base, target ->
                                 navController.navigate(Screen.Graphs.createRoute(base, target))
                             },
-                            onMoveCurrency = { code, dir -> settingsViewModel.moveCurrency(code, dir) }
+                            onReorderFavorites = { newOrder -> settingsViewModel.reorderCurrencies(newOrder) }
                         )
                     }
                     composable(Screen.Settings.route) {
