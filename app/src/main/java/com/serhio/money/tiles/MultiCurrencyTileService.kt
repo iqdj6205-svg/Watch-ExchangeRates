@@ -23,16 +23,10 @@ class MultiCurrencyTileService : BaseCurrencyTileService() {
         val baseCurrency = settingsManager.baseCurrencyFlow.first()
         val interested = settingsManager.interestedCurrenciesFlow.first()
 
-        val usdResult = repository.fetchLatestRates()
-        val usdRates = usdResult.getOrNull()?.rates ?: emptyMap()
-        val baseRate = usdRates[baseCurrency] ?: 1.0
-        val displayRates = if (baseCurrency == "USD") {
-            usdRates
-        } else {
-            usdRates.mapValues { (_, v) -> v / baseRate }
-        }
+        val result = repository.fetchLatestRates(baseCurrency)
+        val rates = result.getOrNull()?.rates ?: emptyMap()
 
-        val layout = createLayout(this, requestParams.deviceConfiguration, interested, displayRates)
+        val layout = createLayout(this, requestParams.deviceConfiguration, interested, rates)
         return createTimeline(layout)
     }
 

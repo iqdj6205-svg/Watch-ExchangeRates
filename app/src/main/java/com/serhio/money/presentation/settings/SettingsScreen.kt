@@ -19,6 +19,7 @@ import androidx.wear.compose.foundation.lazy.rememberScalingLazyListState
 import androidx.wear.compose.material3.*
 import com.serhio.money.R
 import com.serhio.money.presentation.components.currencyFlag
+import com.serhio.money.presentation.theme.SubtextGray
 
 @Composable
 fun SettingsScreen(
@@ -62,17 +63,18 @@ fun SettingsScreen(
                     row.forEach { currency ->
                         val selected = currency == baseCurrency
                         val bg = if (selected) MaterialTheme.colorScheme.primary.copy(alpha = 0.15f) else Color.Transparent
-                        Row(
-                            modifier = Modifier
-                                .weight(1f)
-                                .clickable { viewModel.setBaseCurrency(currency) }
-                                .padding(horizontal = 8.dp, vertical = 8.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text("${currencyFlag(currency)} $currency",
-                                fontSize = 11.sp,
-                                fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal)
-                        }
+                    Row(
+                        modifier = Modifier
+                            .weight(1f)
+                            .clickable { viewModel.setBaseCurrency(currency) }
+                            .padding(horizontal = 8.dp, vertical = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text("${currencyFlag(currency)} $currency",
+                            fontSize = 11.sp,
+                            fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
+                            color = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface)
+                    }
                     }
                 }
             }
@@ -92,23 +94,24 @@ fun SettingsScreen(
                     row.forEach { currency ->
                         val selected = interestedCurrencies.contains(currency)
                         val bg = if (selected) MaterialTheme.colorScheme.primary.copy(alpha = 0.15f) else Color.Transparent
-                        Row(
-                            modifier = Modifier
-                                .weight(1f)
-                                .clickable { viewModel.toggleInterestedCurrency(currency) }
-                                .padding(horizontal = 8.dp, vertical = 8.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(
-                                if (selected) "\u2611" else "\u2610",
-                                fontSize = 14.sp,
-                                color = if (selected) MaterialTheme.colorScheme.primary else Color.White,
-                                modifier = Modifier.padding(end = 4.dp)
-                            )
-                            Text("${currencyFlag(currency)} $currency",
-                                fontSize = 11.sp,
-                                fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal)
-                        }
+                    Row(
+                        modifier = Modifier
+                            .weight(1f)
+                            .clickable { viewModel.toggleInterestedCurrency(currency) }
+                            .padding(horizontal = 8.dp, vertical = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            if (selected) "\u2611" else "\u2610",
+                            fontSize = 14.sp,
+                            color = if (selected) MaterialTheme.colorScheme.primary else SubtextGray,
+                            modifier = Modifier.padding(end = 4.dp)
+                        )
+                        Text("${currencyFlag(currency)} $currency",
+                            fontSize = 11.sp,
+                            fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
+                            color = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface)
+                    }
                     }
                 }
             }
@@ -147,7 +150,7 @@ fun SettingsScreen(
                         color = MaterialTheme.colorScheme.primary)
                     Text(" \u25BC",
                         fontSize = 10.sp,
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+                        color = SubtextGray,
                         modifier = Modifier.padding(start = 4.dp))
                 }
 
@@ -179,7 +182,8 @@ fun SettingsScreen(
                                     )
                                     Text(label,
                                         fontSize = 13.sp,
-                                        fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal)
+                                        fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
+                                        color = MaterialTheme.colorScheme.onSurface)
                                 }
                             }
                         }

@@ -4,9 +4,7 @@ import com.serhio.money.domain.model.ExchangeRate
 import kotlinx.coroutines.flow.Flow
 
 interface CurrencyRepository {
-    suspend fun fetchLatestRates(): Result<ExchangeRate>
-
-    @Deprecated("Use fetchLatestRates() without arguments - always fetches USD rates")
+    suspend fun fetchLatestRates(): Result<ExchangeRate> = fetchLatestRates("USD")
     suspend fun fetchLatestRates(baseCurrency: String): Result<ExchangeRate>
 
     fun getHistory(base: String, target: String): Flow<List<ExchangeRate>>

@@ -26,7 +26,6 @@ class CurrencyRepositoryImpl @Inject constructor(
         return fetchLatestRates("USD")
     }
 
-    @Suppress("OVERRIDE_DEPRECATION")
     override suspend fun fetchLatestRates(baseCurrency: String): Result<ExchangeRate> {
         val isOnline = networkMonitor.isOnline.first()
 

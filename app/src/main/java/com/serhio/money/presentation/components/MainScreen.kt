@@ -1,6 +1,9 @@
 package com.serhio.money.presentation.components
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.infiniteRepeatable
@@ -10,6 +13,8 @@ import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -19,13 +24,17 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
@@ -39,6 +48,7 @@ import androidx.wear.compose.foundation.lazy.rememberScalingLazyListState
 import androidx.wear.compose.material3.*
 import com.serhio.money.R
 import com.serhio.money.presentation.MainUiState
+import com.serhio.money.presentation.theme.SubtextGray
 import android.view.HapticFeedbackConstants
 import sh.calvin.reorderable.ReorderableItem
 import sh.calvin.reorderable.rememberReorderableLazyListState
@@ -53,13 +63,12 @@ fun MainScreen(
     onOpenSettings: () -> Unit,
     onOpenTileConfig: () -> Unit = {},
     onOpenGraphs: (String, String) -> Unit = { _, _ -> },
+    onOpenAlerts: () -> Unit = {},
     onReorderFavorites: (List<String>) -> Unit = { }
 ) {
     when (uiState) {
         is MainUiState.Loading -> {
-            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator()
-            }
+            SkeletonLoading()
         }
         is MainUiState.Success -> {
             MainContent(
@@ -69,6 +78,7 @@ fun MainScreen(
                 onOpenSettings = onOpenSettings,
                 onOpenTileConfig = onOpenTileConfig,
                 onOpenGraphs = onOpenGraphs,
+                onOpenAlerts = onOpenAlerts,
                 onReorderFavorites = onReorderFavorites
             )
         }
@@ -94,6 +104,74 @@ private fun ErrorContent(message: String?, onRetry: () -> Unit) {
 }
 
 @Composable
+private fun SkeletonLoading() {
+    val infiniteTransition = rememberInfiniteTransition(label = "skeleton")
+    val shimmerOffset by infiniteTransition.animateFloat(
+        initialValue = -200f,
+        targetValue = 600f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(1200, easing = LinearEasing),
+            repeatMode = RepeatMode.Restart
+        ),
+        label = "shimmer"
+    )
+
+    val shimmerBrush = Brush.linearGradient(
+        colors = listOf(
+            Color(0xFF1A1A1A),
+            Color(0xFF2A2A2A),
+            Color(0xFF1A1A1A)
+        ),
+        start = Offset(shimmerOffset, 0f),
+        end = Offset(shimmerOffset + 200f, 0f)
+    )
+
+    Column(
+        Modifier
+            .fillMaxSize()
+            .padding(top = 34.dp, start = 12.dp, end = 12.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            stringResource(R.string.page_favorites),
+            fontSize = 13.sp,
+            fontWeight = FontWeight.Medium,
+            color = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.padding(bottom = 8.dp)
+        )
+
+        repeat(3) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 4.dp)
+                    .height(70.dp)
+                    .clip(RoundedCornerShape(14.dp))
+                    .background(shimmerBrush)
+            )
+        }
+
+        Spacer(Modifier.height(16.dp))
+
+        Row(
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            CircularProgressIndicator(
+                modifier = Modifier.size(12.dp),
+                strokeWidth = 2.dp
+            )
+            Spacer(Modifier.width(8.dp))
+            Text(
+                stringResource(R.string.loading),
+                fontSize = 10.sp,
+                color = SubtextGray
+            )
+        }
+    }
+}
+
+@Composable
 private fun MainContent(
     state: MainUiState.Success,
     isOnline: Boolean,
@@ -101,6 +179,7 @@ private fun MainContent(
     onOpenSettings: () -> Unit,
     onOpenTileConfig: () -> Unit,
     onOpenGraphs: (String, String) -> Unit,
+    onOpenAlerts: () -> Unit,
     onReorderFavorites: (List<String>) -> Unit
 ) {
     val pagerState = rememberPagerState(pageCount = { 2 })
@@ -118,42 +197,74 @@ private fun MainContent(
             }
         }
 
+        Row(
+            Modifier
+                .align(Alignment.TopCenter)
+                .padding(top = 8.dp),
+            horizontalArrangement = Arrangement.spacedBy(6.dp)
+        ) {
+            repeat(2) { index ->
+                Box(
+                    modifier = Modifier
+                        .size(6.dp)
+                        .clip(CircleShape)
+                        .background(
+                            if (pagerState.currentPage == index)
+                                MaterialTheme.colorScheme.primary
+                            else
+                                MaterialTheme.colorScheme.outline
+                        )
+                )
+            }
+        }
+
         Column(
             Modifier.align(Alignment.BottomCenter).padding(bottom = 4.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             AnimatedVisibility(
                 visible = showMenu,
-                enter = fadeIn(),
-                exit = fadeOut()
+                enter = slideInVertically(initialOffsetY = { it }) + fadeIn(),
+                exit = slideOutVertically(targetOffsetY = { it }) + fadeOut()
             ) {
                 Card(
                     onClick = {},
                     modifier = Modifier.padding(bottom = 4.dp),
                     shape = RoundedCornerShape(16.dp)
                 ) {
-                    Column(Modifier.padding(vertical = 4.dp)) {
+                    Column(Modifier.padding(vertical = 6.dp)) {
                         TextButton(
                             onClick = { showMenu = false; onOpenSettings() },
-                            modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp)
+                            modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp)
                         ) {
                             Text(stringResource(R.string.menu_settings), modifier = Modifier.fillMaxWidth(),
-                                fontSize = 13.sp, textAlign = TextAlign.Start)
+                                fontSize = 13.sp, textAlign = TextAlign.Start,
+                                color = MaterialTheme.colorScheme.onSurface)
                         }
                         TextButton(
                             onClick = { showMenu = false; onOpenTileConfig() },
-                            modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp)
+                            modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp)
                         ) {
                             Text(stringResource(R.string.menu_tiles),
                                 modifier = Modifier.fillMaxWidth(), fontSize = 13.sp,
-                                textAlign = TextAlign.Start)
+                                textAlign = TextAlign.Start,
+                                color = MaterialTheme.colorScheme.onSurface)
                         }
                         TextButton(
                             onClick = { showMenu = false; onRefresh() },
-                            modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp)
+                            modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp)
                         ) {
                             Text(stringResource(R.string.menu_refresh), modifier = Modifier.fillMaxWidth(),
-                                fontSize = 13.sp, textAlign = TextAlign.Start)
+                                fontSize = 13.sp, textAlign = TextAlign.Start,
+                                color = MaterialTheme.colorScheme.onSurface)
+                        }
+                        TextButton(
+                            onClick = { showMenu = false; onOpenAlerts() },
+                            modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp)
+                        ) {
+                            Text(stringResource(R.string.menu_alerts), modifier = Modifier.fillMaxWidth(),
+                                fontSize = 13.sp, textAlign = TextAlign.Start,
+                                color = MaterialTheme.colorScheme.onSurface)
                         }
                     }
                 }
@@ -210,18 +321,35 @@ private fun FavoritesPage(
         }
 
         items(order, key = { it }) { code ->
+            val index = order.indexOf(code)
+            val animProgress = remember { Animatable(0f) }
+            LaunchedEffect(code) {
+                animProgress.snapTo(0f)
+                animProgress.animateTo(
+                    targetValue = 1f,
+                    animationSpec = tween(
+                        durationMillis = 300,
+                        delayMillis = index * 50,
+                        easing = LinearOutSlowInEasing
+                    )
+                )
+            }
+
             ReorderableItem(reorderState, key = code) { isDragging ->
                 val elevation by animateDpAsState(if (isDragging) 8.dp else 0.dp, label = "elevation")
                 val interactionSource = remember { MutableInteractionSource() }
                 CurrencyCard(
                     modifier = Modifier
+                        .graphicsLayer {
+                            alpha = animProgress.value
+                            translationY = (1f - animProgress.value) * 20f
+                        }
                         .longPressDraggableHandle(
                             onDragStarted = {
                                 view.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
                             },
                             onDragStopped = {
                                 view.performHapticFeedback(HapticFeedbackConstants.CONTEXT_CLICK)
-                                android.util.Log.d("REORDER_DBG", "stopped order=$order")
                                 onReorderFavorites(order)
                             },
                             interactionSource = interactionSource
@@ -271,8 +399,25 @@ private fun AllCurrenciesPage(
 
         items(entries.size, key = { entries[it].key }) { index ->
             val entry = entries[index]
+            val animProgress = remember { Animatable(0f) }
+            LaunchedEffect(entry.key) {
+                animProgress.snapTo(0f)
+                animProgress.animateTo(
+                    targetValue = 1f,
+                    animationSpec = tween(
+                        durationMillis = 300,
+                        delayMillis = index * 40,
+                        easing = LinearOutSlowInEasing
+                    )
+                )
+            }
             CurrencyCard(
-                modifier = Modifier.clickable { onOpenGraphs(state.baseCurrency, entry.key) },
+                modifier = Modifier
+                    .graphicsLayer {
+                        alpha = animProgress.value
+                        translationY = (1f - animProgress.value) * 20f
+                    }
+                    .clickable { onOpenGraphs(state.baseCurrency, entry.key) },
                 baseCurrency = state.baseCurrency,
                 currencyCode = entry.key,
                 rateValue = entry.value,
@@ -294,20 +439,33 @@ private fun AllCurrenciesPage(
 @Composable
 private fun StatusFooter(isOnline: Boolean, isFromCache: Boolean, lastUpdate: Long) {
     val df = remember { SimpleDateFormat("HH:mm", Locale.getDefault()) }
-    Row(
-        Modifier.fillMaxWidth().padding(top = 6.dp, bottom = 2.dp),
-        horizontalArrangement = Arrangement.Center,
-        verticalAlignment = Alignment.CenterVertically
+    Column(
+        Modifier
+            .fillMaxWidth()
+            .padding(top = 12.dp, bottom = 2.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        if (!isOnline) {
-            Text(stringResource(R.string.status_offline), color = MaterialTheme.colorScheme.error,
-                fontSize = 9.sp, modifier = Modifier.padding(end = 4.dp))
-        } else if (isFromCache) {
-            Text(stringResource(R.string.status_cached), color = MaterialTheme.colorScheme.tertiary,
-                fontSize = 9.sp, modifier = Modifier.padding(end = 4.dp))
+        Box(
+            Modifier
+                .width(40.dp)
+                .height(1.dp)
+                .background(MaterialTheme.colorScheme.outline.copy(alpha = 0.3f))
+        )
+        Spacer(Modifier.height(6.dp))
+        Row(
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            if (!isOnline) {
+                Text(stringResource(R.string.status_offline), color = MaterialTheme.colorScheme.error,
+                    fontSize = 9.sp, modifier = Modifier.padding(end = 4.dp))
+            } else if (isFromCache) {
+                Text(stringResource(R.string.status_cached), color = MaterialTheme.colorScheme.tertiary,
+                    fontSize = 9.sp, modifier = Modifier.padding(end = 4.dp))
+            }
+            Text(df.format(Date(lastUpdate)),
+                fontSize = 9.sp, color = SubtextGray)
         }
-        Text(df.format(Date(lastUpdate)),
-            fontSize = 9.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f))
     }
 }
 
@@ -359,11 +517,16 @@ private fun CurrencyCard(
         modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = 8.dp, vertical = 4.dp)
-            .shadow(elevation, RoundedCornerShape(12.dp))
-            .clip(RoundedCornerShape(12.dp))
+            .shadow(elevation, RoundedCornerShape(14.dp))
+            .clip(RoundedCornerShape(14.dp))
             .background(
-                if (isDragging) Color(0xFF3A3A3A)
-                else Color(0xFF2C2C2C)
+                Brush.verticalGradient(
+                    colors = if (isDragging) {
+                        listOf(Color(0xFF2A2A2A), Color(0xFF1E1E1E))
+                    } else {
+                        listOf(Color(0xFF1E1E1E), Color(0xFF161616))
+                    }
+                )
             )
             .semantics { contentDescription = "card_$currencyCode" }
     ) {
@@ -387,12 +550,21 @@ private fun CurrencyCard(
                         "${if (change > 0) "+" else ""}${String.format(Locale.ROOT, "%.2f", changePercent)}%",
                         color = changeColor,
                         style = MaterialTheme.typography.labelSmall,
-                        fontWeight = FontWeight.Medium
+                        fontWeight = FontWeight.Bold
                     )
                 }
             }
 
-            Spacer(Modifier.height(8.dp))
+            Spacer(Modifier.height(6.dp))
+
+            Box(
+                Modifier
+                    .fillMaxWidth()
+                    .height(1.dp)
+                    .background(MaterialTheme.colorScheme.outline.copy(alpha = 0.3f))
+            )
+
+            Spacer(Modifier.height(6.dp))
 
             Row(
                 Modifier.fillMaxWidth(),
@@ -402,13 +574,14 @@ private fun CurrencyCard(
                 Column {
                     Text(
                         "1 $baseCurrency = ${formatRate(animatedRate)}",
-                        fontSize = 13.sp
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.Medium
                     )
                     Spacer(Modifier.height(2.dp))
                     Text(
                         "1 $currencyCode = ${formatRate(animatedRecip)}",
                         fontSize = 11.sp,
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                        color = SubtextGray
                     )
                 }
 

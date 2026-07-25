@@ -7,12 +7,14 @@
     <string name="menu_settings">⚙ Paramètres</string>
     <string name="menu_tiles">◻ Tuiles &amp; complication</string>
     <string name="menu_refresh">↻ Actualiser</string>
+    <string name="menu_alerts">🔔 Alertes de taux</string>
     <string name="retry">Réessayer</string>
     <string name="empty_currencies">Ajoutez des devises dans les paramètres</string>
     <string name="page_favorites">★ Favoris</string>
     <string name="page_all">☆ Toutes</string>
     <string name="status_offline">Hors ligne</string>
     <string name="status_cached">En cache</string>
+    <string name="loading">Chargement…</string>
 
     <string name="section_base">Base</string>
     <string name="section_interested">Intéressantes</string>
@@ -45,4 +47,14 @@
 
     <string name="unknown_error">Erreur inconnue</string>
     <string name="tile_error">Erreur</string>
+
+    <string name="alerts_title">Alertes de taux</string>
+    <string name="alerts_empty">Aucune alerte</string>
+    <string name="alert_add">Ajouter</string>
+    <string name="alert_currency">Devise</string>
+    <string name="alert_rate">Taux cible</string>
+    <string name="alert_direction">Déclencher quand</string>
+    <string name="alert_triggered">Déclenché !</string>
+    <string name="cancel">Annuler</string>
+    <string name="confirm">Ajouter</string>
 </resources>

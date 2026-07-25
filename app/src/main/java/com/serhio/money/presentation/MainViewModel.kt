@@ -55,43 +55,23 @@ class MainViewModel @Inject constructor(
             val currentBase = base ?: settingsManager.baseCurrencyFlow.first()
             val currentInterested = interested ?: settingsManager.interestedCurrenciesFlow.first()
 
-            val result = repository.fetchLatestRates()
+            val result = repository.fetchLatestRates(currentBase)
 
             if (result.isSuccess) {
                 val rate = result.getOrThrow()
                 val isFromCache = rate.lastUpdate < System.currentTimeMillis() - 60000
 
-                val usdRates = rate.rates
-                val baseRate = usdRates[currentBase] ?: 1.0
-                val displayRates = if (currentBase == "USD") {
-                    usdRates
-                } else {
-                    usdRates.mapValues { (_, v) -> v / baseRate }
-                }
+                val rates = rate.rates
 
                 val historyMap = mutableMapOf<String, List<Double>>()
                 currentInterested.forEach { target ->
-                    if (currentBase == "USD") {
-                        val historyEntities = repository.getRecentHistory("USD", target, 50).first()
-                        historyMap[target] = historyEntities.mapNotNull { it.rates[target] }.reversed()
-                    } else {
-                        val targetHistory = repository.getRecentHistory("USD", target, 50).first()
-                        val baseHistory = repository.getRecentHistory("USD", currentBase, 50).first()
-                        val historyValues = targetHistory.mapNotNull { targetEntry ->
-                            val baseEntry = baseHistory.minByOrNull {
-                                kotlin.math.abs(it.lastUpdate - targetEntry.lastUpdate)
-                            }
-                            val br = baseEntry?.rates?.get(currentBase) ?: return@mapNotNull null
-                            val tr = targetEntry.rates[target] ?: return@mapNotNull null
-                            tr / br
-                        }
-                        historyMap[target] = historyValues.reversed()
-                    }
+                    val historyEntities = repository.getRecentHistory(currentBase, target, 50).first()
+                    historyMap[target] = historyEntities.mapNotNull { it.rates[target] }.reversed()
                 }
 
                 _uiState.value = MainUiState.Success(
                     baseCurrency = currentBase,
-                    rates = displayRates,
+                    rates = rates,
                     interestedCurrencies = currentInterested,
                     lastUpdate = rate.lastUpdate,
                     history = historyMap,

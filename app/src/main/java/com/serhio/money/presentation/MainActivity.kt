@@ -14,6 +14,8 @@ import com.serhio.money.presentation.theme.MoneyTheme
 import androidx.wear.compose.navigation.composable
 import androidx.wear.compose.navigation.rememberSwipeDismissableNavController
 import com.serhio.money.data.settings.SettingsManager
+import com.serhio.money.presentation.alerts.AlertsScreen
+import com.serhio.money.presentation.alerts.AlertsViewModel
 import com.serhio.money.presentation.components.MainScreen
 import com.serhio.money.presentation.config.TileComplicationConfigScreen
 import com.serhio.money.presentation.config.TileComplicationConfigViewModel
@@ -42,6 +44,7 @@ class MainActivity : ComponentActivity() {
         CoroutineScope(Dispatchers.IO).launch {
             val interval = settingsManager.updateIntervalFlow.first()
             WorkerUtils.schedulePeriodicUpdate(this@MainActivity, interval)
+            WorkerUtils.scheduleAlertCheck(this@MainActivity)
         }
 
         setContent {
@@ -63,6 +66,7 @@ class MainActivity : ComponentActivity() {
                             onRefresh = { mainViewModel.refreshRates() },
                             onOpenSettings = { navController.navigate(Screen.Settings.route) },
                             onOpenTileConfig = { navController.navigate(Screen.TileConfig.route) },
+                            onOpenAlerts = { navController.navigate(Screen.Alerts.route) },
                             onOpenGraphs = { base, target ->
                                 navController.navigate(Screen.Graphs.createRoute(base, target))
                             },
@@ -72,6 +76,10 @@ class MainActivity : ComponentActivity() {
                     composable(Screen.Settings.route) {
                         val settingsViewModel: SettingsViewModel = hiltViewModel()
                         SettingsScreen(viewModel = settingsViewModel)
+                    }
+                    composable(Screen.Alerts.route) {
+                        val alertsViewModel: AlertsViewModel = hiltViewModel()
+                        AlertsScreen(viewModel = alertsViewModel)
                     }
                     composable(Screen.TileConfig.route) {
                         val configViewModel: TileComplicationConfigViewModel = hiltViewModel()

@@ -7,12 +7,14 @@
     <string name="menu_settings">⚙ Ustawienia</string>
     <string name="menu_tiles">◻ Kafelki i komplikacje</string>
     <string name="menu_refresh">↻ Odśwież</string>
+    <string name="menu_alerts">🔔 Alerty kursowe</string>
     <string name="retry">Ponów</string>
     <string name="empty_currencies">Dodaj waluty w ustawieniach</string>
     <string name="page_favorites">★ Ulubione</string>
     <string name="page_all">☆ Wszystkie</string>
     <string name="status_offline">Offline</string>
     <string name="status_cached">Bufor</string>
+    <string name="loading">Ładowanie…</string>
 
     <string name="section_base">Bazowa</string>
     <string name="section_interested">Interesujące</string>
@@ -45,4 +47,14 @@
 
     <string name="unknown_error">Nieznany błąd</string>
     <string name="tile_error">Błąd</string>
+
+    <string name="alerts_title">Alerty kursowe</string>
+    <string name="alerts_empty">Brak alertów</string>
+    <string name="alert_add">Dodaj</string>
+    <string name="alert_currency">Waluta</string>
+    <string name="alert_rate">Kurs docelowy</string>
+    <string name="alert_direction">Uruchom przy</string>
+    <string name="alert_triggered">Uruchomiono!</string>
+    <string name="cancel">Anuluj</string>
+    <string name="confirm">Dodaj</string>
 </resources>

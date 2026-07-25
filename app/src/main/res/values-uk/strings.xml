@@ -7,12 +7,14 @@
     <string name="menu_settings">⚙ Налаштування</string>
     <string name="menu_tiles">◻ Плитки та ускладнення</string>
     <string name="menu_refresh">↻ Оновити</string>
+    <string name="menu_alerts">🔔 Оповіщення</string>
     <string name="retry">Повтор</string>
     <string name="empty_currencies">Додайте валюти в налаштуваннях</string>
     <string name="page_favorites">★ Обране</string>
     <string name="page_all">☆ Всі</string>
     <string name="status_offline">Офлайн</string>
     <string name="status_cached">Кеш</string>
+    <string name="loading">Завантаження…</string>
 
     <string name="section_base">Базова</string>
     <string name="section_interested">Цікаві</string>
@@ -45,4 +47,14 @@
 
     <string name="unknown_error">Невідома помилка</string>
     <string name="tile_error">Помилка</string>
+
+    <string name="alerts_title">Оповіщення</string>
+    <string name="alerts_empty">Немає оповіщень</string>
+    <string name="alert_add">Додати</string>
+    <string name="alert_currency">Валюта</string>
+    <string name="alert_rate">Цільовий курс</string>
+    <string name="alert_direction">Спрацювати при</string>
+    <string name="alert_triggered">Спрацювало!</string>
+    <string name="cancel">Скасувати</string>
+    <string name="confirm">Додати</string>
 </resources>
