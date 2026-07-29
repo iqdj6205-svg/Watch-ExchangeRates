@@ -9,7 +9,6 @@ interface CurrencyRepository {
 
     fun getHistory(base: String, target: String): Flow<List<ExchangeRate>>
     fun getRecentHistory(base: String, target: String, limit: Int): Flow<List<ExchangeRate>>
-    suspend fun saveRates(rate: ExchangeRate)
     suspend fun saveRateToHistory(rate: ExchangeRate)
     fun getRecentHistory(target: String, limit: Int): Flow<List<ExchangeRate>>
     suspend fun clearOldRecords(threshold: Long)

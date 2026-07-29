@@ -106,10 +106,6 @@ class CurrencyRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun saveRates(rate: ExchangeRate) {
-        saveRateToHistory(rate)
-    }
-
     override suspend fun saveRateToHistory(rate: ExchangeRate) {
         rate.rates.forEach { (targetCurrency, value) ->
             val entity = CurrencyHistoryEntity(

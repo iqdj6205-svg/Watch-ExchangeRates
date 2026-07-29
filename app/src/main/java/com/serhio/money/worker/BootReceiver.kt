@@ -9,6 +9,7 @@ import android.content.BroadcastReceiver
 import com.serhio.money.data.settings.SettingsManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
@@ -20,10 +21,14 @@ class BootReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
         if (intent.action == Intent.ACTION_BOOT_COMPLETED) {
-            val scope = CoroutineScope(Dispatchers.IO)
-            scope.launch {
-                val interval = settingsManager.updateIntervalFlow.first()
-                WorkerUtils.schedulePeriodicUpdate(context, interval)
+            val pendingResult = goAsync()
+            CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
+                try {
+                    val interval = settingsManager.updateIntervalFlow.first()
+                    WorkerUtils.schedulePeriodicUpdate(context, interval)
+                } finally {
+                    pendingResult.finish()
+                }
             }
         }
     }

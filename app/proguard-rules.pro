@@ -5,7 +5,6 @@
 # Keep Hilt generated classes
 -keep class dagger.hilt.** { *; }
 -keep class javax.inject.** { *; }
--keep class * extends dagger.hilt.android.internal.managers.ViewComponentManager$FragmentContextWrapper { *; }
 
 # Keep Room entities
 -keep class com.serhio.money.data.database.entities.** { *; }
@@ -20,5 +19,5 @@
 # Keep Timber
 -keep class timber.log.Timber { *; }
 
-# Wear OS
--keep class androidx.wear.** { *; }
+# Wear OS tile services
+-keep class * extends androidx.wear.tiles.TileService { *; }

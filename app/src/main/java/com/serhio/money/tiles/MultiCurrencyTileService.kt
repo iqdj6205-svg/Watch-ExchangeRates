@@ -46,7 +46,7 @@ class MultiCurrencyTileService : BaseCurrencyTileService() {
                         val valStr = if (rateValue != null) {
                             String.format(Locale.US, "%.2f", rateValue)
                         } else {
-                            "No data"
+                            "--"
                         }
                         column.addContent(
                             text("$target: $valStr".layoutString)

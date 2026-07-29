@@ -57,4 +57,5 @@
     <string name="alert_triggered">Déclenché !</string>
     <string name="cancel">Annuler</string>
     <string name="confirm">Ajouter</string>
+    <string name="menu_title">Menu</string>
 </resources>

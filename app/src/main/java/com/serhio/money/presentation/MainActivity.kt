@@ -17,6 +17,7 @@ import com.serhio.money.data.settings.SettingsManager
 import com.serhio.money.presentation.alerts.AlertsScreen
 import com.serhio.money.presentation.alerts.AlertsViewModel
 import com.serhio.money.presentation.components.MainScreen
+import com.serhio.money.presentation.graphs.ChartDataPoint
 import com.serhio.money.presentation.config.TileComplicationConfigScreen
 import com.serhio.money.presentation.config.TileComplicationConfigViewModel
 import com.serhio.money.presentation.graphs.GraphsScreen
@@ -24,9 +25,8 @@ import com.serhio.money.presentation.navigation.Screen
 import com.serhio.money.presentation.settings.SettingsScreen
 import com.serhio.money.presentation.settings.SettingsViewModel
 import com.serhio.money.utils.WorkerUtils
+import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -41,7 +41,7 @@ class MainActivity : ComponentActivity() {
         installSplashScreen()
         super.onCreate(savedInstanceState)
 
-        CoroutineScope(Dispatchers.IO).launch {
+        lifecycleScope.launch {
             val interval = settingsManager.updateIntervalFlow.first()
             WorkerUtils.schedulePeriodicUpdate(this@MainActivity, interval)
             WorkerUtils.scheduleAlertCheck(this@MainActivity)
@@ -113,10 +113,10 @@ class MainActivity : ComponentActivity() {
                         when (uiState) {
                             is MainUiState.Success -> {
                                 val history = (uiState as MainUiState.Success).history[target] ?: emptyList()
-                                val dataPoints = history.mapIndexed { index, value ->
-                                    com.serhio.money.presentation.graphs.ChartDataPoint(
-                                        timestamp = System.currentTimeMillis() - (history.size - 1 - index) * 3600000L,
-                                        value = value
+                                val dataPoints = history.map { point ->
+                                    ChartDataPoint(
+                                        timestamp = point.timestamp,
+                                        value = point.rate
                                     )
                                 }
                                 GraphsScreen(

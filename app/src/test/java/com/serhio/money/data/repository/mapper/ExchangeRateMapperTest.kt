@@ -59,26 +59,4 @@ class ExchangeRateMapperTest {
 
         assertTrue(result.lastUpdate > 0)
     }
-
-    @Test
-    fun `toEntities maps domain to list of entities`() {
-        val domain = com.serhio.money.domain.model.ExchangeRate(
-            baseCurrency = "USD",
-            rates = mapOf("EUR" to 0.92, "GBP" to 0.79),
-            lastUpdate = 1751702400000L
-        )
-
-        val entities = mapper.toEntities(domain)
-
-        assertEquals(2, entities.size)
-        entities.forEach { entity ->
-            assertEquals("USD", entity.baseCurrency)
-            assertEquals("exchangerate.fun", entity.source)
-            assertEquals(1751702400000L, entity.timestamp)
-        }
-        assertEquals("EUR", entities[0].targetCurrency)
-        assertEquals(0.92, entities[0].rate, 0.001)
-        assertEquals("GBP", entities[1].targetCurrency)
-        assertEquals(0.79, entities[1].rate, 0.001)
-    }
 }

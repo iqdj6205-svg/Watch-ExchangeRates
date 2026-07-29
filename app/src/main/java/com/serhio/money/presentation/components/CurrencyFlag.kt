@@ -21,5 +21,3 @@ fun currencyFlag(code: String): String = when (code) {
         } else ""
     }
 }
-
-fun currencyName(code: String): String = code

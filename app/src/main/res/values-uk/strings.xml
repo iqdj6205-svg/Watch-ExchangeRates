@@ -57,4 +57,5 @@
     <string name="alert_triggered">Спрацювало!</string>
     <string name="cancel">Скасувати</string>
     <string name="confirm">Додати</string>
+    <string name="menu_title">Меню</string>
 </resources>

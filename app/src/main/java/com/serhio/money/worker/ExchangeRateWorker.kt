@@ -33,7 +33,7 @@ class ExchangeRateWorker @AssistedInject constructor(
                 val filteredRates = rate.rates.filterKeys { it in interestedCurrencies }
                 val filteredRate = rate.copy(baseCurrency = baseCurrency, rates = filteredRates)
                 
-                repository.saveRates(filteredRate)
+                repository.saveRateToHistory(filteredRate)
                 settingsManager.updateLastUpdateTimestamp(System.currentTimeMillis())
                 
                 Timber.d("Background update successful")

@@ -45,7 +45,7 @@ class CurrencyTileService : BaseCurrencyTileService() {
             primaryLayout(
                 mainSlot = {
                     text(
-                        (if (rate != null) "$currency: $rate" else "$currency: No data").layoutString
+                        (if (rate != null) "$currency: $rate" else "$currency: --").layoutString
                     )
                 }
             )

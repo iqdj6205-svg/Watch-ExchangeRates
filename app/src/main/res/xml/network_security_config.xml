@@ -4,7 +4,6 @@
         <domain includeSubdomains="true">api.exchangerate.fun</domain>
         <trust-anchors>
             <certificates src="system" />
-            <certificates src="user" />
         </trust-anchors>
     </domain-config>
     <base-config cleartextTrafficPermitted="false">

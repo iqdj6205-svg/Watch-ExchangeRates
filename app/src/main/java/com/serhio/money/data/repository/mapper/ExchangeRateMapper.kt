@@ -1,6 +1,5 @@
 package com.serhio.money.data.repository.mapper
 
-import com.serhio.money.data.database.entities.CurrencyHistoryEntity
 import com.serhio.money.data.network.dto.ExchangeRateResponseDto
 import com.serhio.money.domain.model.ExchangeRate
 import javax.inject.Inject
@@ -28,17 +27,5 @@ class ExchangeRateMapper @Inject constructor() {
             rates = dto.rates,
             lastUpdate = lastUpdateMillis
         )
-    }
-
-    fun toEntities(rate: ExchangeRate): List<CurrencyHistoryEntity> {
-        return rate.rates.map { (targetCurrency, value) ->
-            CurrencyHistoryEntity(
-                timestamp = rate.lastUpdate,
-                baseCurrency = rate.baseCurrency,
-                targetCurrency = targetCurrency,
-                rate = value,
-                source = "exchangerate.fun"
-            )
-        }
     }
 }

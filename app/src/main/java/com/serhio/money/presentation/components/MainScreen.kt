@@ -1,6 +1,6 @@
 package com.serhio.money.presentation.components
 
-import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.LinearOutSlowInEasing
@@ -11,16 +11,11 @@ import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
@@ -47,8 +42,10 @@ import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.foundation.lazy.rememberScalingLazyListState
 import androidx.wear.compose.material3.*
 import com.serhio.money.R
+import com.serhio.money.domain.model.HistoryPoint
 import com.serhio.money.presentation.MainUiState
-import com.serhio.money.presentation.theme.SubtextGray
+import com.serhio.money.presentation.theme.Green500
+import com.serhio.money.presentation.theme.Red500
 import android.view.HapticFeedbackConstants
 import sh.calvin.reorderable.ReorderableItem
 import sh.calvin.reorderable.rememberReorderableLazyListState
@@ -165,7 +162,7 @@ private fun SkeletonLoading() {
             Text(
                 stringResource(R.string.loading),
                 fontSize = 10.sp,
-                color = SubtextGray
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
     }
@@ -186,93 +183,99 @@ private fun MainContent(
     var showMenu by remember { mutableStateOf(false) }
 
     Box(Modifier.fillMaxSize()) {
-        HorizontalPager(
-            state = pagerState,
-            modifier = Modifier.fillMaxSize()
-        ) { page ->
-            if (page == 0) {
-                FavoritesPage(state, isOnline, onOpenGraphs, onReorderFavorites)
-            } else {
-                AllCurrenciesPage(state, isOnline, onOpenGraphs)
-            }
-        }
-
-        Row(
-            Modifier
-                .align(Alignment.TopCenter)
-                .padding(top = 8.dp),
-            horizontalArrangement = Arrangement.spacedBy(6.dp)
-        ) {
-            repeat(2) { index ->
-                Box(
-                    modifier = Modifier
-                        .size(6.dp)
-                        .clip(CircleShape)
-                        .background(
-                            if (pagerState.currentPage == index)
-                                MaterialTheme.colorScheme.primary
-                            else
-                                MaterialTheme.colorScheme.outline
-                        )
+        Crossfade(targetState = showMenu, label = "menuCrossfade") { menuVisible ->
+            if (menuVisible) {
+                FullScreenMenu(
+                    onSettings = { showMenu = false; onOpenSettings() },
+                    onTileConfig = { showMenu = false; onOpenTileConfig() },
+                    onRefresh = { showMenu = false; onRefresh() },
+                    onAlerts = { showMenu = false; onOpenAlerts() }
                 )
-            }
-        }
+            } else {
+                Box(Modifier.fillMaxSize()) {
+                    HorizontalPager(
+                        state = pagerState,
+                        modifier = Modifier.fillMaxSize()
+                    ) { page ->
+                        if (page == 0) {
+                            FavoritesPage(state, isOnline, onOpenGraphs, onReorderFavorites)
+                        } else {
+                            AllCurrenciesPage(state, isOnline, onOpenGraphs)
+                        }
+                    }
 
-        Column(
-            Modifier.align(Alignment.BottomCenter).padding(bottom = 4.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            AnimatedVisibility(
-                visible = showMenu,
-                enter = slideInVertically(initialOffsetY = { it }) + fadeIn(),
-                exit = slideOutVertically(targetOffsetY = { it }) + fadeOut()
-            ) {
-                Card(
-                    onClick = {},
-                    modifier = Modifier.padding(bottom = 4.dp),
-                    shape = RoundedCornerShape(16.dp)
-                ) {
-                    Column(Modifier.padding(vertical = 6.dp)) {
-                        TextButton(
-                            onClick = { showMenu = false; onOpenSettings() },
-                            modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp)
-                        ) {
-                            Text(stringResource(R.string.menu_settings), modifier = Modifier.fillMaxWidth(),
-                                fontSize = 13.sp, textAlign = TextAlign.Start,
-                                color = MaterialTheme.colorScheme.onSurface)
-                        }
-                        TextButton(
-                            onClick = { showMenu = false; onOpenTileConfig() },
-                            modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp)
-                        ) {
-                            Text(stringResource(R.string.menu_tiles),
-                                modifier = Modifier.fillMaxWidth(), fontSize = 13.sp,
-                                textAlign = TextAlign.Start,
-                                color = MaterialTheme.colorScheme.onSurface)
-                        }
-                        TextButton(
-                            onClick = { showMenu = false; onRefresh() },
-                            modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp)
-                        ) {
-                            Text(stringResource(R.string.menu_refresh), modifier = Modifier.fillMaxWidth(),
-                                fontSize = 13.sp, textAlign = TextAlign.Start,
-                                color = MaterialTheme.colorScheme.onSurface)
-                        }
-                        TextButton(
-                            onClick = { showMenu = false; onOpenAlerts() },
-                            modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp)
-                        ) {
-                            Text(stringResource(R.string.menu_alerts), modifier = Modifier.fillMaxWidth(),
-                                fontSize = 13.sp, textAlign = TextAlign.Start,
-                                color = MaterialTheme.colorScheme.onSurface)
+                    Row(
+                        Modifier
+                            .align(Alignment.TopCenter)
+                            .padding(top = 8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        repeat(2) { index ->
+                            Box(
+                                modifier = Modifier
+                                    .size(6.dp)
+                                    .clip(CircleShape)
+                                    .background(
+                                        if (pagerState.currentPage == index)
+                                            MaterialTheme.colorScheme.primary
+                                        else
+                                            MaterialTheme.colorScheme.outline
+                                    )
+                            )
                         }
                     }
                 }
             }
+        }
 
-            IconButton(onClick = { showMenu = !showMenu }) {
-                Text(if (showMenu) "\u2715" else "\u2026", fontSize = 20.sp)
+        IconButton(
+            onClick = { showMenu = !showMenu },
+            modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 4.dp)
+        ) {
+            Text(if (showMenu) "\u2715" else "\u2026", fontSize = 20.sp)
+        }
+    }
+}
+
+@Composable
+private fun FullScreenMenu(
+    onSettings: () -> Unit,
+    onTileConfig: () -> Unit,
+    onRefresh: () -> Unit,
+    onAlerts: () -> Unit
+) {
+    Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
+        ScalingLazyColumn(
+            state = rememberScalingLazyListState(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp)
+        ) {
+            item {
+                Text(
+                    stringResource(R.string.menu_title),
+                    style = MaterialTheme.typography.displayMedium,
+                    color = MaterialTheme.colorScheme.onBackground,
+                    modifier = Modifier.padding(top = 20.dp, bottom = 8.dp)
+                )
             }
+            item { MenuCard("\u2699", stringResource(R.string.menu_settings), onSettings) }
+            item { MenuCard("\u25A1", stringResource(R.string.menu_tiles), onTileConfig) }
+            item { MenuCard("\u21BB", stringResource(R.string.menu_refresh), onRefresh) }
+            item { MenuCard("\uD83D\uDD14", stringResource(R.string.menu_alerts), onAlerts) }
+            item { Spacer(Modifier.height(48.dp)) }
+        }
+    }
+}
+
+@Composable
+private fun MenuCard(icon: String, label: String, onClick: () -> Unit) {
+    Card(onClick = onClick, modifier = Modifier.fillMaxWidth(), shape = MaterialTheme.shapes.medium) {
+        Row(
+            Modifier.padding(horizontal = 16.dp, vertical = 14.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(icon, fontSize = 18.sp, modifier = Modifier.padding(end = 12.dp))
+            Text(label, style = MaterialTheme.typography.titleMedium)
         }
     }
 }
@@ -294,6 +297,8 @@ private fun FavoritesPage(
         view.performHapticFeedback(HapticFeedbackConstants.CLOCK_TICK)
     }
 
+    // LazyColumn used instead of ScalingLazyColumn because reorderable
+    // library (sh.calvin.reorderable) does not support ScalingLazyColumn.
     LazyColumn(
         state = lazyListState,
         modifier = Modifier.fillMaxSize(),
@@ -320,8 +325,8 @@ private fun FavoritesPage(
             }
         }
 
-        items(order, key = { it }) { code ->
-            val index = order.indexOf(code)
+        items(order.size, key = { order[it] }) { index ->
+            val code = order[index]
             val animProgress = remember { Animatable(0f) }
             LaunchedEffect(code) {
                 animProgress.snapTo(0f)
@@ -464,7 +469,7 @@ private fun StatusFooter(isOnline: Boolean, isFromCache: Boolean, lastUpdate: Lo
                     fontSize = 9.sp, modifier = Modifier.padding(end = 4.dp))
             }
             Text(df.format(Date(lastUpdate)),
-                fontSize = 9.sp, color = SubtextGray)
+                fontSize = 9.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
     }
 }
@@ -475,25 +480,26 @@ private fun CurrencyCard(
     baseCurrency: String,
     currencyCode: String,
     rateValue: Double,
-    history: List<Double>?,
+    history: List<HistoryPoint>?,
     isFavorite: Boolean,
     isDragging: Boolean = false,
     elevation: androidx.compose.ui.unit.Dp = 0.dp
 ) {
     val reciprocal = if (rateValue != 0.0) 1.0 / rateValue else 0.0
+    val rateValues = history?.map { it.rate }
 
-    val change = if (history != null && history.size >= 2) {
-        history.last() - history[history.size - 2]
+    val change = if (rateValues != null && rateValues.size >= 2) {
+        rateValues.last() - rateValues[rateValues.size - 2]
     } else null
 
-    val changePercent = if (change != null && history != null && history.size >= 2 && history[history.size - 2] != 0.0) {
-        (change / history[history.size - 2]) * 100
+    val changePercent = if (change != null && rateValues != null && rateValues.size >= 2 && rateValues[rateValues.size - 2] != 0.0) {
+        (change / rateValues[rateValues.size - 2]) * 100
     } else null
 
     val changeColor = when {
         change == null -> Color.Gray
-        change > 0 -> Color(0xFF4CAF50)
-        else -> Color(0xFFF44336)
+        change > 0 -> Green500
+        else -> Red500
     }
 
     val animatedRate by animateFloatAsState(
@@ -505,20 +511,12 @@ private fun CurrencyCard(
         animationSpec = tween(400)
     )
 
-    fun formatRate(v: Float): String {
-        return when {
-            v >= 100f -> String.format(Locale.ROOT, "%.1f", v)
-            v >= 1f -> String.format(Locale.ROOT, "%.4f", v)
-            else -> String.format(Locale.ROOT, "%.6f", v)
-        }
-    }
-
     Box(
         modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = 8.dp, vertical = 4.dp)
-            .shadow(elevation, RoundedCornerShape(14.dp))
-            .clip(RoundedCornerShape(14.dp))
+            .shadow(elevation, MaterialTheme.shapes.medium)
+            .clip(MaterialTheme.shapes.medium)
             .background(
                 Brush.verticalGradient(
                     colors = if (isDragging) {
@@ -581,7 +579,7 @@ private fun CurrencyCard(
                     Text(
                         "1 $currencyCode = ${formatRate(animatedRecip)}",
                         fontSize = 11.sp,
-                        color = SubtextGray
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
 
@@ -592,10 +590,10 @@ private fun CurrencyCard(
                             color = changeColor, fontSize = 16.sp
                         )
                     }
-                    if (history != null && history.isNotEmpty()) {
+                    if (rateValues != null && rateValues.isNotEmpty()) {
                         Spacer(Modifier.height(6.dp))
                         SparklineChart(
-                            data = history,
+                            data = rateValues,
                             modifier = Modifier.width(56.dp).height(22.dp),
                             color = changeColor
                         )
@@ -604,4 +602,10 @@ private fun CurrencyCard(
             }
         }
     }
+}
+
+private fun formatRate(v: Float): String = when {
+    v >= 100f -> String.format(Locale.ROOT, "%.1f", v)
+    v >= 1f -> String.format(Locale.ROOT, "%.4f", v)
+    else -> String.format(Locale.ROOT, "%.6f", v)
 }

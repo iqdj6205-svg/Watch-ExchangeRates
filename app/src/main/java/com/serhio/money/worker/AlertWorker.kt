@@ -62,7 +62,7 @@ class AlertWorker @AssistedInject constructor(
     }
 
     private fun sendNotification(currencyCode: String, targetRate: Double, isAbove: Boolean, currentRate: Double) {
-        val manager = applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        val manager = applicationContext.getSystemService(NotificationManager::class.java) ?: return
 
         val channel = NotificationChannel(
             CHANNEL_ID,

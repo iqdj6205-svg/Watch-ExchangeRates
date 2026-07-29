@@ -9,7 +9,7 @@ import com.serhio.money.data.database.entities.CurrencyHistoryEntity
 
 @Database(
     entities = [CurrencyHistoryEntity::class, AlertEntity::class],
-    version = 4,
+    version = 5,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -38,6 +38,14 @@ abstract class AppDatabase : RoomDatabase() {
                         triggeredAt INTEGER DEFAULT NULL
                     )
                 """.trimIndent())
+            }
+        }
+
+        val MIGRATION_4_5 = object : Migration(4, 5) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("CREATE INDEX IF NOT EXISTS index_currency_history_baseCurrency ON currency_history(baseCurrency)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS index_currency_history_targetCurrency ON currency_history(targetCurrency)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS index_currency_history_baseCurrency_targetCurrency_timestamp ON currency_history(baseCurrency, targetCurrency, timestamp)")
             }
         }
     }

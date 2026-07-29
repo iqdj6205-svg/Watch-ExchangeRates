@@ -57,4 +57,5 @@
     <string name="alert_triggered">Uruchomiono!</string>
     <string name="cancel">Anuluj</string>
     <string name="confirm">Dodaj</string>
+    <string name="menu_title">Menu</string>
 </resources>

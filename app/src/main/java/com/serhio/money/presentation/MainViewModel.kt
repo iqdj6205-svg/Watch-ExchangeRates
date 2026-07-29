@@ -3,7 +3,7 @@ package com.serhio.money.presentation
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.serhio.money.data.settings.SettingsManager
-import com.serhio.money.domain.model.ExchangeRate
+import com.serhio.money.domain.model.HistoryPoint
 import com.serhio.money.domain.repository.CurrencyRepository
 import com.serhio.money.utils.NetworkMonitor
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -63,10 +63,13 @@ class MainViewModel @Inject constructor(
 
                 val rates = rate.rates
 
-                val historyMap = mutableMapOf<String, List<Double>>()
+                val historyMap = mutableMapOf<String, List<HistoryPoint>>()
                 currentInterested.forEach { target ->
-                    val historyEntities = repository.getRecentHistory(currentBase, target, 50).first()
-                    historyMap[target] = historyEntities.mapNotNull { it.rates[target] }.reversed()
+                    val historyEntities = repository.getRecentHistory(currentBase, target, 500).first()
+                    historyMap[target] = historyEntities.mapNotNull { entity ->
+                        val rate = entity.rates[target] ?: return@mapNotNull null
+                        HistoryPoint(timestamp = entity.lastUpdate, rate = rate)
+                    }.reversed()
                 }
 
                 _uiState.value = MainUiState.Success(
@@ -79,7 +82,7 @@ class MainViewModel @Inject constructor(
                 )
 
                 if (!isFromCache) {
-                    repository.saveRates(rate)
+                    repository.saveRateToHistory(rate)
                 }
             } else {
                 val errorMsg = result.exceptionOrNull()?.message
@@ -96,7 +99,7 @@ sealed class MainUiState {
         val rates: Map<String, Double>,
         val interestedCurrencies: List<String>,
         val lastUpdate: Long,
-        val history: Map<String, List<Double>> = emptyMap(),
+        val history: Map<String, List<HistoryPoint>> = emptyMap(),
         val isFromCache: Boolean = false
     ) : MainUiState()
     data class Error(val message: String? = null) : MainUiState()

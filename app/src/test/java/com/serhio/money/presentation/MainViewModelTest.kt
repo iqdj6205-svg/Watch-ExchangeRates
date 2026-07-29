@@ -57,13 +57,13 @@ class MainViewModelTest {
             lastUpdate = System.currentTimeMillis()
         )
         coEvery { repository.fetchLatestRates("USD") } returns Result.success(exchangeRate)
-        coEvery { repository.getRecentHistory("USD", "EUR", 50) } returns flowOf(
+        coEvery { repository.getRecentHistory("USD", "EUR", 500) } returns flowOf(
             listOf(ExchangeRate("USD", mapOf("EUR" to 0.92), 1000L))
         )
-        coEvery { repository.getRecentHistory("USD", "PLN", 50) } returns flowOf(
+        coEvery { repository.getRecentHistory("USD", "PLN", 500) } returns flowOf(
             listOf(ExchangeRate("USD", mapOf("PLN" to 4.05), 1000L))
         )
-        coEvery { repository.saveRates(any()) } returns Unit
+        coEvery { repository.saveRateToHistory(any()) } returns Unit
 
         viewModel = MainViewModel(repository, settingsManager, networkMonitor)
         advanceUntilIdle()
@@ -97,13 +97,13 @@ class MainViewModelTest {
             lastUpdate = System.currentTimeMillis()
         )
         coEvery { repository.fetchLatestRates("USD") } returns Result.success(exchangeRate)
-        coEvery { repository.getRecentHistory("USD", "EUR", 50) } returns flowOf(
+        coEvery { repository.getRecentHistory("USD", "EUR", 500) } returns flowOf(
             listOf(ExchangeRate("USD", mapOf("EUR" to 0.92), 1000L))
         )
-        coEvery { repository.getRecentHistory("USD", "PLN", 50) } returns flowOf(
+        coEvery { repository.getRecentHistory("USD", "PLN", 500) } returns flowOf(
             listOf(ExchangeRate("USD", mapOf("PLN" to 4.05), 1000L))
         )
-        coEvery { repository.saveRates(any()) } returns Unit
+        coEvery { repository.saveRateToHistory(any()) } returns Unit
 
         viewModel = MainViewModel(repository, settingsManager, networkMonitor)
         advanceUntilIdle()
