@@ -134,11 +134,11 @@ class CurrencyComplicationService : SuspendingComplicationDataSourceService() {
         }
     }
 
-    override fun onComplicationActivated(complicationId: Int, type: ComplicationType) {
-        Timber.d("Complication activated: $complicationId")
+    override fun onComplicationActivated(complicationInstanceId: Int, type: ComplicationType) {
+        Timber.d("Complication activated: $complicationInstanceId")
     }
 
-    override fun onComplicationDeactivated(complicationId: Int) {
-        Timber.d("Complication deactivated: $complicationId")
+    override fun onComplicationDeactivated(complicationInstanceId: Int) {
+        Timber.d("Complication deactivated: $complicationInstanceId")
     }
 }

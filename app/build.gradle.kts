@@ -121,7 +121,6 @@ dependencies {
 
     // Moshi
     implementation(libs.moshi)
-    // Шаг 4: Используем только кодогенерацию
     ksp(libs.moshi.kotlin.codegen)
 
     // WorkManager
