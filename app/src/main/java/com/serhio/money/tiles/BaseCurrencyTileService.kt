@@ -8,13 +8,11 @@ import com.google.android.horologist.annotations.ExperimentalHorologistApi
 import com.google.android.horologist.tiles.SuspendingTileService
 import com.serhio.money.data.settings.SettingsManager
 import com.serhio.money.domain.repository.CurrencyRepository
-import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 @OptIn(ExperimentalHorologistApi::class)
-@AndroidEntryPoint
 abstract class BaseCurrencyTileService : SuspendingTileService() {
 
     @Inject lateinit var repository: CurrencyRepository

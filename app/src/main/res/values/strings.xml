@@ -3,6 +3,10 @@
     <string name="app_name">Money Wear</string>
     <string name="tile_label">Currency Rate</string>
     <string name="complication_label">Currency Complication</string>
+    <string name="tile_label_multi">Multi Currency</string>
+    <string name="tile_label_big">Big Rate</string>
+    <string name="tile_label_compact">Compact Rate</string>
+    <string name="tile_label_change">Rate Change</string>
 
     <!-- Main Screen -->
     <string name="menu_settings">⚙ Settings</string>

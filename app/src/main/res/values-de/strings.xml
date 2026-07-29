@@ -58,4 +58,8 @@
     <string name="cancel">Abbrechen</string>
     <string name="confirm">Hinzufügen</string>
     <string name="menu_title">Menü</string>
+    <string name="tile_label_multi">Mehrere Währungen</string>
+    <string name="tile_label_big">Großer Kurs</string>
+    <string name="tile_label_compact">Kompakter Kurs</string>
+    <string name="tile_label_change">Kursänderung</string>
 </resources>

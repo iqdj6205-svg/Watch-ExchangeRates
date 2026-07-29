@@ -58,4 +58,8 @@
     <string name="cancel">Скасувати</string>
     <string name="confirm">Додати</string>
     <string name="menu_title">Меню</string>
+    <string name="tile_label_multi">Кілька валют</string>
+    <string name="tile_label_big">Великий курс</string>
+    <string name="tile_label_compact">Компактний курс</string>
+    <string name="tile_label_change">Зміна курсу</string>
 </resources>

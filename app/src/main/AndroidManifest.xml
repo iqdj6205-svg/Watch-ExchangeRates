@@ -54,9 +54,9 @@
             android:exported="true"
             android:label="@string/tile_label"
             android:icon="@drawable/ic_exchange"
-            android:permission="com.google.android.wearable.permission.BIND_TILE_INSTANCE">
+            android:permission="com.google.android.wearable.permission.BIND_TILE_PROVIDER">
             <intent-filter>
-                <action android:name="androidx.wear.tiles.action.BIND_TILE_SERVICE" />
+                <action android:name="androidx.wear.tiles.action.BIND_TILE_PROVIDER" />
             </intent-filter>
             <meta-data
                 android:name="androidx.wear.tiles.PREVIEW"
@@ -66,11 +66,11 @@
         <service
             android:name=".tiles.MultiCurrencyTileService"
             android:exported="true"
-            android:label="Multi Currency Tile"
+            android:label="@string/tile_label_multi"
             android:icon="@drawable/ic_exchange"
-            android:permission="com.google.android.wearable.permission.BIND_TILE_INSTANCE">
+            android:permission="com.google.android.wearable.permission.BIND_TILE_PROVIDER">
             <intent-filter>
-                <action android:name="androidx.wear.tiles.action.BIND_TILE_SERVICE" />
+                <action android:name="androidx.wear.tiles.action.BIND_TILE_PROVIDER" />
             </intent-filter>
             <meta-data
                 android:name="androidx.wear.tiles.PREVIEW"
@@ -80,11 +80,11 @@
         <service
             android:name=".tiles.BigNumberCurrencyTileService"
             android:exported="true"
-            android:label="Big Number Rate"
+            android:label="@string/tile_label_big"
             android:icon="@drawable/ic_exchange"
-            android:permission="com.google.android.wearable.permission.BIND_TILE_INSTANCE">
+            android:permission="com.google.android.wearable.permission.BIND_TILE_PROVIDER">
             <intent-filter>
-                <action android:name="androidx.wear.tiles.action.BIND_TILE_SERVICE" />
+                <action android:name="androidx.wear.tiles.action.BIND_TILE_PROVIDER" />
             </intent-filter>
             <meta-data
                 android:name="androidx.wear.tiles.PREVIEW"
@@ -94,11 +94,11 @@
         <service
             android:name=".tiles.CompactCurrencyTileService"
             android:exported="true"
-            android:label="Compact Rate"
+            android:label="@string/tile_label_compact"
             android:icon="@drawable/ic_exchange"
-            android:permission="com.google.android.wearable.permission.BIND_TILE_INSTANCE">
+            android:permission="com.google.android.wearable.permission.BIND_TILE_PROVIDER">
             <intent-filter>
-                <action android:name="androidx.wear.tiles.action.BIND_TILE_SERVICE" />
+                <action android:name="androidx.wear.tiles.action.BIND_TILE_PROVIDER" />
             </intent-filter>
             <meta-data
                 android:name="androidx.wear.tiles.PREVIEW"
@@ -108,11 +108,11 @@
         <service
             android:name=".tiles.ChangeCurrencyTileService"
             android:exported="true"
-            android:label="Rate Change"
+            android:label="@string/tile_label_change"
             android:icon="@drawable/ic_exchange"
-            android:permission="com.google.android.wearable.permission.BIND_TILE_INSTANCE">
+            android:permission="com.google.android.wearable.permission.BIND_TILE_PROVIDER">
             <intent-filter>
-                <action android:name="androidx.wear.tiles.action.BIND_TILE_SERVICE" />
+                <action android:name="androidx.wear.tiles.action.BIND_TILE_PROVIDER" />
             </intent-filter>
             <meta-data
                 android:name="androidx.wear.tiles.PREVIEW"

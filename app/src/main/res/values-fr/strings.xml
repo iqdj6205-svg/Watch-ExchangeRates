@@ -58,4 +58,8 @@
     <string name="cancel">Annuler</string>
     <string name="confirm">Ajouter</string>
     <string name="menu_title">Menu</string>
+    <string name="tile_label_multi">Plusieurs devises</string>
+    <string name="tile_label_big">Grand taux</string>
+    <string name="tile_label_compact">Taux compact</string>
+    <string name="tile_label_change">Changement de taux</string>
 </resources>
