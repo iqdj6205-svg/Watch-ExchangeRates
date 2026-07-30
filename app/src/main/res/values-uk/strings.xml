@@ -20,8 +20,6 @@
     <string name="section_interested">Цікаві</string>
     <string name="section_interval">Інтервал</string>
 
-    <string name="graph_change">Зміна: %1$s (%2$s%%)</string>
-    <string name="graph_high_low">Макс: %1$s  Мін: %2$s</string>
     <string name="graph_no_data">Недостатньо даних за цей період</string>
     <string name="back">Назад</string>
     <string name="period_24h">24год</string>
@@ -41,12 +39,7 @@
     <string name="mode_arrow">Стрілка</string>
     <string name="mode_date">Дата</string>
 
-    <string name="complication_title">Валюта</string>
-    <string name="complication_preview_value">1.23</string>
-    <string name="complication_preview_desc">Попередній перегляд</string>
-
     <string name="unknown_error">Невідома помилка</string>
-    <string name="tile_error">Помилка</string>
 
     <string name="alerts_title">Оповіщення</string>
     <string name="alerts_empty">Немає оповіщень</string>

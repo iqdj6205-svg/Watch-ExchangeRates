@@ -28,8 +28,6 @@
     <string name="section_interval">Interval</string>
 
     <!-- Graphs Screen -->
-    <string name="graph_change">Change: %1$s (%2$s%%)</string>
-    <string name="graph_high_low">High: %1$s  Low: %2$s</string>
     <string name="graph_no_data">Not enough data for this period</string>
     <string name="back">Back</string>
     <string name="period_24h">24h</string>
@@ -50,14 +48,8 @@
     <string name="mode_arrow">Arrow</string>
     <string name="mode_date">Date</string>
 
-    <!-- Complication -->
-    <string name="complication_title">Currency</string>
-    <string name="complication_preview_value">1.23</string>
-    <string name="complication_preview_desc">Preview</string>
-
     <!-- Errors -->
     <string name="unknown_error">Unknown error</string>
-    <string name="tile_error">Error</string>
 
     <!-- Alerts -->
     <string name="alerts_title">Rate Alerts</string>

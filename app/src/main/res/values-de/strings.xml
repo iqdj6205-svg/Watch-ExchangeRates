@@ -20,8 +20,6 @@
     <string name="section_interested">Interessierte</string>
     <string name="section_interval">Intervall</string>
 
-    <string name="graph_change">Änderung: %1$s (%2$s%%)</string>
-    <string name="graph_high_low">Hoch: %1$s  Tief: %2$s</string>
     <string name="graph_no_data">Nicht genug Daten für diesen Zeitraum</string>
     <string name="back">Zurück</string>
     <string name="period_24h">24h</string>
@@ -41,12 +39,7 @@
     <string name="mode_arrow">Pfeil</string>
     <string name="mode_date">Datum</string>
 
-    <string name="complication_title">Währung</string>
-    <string name="complication_preview_value">1.23</string>
-    <string name="complication_preview_desc">Vorschau</string>
-
     <string name="unknown_error">Unbekannter Fehler</string>
-    <string name="tile_error">Fehler</string>
 
     <string name="alerts_title">Kursalarme</string>
     <string name="alerts_empty">Keine Alarme</string>

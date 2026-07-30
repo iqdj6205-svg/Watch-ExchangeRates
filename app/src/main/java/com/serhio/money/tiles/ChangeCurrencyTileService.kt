@@ -3,12 +3,16 @@
 package com.serhio.money.tiles
 
 import android.content.Context
+import androidx.wear.protolayout.ActionBuilders
 import androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters
 import androidx.wear.protolayout.LayoutElementBuilders
+import androidx.wear.protolayout.ModifiersBuilders
 import androidx.wear.protolayout.ResourceBuilders
+import androidx.wear.protolayout.material3.Typography
 import androidx.wear.protolayout.material3.materialScope
 import androidx.wear.protolayout.material3.primaryLayout
 import androidx.wear.protolayout.material3.text
+import androidx.wear.protolayout.material3.textEdgeButton
 import androidx.wear.protolayout.types.layoutString
 import androidx.wear.tiles.RequestBuilders
 import androidx.wear.tiles.TileBuilders
@@ -45,12 +49,35 @@ class ChangeCurrencyTileService : BaseCurrencyTileService() {
         currency: String,
         change: String?
     ): LayoutElementBuilders.LayoutElement {
+        val openAction = ActionBuilders.LaunchAction.Builder()
+            .setAndroidActivity(
+                ActionBuilders.AndroidActivity.Builder()
+                    .setPackageName(context.packageName)
+                    .setClassName("${context.packageName}.presentation.MainActivity")
+                    .build()
+            )
+            .build()
+
+        val onClick = ModifiersBuilders.Clickable.Builder()
+            .setId("open_app")
+            .setOnClick(openAction)
+            .build()
+
         return materialScope(context, deviceConfiguration) {
             primaryLayout(
+                titleSlot = {
+                    text(currency.layoutString, typography = Typography.TITLE_MEDIUM)
+                },
                 mainSlot = {
                     text(
-                        if (change != null) "$currency change: $change".layoutString else "$currency: --".layoutString
+                        (change ?: "--").layoutString,
+                        typography = Typography.DISPLAY_MEDIUM
                     )
+                },
+                bottomSlot = {
+                    textEdgeButton(onClick = onClick) {
+                        text("Open".layoutString)
+                    }
                 }
             )
         }

@@ -20,8 +20,6 @@
     <string name="section_interested">Intéressantes</string>
     <string name="section_interval">Intervalle</string>
 
-    <string name="graph_change">Variation: %1$s (%2$s%%)</string>
-    <string name="graph_high_low">Haut: %1$s  Bas: %2$s</string>
     <string name="graph_no_data">Pas assez de données pour cette période</string>
     <string name="back">Retour</string>
     <string name="period_24h">24h</string>
@@ -41,12 +39,7 @@
     <string name="mode_arrow">Flèche</string>
     <string name="mode_date">Date</string>
 
-    <string name="complication_title">Devise</string>
-    <string name="complication_preview_value">1.23</string>
-    <string name="complication_preview_desc">Aperçu</string>
-
     <string name="unknown_error">Erreur inconnue</string>
-    <string name="tile_error">Erreur</string>
 
     <string name="alerts_title">Alertes de taux</string>
     <string name="alerts_empty">Aucune alerte</string>

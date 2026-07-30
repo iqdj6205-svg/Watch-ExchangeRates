@@ -20,8 +20,6 @@
     <string name="section_interested">Интересующие</string>
     <string name="section_interval">Интервал</string>
 
-    <string name="graph_change">Изменение: %1$s (%2$s%%)</string>
-    <string name="graph_high_low">Макс: %1$s  Мин: %2$s</string>
     <string name="graph_no_data">Недостаточно данных за этот период</string>
     <string name="back">Назад</string>
     <string name="period_24h">24ч</string>
@@ -41,12 +39,7 @@
     <string name="mode_arrow">Стрелка</string>
     <string name="mode_date">Дата</string>
 
-    <string name="complication_title">Валюта</string>
-    <string name="complication_preview_value">1.23</string>
-    <string name="complication_preview_desc">Предпросмотр</string>
-
     <string name="unknown_error">Неизвестная ошибка</string>
-    <string name="tile_error">Ошибка</string>
 
     <string name="alerts_title">Оповещения</string>
     <string name="alerts_empty">Нет оповещений</string>
