@@ -3,11 +3,20 @@
     <string name="app_name">Money Wear</string>
     <string name="tile_label">Курс валют</string>
     <string name="complication_label">Курс валют</string>
+    <string name="tile_label_multi">Несколько валют</string>
+    <string name="tile_label_big">Большой курс</string>
+    <string name="tile_label_compact">Компактный курс</string>
+    <string name="tile_label_change">Изменение курса</string>
 
     <string name="menu_settings">⚙ Настройки</string>
     <string name="menu_tiles">◻ Плитки и усложнения</string>
     <string name="menu_refresh">↻ Обновить</string>
     <string name="menu_alerts">🔔 Оповещения</string>
+    <string name="menu_title">Меню</string>
+    <string name="menu_settings_desc">Базовая валюта, избранное, интервал</string>
+    <string name="menu_tiles_desc">Валюта плитки, режимы, усложнение</string>
+    <string name="menu_refresh_desc">Обновить курсы и локальный кеш</string>
+    <string name="menu_alerts_desc">Создать и управлять порогами курса</string>
     <string name="retry">Повторить</string>
     <string name="empty_currencies">Добавьте валюты в настройках</string>
     <string name="page_favorites">★ Избранное</string>
@@ -39,6 +48,7 @@
     <string name="section_tile_mode">Режим</string>
     <string name="section_complication_config">Настройка усложнения</string>
     <string name="section_complication_currency">Валюта усложнения</string>
+    <string name="complication_follows_top_favorite">Показывает верхнюю валюту главного списка</string>
     <string name="mode_rate">Курс</string>
     <string name="mode_change_pct">Изменение %</string>
     <string name="mode_arrow">Стрелка</string>
@@ -60,13 +70,4 @@
     <string name="alert_triggered">Сработало!</string>
     <string name="cancel">Отмена</string>
     <string name="confirm">Добавить</string>
-    <string name="menu_title">Меню</string>
-    <string name="menu_settings_desc">Базовая валюта, избранное, интервал</string>
-    <string name="menu_tiles_desc">Валюта плитки, режимы, усложнение</string>
-    <string name="menu_refresh_desc">Обновить курсы и локальный кеш</string>
-    <string name="menu_alerts_desc">Создать и управлять порогами курса</string>
-    <string name="tile_label_multi">Несколько валют</string>
-    <string name="tile_label_big">Большой курс</string>
-    <string name="tile_label_compact">Компактный курс</string>
-    <string name="tile_label_change">Изменение курса</string>
 </resources>

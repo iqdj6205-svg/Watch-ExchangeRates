@@ -14,6 +14,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
@@ -70,10 +71,14 @@ fun TileComplicationConfigScreen(
 
         item {
             PremiumConfigCard(title = stringResource(R.string.section_complication_config)) {
-                Text(stringResource(R.string.section_complication_currency), fontSize = 11.sp, color = SubtextGray, modifier = Modifier.padding(bottom = 6.dp))
-                Text("Follows top favorite", fontSize = 10.sp, color = MoneyGold, modifier = Modifier.padding(bottom = 6.dp))
-                CurrencyGrid(currencies, complicationCurrency, onComplicationCurrencyChange)
-                Spacer(Modifier.height(8.dp))
+                Text(
+                    stringResource(R.string.complication_follows_top_favorite),
+                    fontSize = 11.sp,
+                    color = MoneyGold,
+                    lineHeight = 14.sp,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)
+                )
                 Text(stringResource(R.string.section_tile_mode), fontSize = 11.sp, color = SubtextGray, modifier = Modifier.padding(bottom = 6.dp))
                 ModeGrid(modes, complicationMode, onComplicationModeChange)
             }

@@ -48,6 +48,7 @@
     <string name="section_tile_mode">Display Mode</string>
     <string name="section_complication_config">Complication Configuration</string>
     <string name="section_complication_currency">Complication Currency</string>
+    <string name="complication_follows_top_favorite">Shows the top favorite from the main screen</string>
     <string name="mode_rate">Rate</string>
     <string name="mode_change_pct">Change %</string>
     <string name="mode_arrow">Arrow</string>
