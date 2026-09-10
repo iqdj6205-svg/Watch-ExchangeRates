@@ -4,16 +4,15 @@
     android:viewportWidth="24"
     android:viewportHeight="24">
 
-    <!-- Premium round money mark: coin + trend line + exchange arrows. Kept as a vector
-         so Wear OS tile/complication pickers can render it reliably on different watches. -->
+    <!-- Money Wear mark: premium coin + market sparkle. No arrows, simple and readable in tile lists. -->
     <path
         android:fillColor="#05070D"
-        android:pathData="M12,2.2a9.8,9.8 0,1 0,0.1 0z" />
+        android:pathData="M12,2.2a9.8,9.8 0,1 0,0 19.6a9.8,9.8 0,0 0,0 -19.6z" />
 
     <path
         android:fillColor="#FFFFD166"
-        android:fillAlpha="0.22"
-        android:pathData="M12,3.4a8.6,8.6 0,1 0,0 17.2a8.6,8.6 0,0 0,0 -17.2z" />
+        android:fillAlpha="0.18"
+        android:pathData="M12,3.7a8.3,8.3 0,1 0,0 16.6a8.3,8.3 0,0 0,0 -16.6z" />
 
     <path
         android:strokeColor="#FFFFD166"
@@ -21,46 +20,29 @@
         android:strokeLineCap="round"
         android:strokeLineJoin="round"
         android:fillColor="@android:color/transparent"
-        android:pathData="M12,3.4a8.6,8.6 0,1 0,0 17.2a8.6,8.6 0,0 0,0 -17.2z" />
+        android:pathData="M12,3.7a8.3,8.3 0,1 0,0 16.6a8.3,8.3 0,0 0,0 -16.6z" />
 
     <path
         android:strokeColor="#FFFFD166"
-        android:strokeWidth="1.45"
+        android:strokeWidth="1.3"
+        android:strokeLineCap="round"
+        android:fillColor="@android:color/transparent"
+        android:pathData="M12,6.3v11.4" />
+
+    <path
+        android:strokeColor="#FFFFD166"
+        android:strokeWidth="1.25"
         android:strokeLineCap="round"
         android:strokeLineJoin="round"
         android:fillColor="@android:color/transparent"
-        android:pathData="M6.5,14.7l2.5,-2.3l2.1,1.6l3.1,-4.4l1.9,1.4l1.5,-4" />
-
-    <path
-        android:fillColor="#FFFFD166"
-        android:pathData="M16.2,6.7l2.6,-0.4l-1,2.45z" />
-
-    <path
-        android:strokeColor="#FF00D18F"
-        android:strokeWidth="1.2"
-        android:strokeLineCap="round"
-        android:strokeLineJoin="round"
-        android:fillColor="@android:color/transparent"
-        android:pathData="M7.1,8.15h5.6" />
+        android:pathData="M15.25,8.55c-0.62,-0.7 -1.55,-1.08 -2.85,-1.08c-1.78,0 -3.08,0.82 -3.08,2.15c0,1.33 1.08,1.85 2.92,2.22c1.9,0.38 3.02,0.92 3.02,2.23c0,1.36 -1.32,2.22 -3.18,2.22c-1.42,0 -2.6,-0.45 -3.32,-1.28" />
 
     <path
         android:fillColor="#FF00D18F"
-        android:pathData="M11.25,6.45l2,1.7l-2,1.7z" />
-
-    <path
-        android:strokeColor="#FFFFD166"
-        android:strokeWidth="1.2"
-        android:strokeLineCap="round"
-        android:strokeLineJoin="round"
-        android:fillColor="@android:color/transparent"
-        android:pathData="M16.9,15.85h-5.6" />
+        android:pathData="M17.8,5.25l0.48,1.08l1.07,0.47l-1.07,0.48l-0.48,1.07l-0.47,-1.07l-1.08,-0.48l1.08,-0.47z" />
 
     <path
         android:fillColor="#FFFFD166"
-        android:pathData="M12.75,17.55l-2,-1.7l2,-1.7z" />
-
-    <path
-        android:fillColor="#FFFFD166"
-        android:fillAlpha="0.75"
-        android:pathData="M11.25,5.2h1.5v13.6h-1.5z" />
+        android:fillAlpha="0.72"
+        android:pathData="M6.7,17.55l0.35,0.78l0.78,0.35l-0.78,0.35l-0.35,0.78l-0.35,-0.78l-0.78,-0.35l0.78,-0.35z" />
 </vector>
