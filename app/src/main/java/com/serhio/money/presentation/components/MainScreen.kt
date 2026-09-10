@@ -4,7 +4,6 @@ import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.LinearOutSlowInEasing
-import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.infiniteRepeatable
@@ -16,10 +15,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.*
@@ -31,7 +27,6 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -45,9 +40,6 @@ import com.serhio.money.domain.model.HistoryPoint
 import com.serhio.money.presentation.MainUiState
 import com.serhio.money.presentation.theme.Green500
 import com.serhio.money.presentation.theme.Red500
-import android.view.HapticFeedbackConstants
-import sh.calvin.reorderable.ReorderableItem
-import sh.calvin.reorderable.rememberReorderableLazyListState
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -71,8 +63,7 @@ fun MainScreen(
             onOpenSettings = onOpenSettings,
             onOpenTileConfig = onOpenTileConfig,
             onOpenGraphs = onOpenGraphs,
-            onOpenAlerts = onOpenAlerts,
-            onReorderFavorites = onReorderFavorites
+            onOpenAlerts = onOpenAlerts
         )
         is MainUiState.Error -> ErrorContent(message = uiState.message, onRetry = onRefresh)
     }
@@ -118,8 +109,7 @@ private fun MainContent(
     onOpenSettings: () -> Unit,
     onOpenTileConfig: () -> Unit,
     onOpenGraphs: (String, String) -> Unit,
-    onOpenAlerts: () -> Unit,
-    onReorderFavorites: (List<String>) -> Unit
+    onOpenAlerts: () -> Unit
 ) {
     var page by remember { mutableIntStateOf(0) }
 
@@ -130,31 +120,40 @@ private fun MainContent(
             label = "mainPageContent"
         ) { selectedPage ->
             when (selectedPage) {
-                0 -> FavoritesPage(state, isOnline, onOpenGraphs, onReorderFavorites)
+                0 -> FavoritesPage(state, isOnline, onOpenGraphs)
                 1 -> AllCurrenciesPage(state, isOnline, onOpenGraphs)
                 else -> ActionsPage(onSettings = onOpenSettings, onTileConfig = onOpenTileConfig, onRefresh = onRefresh, onAlerts = onOpenAlerts)
             }
         }
-        PageDots(
+        PageTabs(
             selectedPage = page,
-            pageCount = 3,
             onSelectPage = { page = it },
-            modifier = Modifier.align(Alignment.TopCenter).padding(top = 8.dp)
+            modifier = Modifier.align(Alignment.TopCenter).padding(top = 6.dp)
         )
     }
 }
 
 @Composable
-private fun PageDots(selectedPage: Int, pageCount: Int, onSelectPage: (Int) -> Unit, modifier: Modifier = Modifier) {
-    Row(modifier, horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
-        repeat(pageCount) { index ->
+private fun PageTabs(selectedPage: Int, onSelectPage: (Int) -> Unit, modifier: Modifier = Modifier) {
+    Row(
+        modifier
+            .clip(CircleShape)
+            .background(Color.Black.copy(alpha = 0.28f))
+            .padding(horizontal = 6.dp, vertical = 4.dp),
+        horizontalArrangement = Arrangement.spacedBy(6.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        listOf("★", "☆", "☰").forEachIndexed { index, label ->
             Box(
                 modifier = Modifier
-                    .size(if (selectedPage == index) 8.dp else 6.dp)
+                    .size(24.dp)
                     .clip(CircleShape)
-                    .background(if (selectedPage == index) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline)
-                    .clickable { onSelectPage(index) }
-            )
+                    .background(if (selectedPage == index) MaterialTheme.colorScheme.primary.copy(alpha = 0.22f) else Color.Transparent)
+                    .clickable { onSelectPage(index) },
+                contentAlignment = Alignment.Center
+            ) {
+                Text(label, fontSize = 11.sp, color = if (selectedPage == index) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant)
+            }
         }
     }
 }
@@ -165,7 +164,7 @@ private fun ActionsPage(onSettings: () -> Unit, onTileConfig: () -> Unit, onRefr
         state = rememberScalingLazyListState(),
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp),
-        contentPadding = PaddingValues(top = 30.dp, bottom = 28.dp)
+        contentPadding = PaddingValues(top = 40.dp, bottom = 28.dp)
     ) {
         item { Text(stringResource(R.string.menu_title), style = MaterialTheme.typography.displayMedium, color = MaterialTheme.colorScheme.onBackground, modifier = Modifier.padding(bottom = 8.dp)) }
         item { MenuCard("\u2699", stringResource(R.string.menu_settings).withoutLeadingMenuIcon(), onSettings) }
@@ -186,47 +185,31 @@ private fun MenuCard(icon: String, label: String, onClick: () -> Unit) {
 }
 
 @Composable
-private fun FavoritesPage(state: MainUiState.Success, isOnline: Boolean, onOpenGraphs: (String, String) -> Unit, onReorderFavorites: (List<String>) -> Unit) {
-    val view = LocalView.current
+private fun FavoritesPage(state: MainUiState.Success, isOnline: Boolean, onOpenGraphs: (String, String) -> Unit) {
     val displayed = state.interestedCurrencies.filter { state.rates.containsKey(it) }
-    var order by remember(displayed) { mutableStateOf(displayed) }
-    val lazyListState = rememberLazyListState()
-    val reorderState = rememberReorderableLazyListState(lazyListState) { from, to ->
-        order = order.toMutableList().apply { add(to.index - 1, removeAt(from.index - 1)) }
-        view.performHapticFeedback(HapticFeedbackConstants.CLOCK_TICK)
-    }
-
-    LazyColumn(
-        state = lazyListState,
-        modifier = Modifier.fillMaxSize(),
+    ScalingLazyColumn(
+        state = rememberScalingLazyListState(),
         horizontalAlignment = Alignment.CenterHorizontally,
-        contentPadding = PaddingValues(top = 34.dp, bottom = 28.dp, start = 4.dp, end = 4.dp)
+        contentPadding = PaddingValues(top = 40.dp, bottom = 28.dp)
     ) {
-        item(key = "header") { Text(stringResource(R.string.page_favorites), fontSize = 13.sp, fontWeight = FontWeight.Medium, color = MaterialTheme.colorScheme.primary, modifier = Modifier.padding(bottom = 4.dp)) }
-        if (order.isEmpty()) {
-            item(key = "empty") { Box(Modifier.fillMaxWidth().padding(top = 40.dp), contentAlignment = Alignment.Center) { Text(stringResource(R.string.empty_currencies), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurface) } }
+        item { Text(stringResource(R.string.page_favorites), fontSize = 13.sp, fontWeight = FontWeight.Medium, color = MaterialTheme.colorScheme.primary, modifier = Modifier.padding(bottom = 4.dp)) }
+        if (displayed.isEmpty()) {
+            item { Box(Modifier.fillMaxWidth().padding(top = 40.dp), contentAlignment = Alignment.Center) { Text(stringResource(R.string.empty_currencies), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurface) } }
         }
-        items(order.size, key = { order[it] }) { index ->
-            val code = order[index]
-            val animProgress = remember { Animatable(0f) }
-            LaunchedEffect(code) { animProgress.snapTo(0f); animProgress.animateTo(1f, tween(durationMillis = 300, delayMillis = index * 50, easing = LinearOutSlowInEasing)) }
-            ReorderableItem(reorderState, key = code) { isDragging ->
-                val elevation by animateDpAsState(if (isDragging) 8.dp else 0.dp, label = "elevation")
-                val interactionSource = remember { MutableInteractionSource() }
+        items(displayed.size, key = { displayed[it] }) { index ->
+            val code = displayed[index]
+            AnimatedCurrencyCard(index = index) {
                 CurrencyCard(
-                    modifier = Modifier.graphicsLayer { alpha = animProgress.value; translationY = (1f - animProgress.value) * 20f }.clickable(interactionSource = interactionSource, indication = null) { onOpenGraphs(state.baseCurrency, code) },
-                    dragHandleModifier = Modifier.longPressDraggableHandle(onDragStarted = { view.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS) }, onDragStopped = { view.performHapticFeedback(HapticFeedbackConstants.CONTEXT_CLICK); onReorderFavorites(order) }, interactionSource = interactionSource),
+                    modifier = Modifier.clickable { onOpenGraphs(state.baseCurrency, code) },
                     baseCurrency = state.baseCurrency,
                     currencyCode = code,
                     rateValue = state.rates[code] ?: 0.0,
                     history = state.history[code],
-                    isFavorite = true,
-                    isDragging = isDragging,
-                    elevation = elevation
+                    isFavorite = true
                 )
             }
         }
-        item(key = "footer") { StatusFooter(isOnline = isOnline, isFromCache = state.isFromCache, lastUpdate = state.lastUpdate) }
+        item { StatusFooter(isOnline = isOnline, isFromCache = state.isFromCache, lastUpdate = state.lastUpdate) }
     }
 }
 
@@ -236,24 +219,34 @@ private fun AllCurrenciesPage(state: MainUiState.Success, isOnline: Boolean, onO
     ScalingLazyColumn(
         state = rememberScalingLazyListState(),
         horizontalAlignment = Alignment.CenterHorizontally,
-        contentPadding = PaddingValues(top = 30.dp, bottom = 28.dp)
+        contentPadding = PaddingValues(top = 40.dp, bottom = 28.dp)
     ) {
         item { Text(stringResource(R.string.page_all), fontSize = 13.sp, fontWeight = FontWeight.Medium, color = MaterialTheme.colorScheme.primary, modifier = Modifier.padding(bottom = 4.dp)) }
         items(entries.size, key = { entries[it].key }) { index ->
             val entry = entries[index]
-            val animProgress = remember { Animatable(0f) }
-            LaunchedEffect(entry.key) { animProgress.snapTo(0f); animProgress.animateTo(1f, tween(durationMillis = 300, delayMillis = index * 40, easing = LinearOutSlowInEasing)) }
-            CurrencyCard(
-                modifier = Modifier.graphicsLayer { alpha = animProgress.value; translationY = (1f - animProgress.value) * 20f }.clickable { onOpenGraphs(state.baseCurrency, entry.key) },
-                baseCurrency = state.baseCurrency,
-                currencyCode = entry.key,
-                rateValue = entry.value,
-                history = state.history[entry.key],
-                isFavorite = entry.key in state.interestedCurrencies
-            )
+            AnimatedCurrencyCard(index = index) {
+                CurrencyCard(
+                    modifier = Modifier.clickable { onOpenGraphs(state.baseCurrency, entry.key) },
+                    baseCurrency = state.baseCurrency,
+                    currencyCode = entry.key,
+                    rateValue = entry.value,
+                    history = state.history[entry.key],
+                    isFavorite = entry.key in state.interestedCurrencies
+                )
+            }
         }
         item { StatusFooter(isOnline = isOnline, isFromCache = state.isFromCache, lastUpdate = state.lastUpdate) }
     }
+}
+
+@Composable
+private fun AnimatedCurrencyCard(index: Int, content: @Composable () -> Unit) {
+    val animProgress = remember { Animatable(0f) }
+    LaunchedEffect(index) {
+        animProgress.snapTo(0f)
+        animProgress.animateTo(1f, tween(durationMillis = 300, delayMillis = index * 35, easing = LinearOutSlowInEasing))
+    }
+    Box(Modifier.graphicsLayer { alpha = animProgress.value; translationY = (1f - animProgress.value) * 20f }) { content() }
 }
 
 @Composable
@@ -273,13 +266,11 @@ private fun StatusFooter(isOnline: Boolean, isFromCache: Boolean, lastUpdate: Lo
 @Composable
 private fun CurrencyCard(
     modifier: Modifier = Modifier,
-    dragHandleModifier: Modifier = Modifier,
     baseCurrency: String,
     currencyCode: String,
     rateValue: Double,
     history: List<HistoryPoint>?,
     isFavorite: Boolean,
-    isDragging: Boolean = false,
     elevation: androidx.compose.ui.unit.Dp = 0.dp
 ) {
     val reciprocal = if (rateValue != 0.0) 1.0 / rateValue else 0.0
@@ -292,7 +283,7 @@ private fun CurrencyCard(
 
     Box(
         modifier = modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 4.dp).shadow(elevation, MaterialTheme.shapes.medium).clip(MaterialTheme.shapes.medium)
-            .background(Brush.verticalGradient(if (isDragging) listOf(Color(0xFF2A2A2A), Color(0xFF1E1E1E)) else listOf(Color(0xFF1E1E1E), Color(0xFF161616))))
+            .background(Brush.verticalGradient(listOf(Color(0xFF1E1E1E), Color(0xFF161616))))
     ) {
         Column(Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 10.dp)) {
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
@@ -312,10 +303,7 @@ private fun CurrencyCard(
                     Text("1 $currencyCode = ${formatRate(animatedRecip)}", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
                 Column(horizontalAlignment = Alignment.End) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        if (change != null) Text(if (change > 0) "\u25B2" else "\u25BC", color = changeColor, fontSize = 16.sp)
-                        if (dragHandleModifier != Modifier) Text("  ⋮⋮", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 13.sp, modifier = dragHandleModifier.padding(start = 4.dp))
-                    }
+                    if (change != null) Text(if (change > 0) "\u25B2" else "\u25BC", color = changeColor, fontSize = 16.sp)
                     if (rateValues != null && rateValues.isNotEmpty()) { Spacer(Modifier.height(6.dp)); SparklineChart(data = rateValues, modifier = Modifier.width(56.dp).height(22.dp), color = changeColor) }
                 }
             }
