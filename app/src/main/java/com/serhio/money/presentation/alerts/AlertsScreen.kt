@@ -31,10 +31,14 @@ import java.util.Locale
 @Composable
 fun AlertsScreen(viewModel: AlertsViewModel) {
     val alerts by viewModel.alerts.collectAsState()
+    val baseCurrency by viewModel.baseCurrency.collectAsState()
+    val alertCurrencies by viewModel.alertCurrencies.collectAsState()
     var showComposer by remember { mutableStateOf(false) }
 
     if (showComposer) {
         AlertComposer(
+            baseCurrency = baseCurrency,
+            currencies = alertCurrencies,
             onDismiss = { showComposer = false },
             onAdd = { code, rate, above ->
                 viewModel.addAlert(code, rate, above)
@@ -43,6 +47,7 @@ fun AlertsScreen(viewModel: AlertsViewModel) {
         )
     } else {
         AlertsList(
+            baseCurrency = baseCurrency,
             alerts = alerts,
             onAdd = { showComposer = true },
             onToggle = { id, enabled -> viewModel.toggleAlert(id, enabled) },
@@ -52,7 +57,7 @@ fun AlertsScreen(viewModel: AlertsViewModel) {
 }
 
 @Composable
-private fun AlertsList(alerts: List<Alert>, onAdd: () -> Unit, onToggle: (Long, Boolean) -> Unit, onDelete: (Alert) -> Unit) {
+private fun AlertsList(baseCurrency: String, alerts: List<Alert>, onAdd: () -> Unit, onToggle: (Long, Boolean) -> Unit, onDelete: (Alert) -> Unit) {
     ScalingLazyColumn(
         modifier = Modifier.fillMaxSize(),
         state = rememberScalingLazyListState(),
@@ -62,7 +67,7 @@ private fun AlertsList(alerts: List<Alert>, onAdd: () -> Unit, onToggle: (Long, 
         item {
             Text(stringResource(R.string.alerts_title), style = MaterialTheme.typography.displayMedium, color = MaterialTheme.colorScheme.onBackground, modifier = Modifier.padding(bottom = 6.dp))
         }
-        item { AddAlertCard(onClick = onAdd) }
+        item { AddAlertCard(baseCurrency = baseCurrency, onClick = onAdd) }
         if (alerts.isEmpty()) {
             item {
                 PremiumPanel {
@@ -72,13 +77,13 @@ private fun AlertsList(alerts: List<Alert>, onAdd: () -> Unit, onToggle: (Long, 
             }
         }
         items(alerts.size, key = { alerts[it].id }) { index ->
-            AlertCard(alert = alerts[index], onToggle = { onToggle(alerts[index].id, it) }, onDelete = { onDelete(alerts[index]) })
+            AlertCard(baseCurrency = baseCurrency, alert = alerts[index], onToggle = { onToggle(alerts[index].id, it) }, onDelete = { onDelete(alerts[index]) })
         }
     }
 }
 
 @Composable
-private fun AddAlertCard(onClick: () -> Unit) {
+private fun AddAlertCard(baseCurrency: String, onClick: () -> Unit) {
     PremiumPanel(modifier = Modifier.clickable { onClick() }) {
         Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
             Box(Modifier.size(32.dp).clip(CircleShape).background(MoneyGold.copy(alpha = 0.16f)).border(1.dp, MoneyGold.copy(alpha = 0.38f), CircleShape), contentAlignment = Alignment.Center) {
@@ -87,14 +92,14 @@ private fun AddAlertCard(onClick: () -> Unit) {
             Spacer(Modifier.width(10.dp))
             Column(Modifier.weight(1f)) {
                 Text(stringResource(R.string.alert_add), fontSize = 14.sp, fontWeight = FontWeight.Bold)
-                Text(stringResource(R.string.alert_add_desc), fontSize = 10.sp, color = SubtextGray)
+                Text("$baseCurrency → ${stringResource(R.string.alert_add_desc)}", fontSize = 10.sp, color = SubtextGray)
             }
         }
     }
 }
 
 @Composable
-private fun AlertCard(alert: Alert, onToggle: (Boolean) -> Unit, onDelete: () -> Unit) {
+private fun AlertCard(baseCurrency: String, alert: Alert, onToggle: (Boolean) -> Unit, onDelete: () -> Unit) {
     PremiumPanel {
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             Box(Modifier.size(34.dp).clip(CircleShape).background(if (alert.isEnabled) MoneyGold.copy(alpha = 0.16f) else Color.White.copy(alpha = 0.05f)).border(1.dp, if (alert.isEnabled) MoneyGold.copy(alpha = 0.42f) else Color.White.copy(alpha = 0.12f), CircleShape), contentAlignment = Alignment.Center) {
@@ -102,8 +107,8 @@ private fun AlertCard(alert: Alert, onToggle: (Boolean) -> Unit, onDelete: () ->
             }
             Spacer(Modifier.width(10.dp))
             Column(Modifier.weight(1f)) {
-                Text(alert.currencyCode, fontSize = 15.sp, fontWeight = FontWeight.Bold, color = if (alert.isEnabled) MaterialTheme.colorScheme.onSurface else SubtextGray)
-                Text("${alert.direction} ${String.format(Locale.US, "%.4f", alert.targetRate)}", fontSize = 11.sp, color = MoneyGold)
+                Text("$baseCurrency/${alert.currencyCode}", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = if (alert.isEnabled) MaterialTheme.colorScheme.onSurface else SubtextGray)
+                Text("1 $baseCurrency ${alert.direction} ${String.format(Locale.US, "%.4f", alert.targetRate)} ${alert.currencyCode}", fontSize = 10.sp, color = MoneyGold, maxLines = 1)
                 if (alert.triggeredAt != null) Text(stringResource(R.string.alert_triggered), fontSize = 10.sp, color = MaterialTheme.colorScheme.tertiary)
             }
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -115,9 +120,8 @@ private fun AlertCard(alert: Alert, onToggle: (Boolean) -> Unit, onDelete: () ->
 }
 
 @Composable
-private fun AlertComposer(onDismiss: () -> Unit, onAdd: (String, Double, Boolean) -> Unit) {
-    val currencies = remember { listOf("EUR", "USD", "PLN", "UAH", "GBP", "CHF", "JPY", "CAD", "AUD", "CNY", "BTC", "XAU") }
-    var selectedCurrency by remember { mutableStateOf("EUR") }
+private fun AlertComposer(baseCurrency: String, currencies: List<String>, onDismiss: () -> Unit, onAdd: (String, Double, Boolean) -> Unit) {
+    var selectedCurrency by remember(currencies) { mutableStateOf(currencies.firstOrNull() ?: "EUR") }
     var isAbove by remember { mutableStateOf(true) }
     var targetRate by remember { mutableStateOf("") }
     val canSave = targetRate.toDoubleOrNull() != null
@@ -133,7 +137,7 @@ private fun AlertComposer(onDismiss: () -> Unit, onAdd: (String, Double, Boolean
         }
         item {
             PremiumPanel {
-                Text(stringResource(R.string.alert_currency), fontSize = 12.sp, color = SubtextGray, modifier = Modifier.padding(bottom = 6.dp))
+                Text("1 $baseCurrency → $selectedCurrency", fontSize = 13.sp, color = MoneyGold, fontWeight = FontWeight.Bold, modifier = Modifier.padding(bottom = 6.dp))
                 CurrencyGrid(currencies = currencies, selected = selectedCurrency, onSelect = { selectedCurrency = it })
             }
         }
@@ -151,6 +155,17 @@ private fun AlertComposer(onDismiss: () -> Unit, onAdd: (String, Double, Boolean
                 Text(stringResource(R.string.alert_rate), fontSize = 12.sp, color = SubtextGray)
                 Text(targetRate.ifBlank { "0" }, fontSize = 24.sp, color = MoneyGold, fontWeight = FontWeight.ExtraBold, modifier = Modifier.padding(vertical = 6.dp))
                 NumericPad(value = targetRate, onValueChange = { targetRate = it })
+            }
+        }
+        item {
+            PremiumPanel {
+                Text(
+                    "1 $baseCurrency ${if (isAbove) "≥" else "≤"} ${targetRate.ifBlank { "0" }} $selectedCurrency",
+                    fontSize = 11.sp,
+                    color = SubtextGray,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth()
+                )
             }
         }
         item {
@@ -177,18 +192,20 @@ private fun CurrencyGrid(currencies: List<String>, selected: String, onSelect: (
 
 @Composable
 private fun NumericPad(value: String, onValueChange: (String) -> Unit) {
-    val keys = listOf(listOf("1", "2", "3"), listOf("4", "5", "6"), listOf("7", "8", "9"), listOf(".", "0", "⌫"))
+    val keys = listOf(listOf("1", "2", "3"), listOf("4", "5", "6"), listOf("7", "8", "9"), listOf("C", "0", "⌫"), listOf("."))
     keys.forEach { row ->
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
             row.forEach { key ->
                 Box(Modifier.weight(1f).clip(RoundedCornerShape(14.dp)).background(Color.White.copy(alpha = 0.05f)).border(1.dp, MoneyGold.copy(alpha = 0.16f), RoundedCornerShape(14.dp)).clickable {
                     when (key) {
                         "⌫" -> onValueChange(value.dropLast(1))
+                        "C" -> onValueChange("")
                         "." -> if (!value.contains('.')) onValueChange(if (value.isBlank()) "0." else value + ".")
                         else -> onValueChange((value + key).trimStart('0').ifBlank { "0" }.take(10))
                     }
-                }.padding(vertical = 9.dp), contentAlignment = Alignment.Center) { Text(key, fontSize = 14.sp, color = if (key == "⌫") MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.Bold) }
+                }.padding(vertical = 9.dp), contentAlignment = Alignment.Center) { Text(key, fontSize = 14.sp, color = if (key == "⌫" || key == "C") MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.Bold) }
             }
+            repeat(3 - row.size) { Spacer(Modifier.weight(1f)) }
         }
         Spacer(Modifier.height(6.dp))
     }
