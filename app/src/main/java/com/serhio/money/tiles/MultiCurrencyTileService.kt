@@ -5,9 +5,9 @@ package com.serhio.money.tiles
 import android.content.Context
 import androidx.wear.protolayout.ActionBuilders
 import androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters
+import androidx.wear.protolayout.DimensionBuilders
 import androidx.wear.protolayout.LayoutElementBuilders
 import androidx.wear.protolayout.ModifiersBuilders
-import androidx.wear.protolayout.ResourceBuilders
 import androidx.wear.protolayout.material3.Typography
 import androidx.wear.protolayout.material3.materialScope
 import androidx.wear.protolayout.material3.primaryLayout
@@ -58,7 +58,19 @@ class MultiCurrencyTileService : BaseCurrencyTileService() {
         return materialScope(context, deviceConfiguration) {
             primaryLayout(
                 titleSlot = {
-                    text(baseCurrency.layoutString, typography = Typography.TITLE_MEDIUM)
+                    LayoutElementBuilders.Row.Builder()
+                        .addContent(
+                        LayoutElementBuilders.Image.Builder()
+                            .setResourceId("icon_exchange")
+                            .setWidth(DimensionBuilders.dp(20f))
+                            .setHeight(DimensionBuilders.dp(20f))
+                            .setContentScaleMode(LayoutElementBuilders.CONTENT_SCALE_MODE_FIT)
+                            .build()
+                        )
+                        .addContent(
+                            text(" $baseCurrency".layoutString, typography = Typography.TITLE_MEDIUM)
+                        )
+                        .build()
                 },
                 mainSlot = {
                     val column = LayoutElementBuilders.Column.Builder()
@@ -88,11 +100,5 @@ class MultiCurrencyTileService : BaseCurrencyTileService() {
                 }
             )
         }
-    }
-
-    override suspend fun resourcesRequest(requestParams: RequestBuilders.ResourcesRequest): ResourceBuilders.Resources {
-        return ResourceBuilders.Resources.Builder()
-            .setVersion("1")
-            .build()
     }
 }

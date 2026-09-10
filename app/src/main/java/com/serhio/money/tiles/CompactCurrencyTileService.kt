@@ -5,9 +5,9 @@ package com.serhio.money.tiles
 import android.content.Context
 import androidx.wear.protolayout.ActionBuilders
 import androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters
+import androidx.wear.protolayout.DimensionBuilders
 import androidx.wear.protolayout.LayoutElementBuilders
 import androidx.wear.protolayout.ModifiersBuilders
-import androidx.wear.protolayout.ResourceBuilders
 import androidx.wear.protolayout.material3.Typography
 import androidx.wear.protolayout.material3.materialScope
 import androidx.wear.protolayout.material3.primaryLayout
@@ -67,10 +67,22 @@ class CompactCurrencyTileService : BaseCurrencyTileService() {
         return materialScope(context, deviceConfiguration) {
             primaryLayout(
                 mainSlot = {
-                    text(
-                        (if (rate != null) "$currency $rate" else "$currency: --").layoutString,
-                        typography = Typography.LABEL_SMALL
-                    )
+                    LayoutElementBuilders.Row.Builder()
+                        .addContent(
+                        LayoutElementBuilders.Image.Builder()
+                            .setResourceId("icon_exchange")
+                            .setWidth(DimensionBuilders.dp(20f))
+                            .setHeight(DimensionBuilders.dp(20f))
+                            .setContentScaleMode(LayoutElementBuilders.CONTENT_SCALE_MODE_FIT)
+                            .build()
+                        )
+                        .addContent(
+                            text(
+                                (if (rate != null) " $currency $rate" else " $currency: --").layoutString,
+                                typography = Typography.BODY_LARGE
+                            )
+                        )
+                        .build()
                 },
                 bottomSlot = {
                     textEdgeButton(onClick = onClick) {
@@ -79,11 +91,5 @@ class CompactCurrencyTileService : BaseCurrencyTileService() {
                 }
             )
         }
-    }
-
-    override suspend fun resourcesRequest(requestParams: RequestBuilders.ResourcesRequest): ResourceBuilders.Resources {
-        return ResourceBuilders.Resources.Builder()
-            .setVersion("1")
-            .build()
     }
 }

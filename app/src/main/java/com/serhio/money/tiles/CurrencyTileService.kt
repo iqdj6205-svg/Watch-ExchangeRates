@@ -5,9 +5,9 @@ package com.serhio.money.tiles
 import android.content.Context
 import androidx.wear.protolayout.ActionBuilders
 import androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters
+import androidx.wear.protolayout.DimensionBuilders
 import androidx.wear.protolayout.LayoutElementBuilders
 import androidx.wear.protolayout.ModifiersBuilders
-import androidx.wear.protolayout.ResourceBuilders
 import androidx.wear.protolayout.material3.Typography
 import androidx.wear.protolayout.material3.materialScope
 import androidx.wear.protolayout.material3.primaryLayout
@@ -70,10 +70,22 @@ class CurrencyTileService : BaseCurrencyTileService() {
                     text(currency.layoutString, typography = Typography.TITLE_MEDIUM)
                 },
                 mainSlot = {
-                    text(
-                        (rate ?: "--").layoutString,
-                        typography = Typography.NUMERAL_LARGE
-                    )
+                    LayoutElementBuilders.Column.Builder()
+                        .addContent(
+                        LayoutElementBuilders.Image.Builder()
+                            .setResourceId("icon_exchange")
+                            .setWidth(DimensionBuilders.dp(32f))
+                            .setHeight(DimensionBuilders.dp(32f))
+                            .setContentScaleMode(LayoutElementBuilders.CONTENT_SCALE_MODE_FIT)
+                            .build()
+                        )
+                        .addContent(
+                            text(
+                                (rate ?: "--").layoutString,
+                                typography = Typography.NUMERAL_LARGE
+                            )
+                        )
+                        .build()
                 },
                 bottomSlot = {
                     textEdgeButton(onClick = onClick) {
@@ -82,11 +94,5 @@ class CurrencyTileService : BaseCurrencyTileService() {
                 }
             )
         }
-    }
-
-    override suspend fun resourcesRequest(requestParams: RequestBuilders.ResourcesRequest): ResourceBuilders.Resources {
-        return ResourceBuilders.Resources.Builder()
-            .setVersion("1")
-            .build()
     }
 }
