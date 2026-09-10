@@ -18,80 +18,31 @@ import androidx.wear.tiles.RequestBuilders
 import androidx.wear.tiles.TileBuilders
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.first
-import java.util.Locale
 
 @AndroidEntryPoint
 class CurrencyTileService : BaseCurrencyTileService() {
-
     override suspend fun buildTile(requestParams: RequestBuilders.TileRequest): TileBuilders.Tile {
         val baseCurrency = settingsManager.baseCurrencyFlow.first()
-        val interested = settingsManager.interestedCurrenciesFlow.first()
-        val target = interested.firstOrNull() ?: "EUR"
-
+        val target = settingsManager.tileDisplayCurrencyFlow.first()
+        val mode = settingsManager.tileDisplayModeFlow.first()
         val rateValue = fetchRate(baseCurrency, target)
-        val rateText = if (rateValue != null) {
-            val decimals = when {
-                rateValue < 0.01 -> 4
-                rateValue < 1.0 -> 3
-                else -> 2
-            }
-            String.format(Locale.US, "%.${decimals}f", rateValue)
-        } else {
-            null
-        }
-
-        val layout = createLayout(this, requestParams.deviceConfiguration, target, rateText)
-        return createTimeline(layout)
+        val valueText = formatTileValue(mode, target, rateValue)
+        return createTimeline(createLayout(this, requestParams.deviceConfiguration, baseCurrency, target, valueText))
     }
 
-    private fun createLayout(
-        context: Context,
-        deviceConfiguration: DeviceParameters,
-        currency: String,
-        rate: String?
-    ): LayoutElementBuilders.LayoutElement {
-        val openAction = ActionBuilders.LaunchAction.Builder()
-            .setAndroidActivity(
-                ActionBuilders.AndroidActivity.Builder()
-                    .setPackageName(context.packageName)
-                    .setClassName("${context.packageName}.presentation.MainActivity")
-                    .build()
-            )
-            .build()
-
-        val onClick = ModifiersBuilders.Clickable.Builder()
-            .setId("open_app")
-            .setOnClick(openAction)
-            .build()
-
+    private fun createLayout(context: Context, deviceConfiguration: DeviceParameters, baseCurrency: String, currency: String, value: String): LayoutElementBuilders.LayoutElement {
+        val openAction = ActionBuilders.LaunchAction.Builder().setAndroidActivity(ActionBuilders.AndroidActivity.Builder().setPackageName(context.packageName).setClassName("${context.packageName}.presentation.MainActivity").build()).build()
+        val onClick = ModifiersBuilders.Clickable.Builder().setId("open_app").setOnClick(openAction).build()
         return materialScope(context, deviceConfiguration) {
             primaryLayout(
-                titleSlot = {
-                    text(currency.layoutString, typography = Typography.TITLE_MEDIUM)
-                },
+                titleSlot = { text("$baseCurrency/$currency".layoutString, typography = Typography.TITLE_MEDIUM) },
                 mainSlot = {
                     LayoutElementBuilders.Column.Builder()
-                        .addContent(
-                        LayoutElementBuilders.Image.Builder()
-                            .setResourceId("icon_exchange")
-                            .setWidth(DimensionBuilders.dp(32f))
-                            .setHeight(DimensionBuilders.dp(32f))
-                            .setContentScaleMode(LayoutElementBuilders.CONTENT_SCALE_MODE_FIT)
-                            .build()
-                        )
-                        .addContent(
-                            text(
-                                (rate ?: "--").layoutString,
-                                typography = Typography.NUMERAL_LARGE
-                            )
-                        )
+                        .addContent(LayoutElementBuilders.Image.Builder().setResourceId("icon_exchange").setWidth(DimensionBuilders.dp(28f)).setHeight(DimensionBuilders.dp(28f)).setContentScaleMode(LayoutElementBuilders.CONTENT_SCALE_MODE_FIT).build())
+                        .addContent(text(value.layoutString, typography = Typography.NUMERAL_LARGE))
                         .build()
                 },
-                bottomSlot = {
-                    textEdgeButton(onClick = onClick) {
-                        text("Open".layoutString)
-                    }
-                }
+                bottomSlot = { textEdgeButton(onClick = onClick) { text("Open".layoutString) } }
             )
         }
     }

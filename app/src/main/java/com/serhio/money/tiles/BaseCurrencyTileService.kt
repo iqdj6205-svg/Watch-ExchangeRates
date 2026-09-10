@@ -13,6 +13,7 @@ import com.serhio.money.domain.repository.CurrencyRepository
 import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import java.util.Locale
 
 @OptIn(ExperimentalHorologistApi::class)
 abstract class BaseCurrencyTileService : SuspendingTileService() {
@@ -27,10 +28,26 @@ abstract class BaseCurrencyTileService : SuspendingTileService() {
         }
     }
 
-    override suspend fun tileRequest(requestParams: RequestBuilders.TileRequest): TileBuilders.Tile {
-        return withContext(Dispatchers.IO) {
-            buildTile(requestParams)
+    protected fun formatRate(rateValue: Double): String {
+        val decimals = when {
+            rateValue < 0.01 -> 4
+            rateValue < 1.0 -> 3
+            else -> 2
         }
+        return String.format(Locale.US, "%.${decimals}f", rateValue)
+    }
+
+    protected fun formatTileValue(mode: String, currency: String, rateValue: Double?): String {
+        return when (mode) {
+            "date" -> java.text.SimpleDateFormat("HH:mm", Locale.getDefault()).format(java.util.Date())
+            "arrow" -> if (rateValue == null) "--" else "↗"
+            "change" -> if (rateValue == null) "--" else formatRate(rateValue)
+            else -> rateValue?.let { formatRate(it) } ?: "--"
+        }
+    }
+
+    override suspend fun tileRequest(requestParams: RequestBuilders.TileRequest): TileBuilders.Tile {
+        return withContext(Dispatchers.IO) { buildTile(requestParams) }
     }
 
     abstract suspend fun buildTile(requestParams: RequestBuilders.TileRequest): TileBuilders.Tile
@@ -59,11 +76,7 @@ abstract class BaseCurrencyTileService : SuspendingTileService() {
                 TimelineBuilders.Timeline.Builder()
                     .addTimelineEntry(
                         TimelineBuilders.TimelineEntry.Builder()
-                            .setLayout(
-                                LayoutElementBuilders.Layout.Builder()
-                                    .setRoot(element)
-                                    .build()
-                            )
+                            .setLayout(LayoutElementBuilders.Layout.Builder().setRoot(element).build())
                             .build()
                     )
                     .build()
