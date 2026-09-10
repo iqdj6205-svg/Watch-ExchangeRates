@@ -13,3 +13,17 @@ local.properties
 *.aab
 *.keystore
 google-services.json
+
+# Temporary logs & output
+*.txt
+
+# Release builds & baseline profiles outputs
+**/release/
+
+# OpenCode & SpecKit tools
+.opencode/
+.specify/
+opencode.json
+plan.md
+spec.md
+tasks.md
