@@ -2,11 +2,12 @@
 
 ```tasks
 ## Phase 7: Polish
-- [ ] #task Remove REORDER_DBG debug logs from CurrencyCard
-- [ ] #task Remove REORDER_DBG from SettingsViewModel
-- [ ] #task Remove temporary `semantics` blocks from reorderable items
+- [x] #task Remove REORDER_DBG debug logs from CurrencyCard
+- [x] #task Remove REORDER_DBG from SettingsViewModel
+- [x] #task Remove temporary `semantics` blocks from reorderable items
 - [ ] #task Build release APK (ARM-only)
 - [ ] #task Run full lint pass
+- [ ] #task Replace debug signing config before publishing
 ```
 
 ## Completed Tasks
@@ -26,3 +27,5 @@
 - [x] Dependency cleanup (remove unused: appcompat, material, ui-graphics)
 - [x] Spec Kit init (.specify/, constitution, 10 commands, 23 skills)
 - [x] spec.md, plan.md, tasks.md created
+- [x] Premium dark/gold Wear OS theme polish
+- [x] Round-screen settings/config layout pass
