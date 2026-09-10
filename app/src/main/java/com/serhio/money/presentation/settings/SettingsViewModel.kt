@@ -3,7 +3,13 @@ package com.serhio.money.presentation.settings
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.wear.tiles.TileService
 import com.serhio.money.data.settings.SettingsManager
+import com.serhio.money.tiles.BigNumberCurrencyTileService
+import com.serhio.money.tiles.ChangeCurrencyTileService
+import com.serhio.money.tiles.CompactCurrencyTileService
+import com.serhio.money.tiles.CurrencyTileService
+import com.serhio.money.tiles.MultiCurrencyTileService
 import com.serhio.money.utils.WorkerUtils
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -31,9 +37,20 @@ class SettingsViewModel @Inject constructor(
         viewModelScope, SharingStarted.WhileSubscribed(5000), 3600 * 1000L
     )
 
+    private val tileUpdater = TileService.getUpdater(context)
+
+    private fun requestTileUpdates() {
+        tileUpdater.requestUpdate(CurrencyTileService::class.java)
+        tileUpdater.requestUpdate(MultiCurrencyTileService::class.java)
+        tileUpdater.requestUpdate(BigNumberCurrencyTileService::class.java)
+        tileUpdater.requestUpdate(CompactCurrencyTileService::class.java)
+        tileUpdater.requestUpdate(ChangeCurrencyTileService::class.java)
+    }
+
     fun setBaseCurrency(currency: String) {
         viewModelScope.launch {
             settingsManager.setBaseCurrency(currency)
+            requestTileUpdates()
         }
     }
 
@@ -41,6 +58,7 @@ class SettingsViewModel @Inject constructor(
         viewModelScope.launch {
             settingsManager.setUpdateInterval(intervalMs)
             WorkerUtils.schedulePeriodicUpdate(context, intervalMs)
+            requestTileUpdates()
         }
     }
 
@@ -56,6 +74,7 @@ class SettingsViewModel @Inject constructor(
         pendingOrder = current
         viewModelScope.launch {
             settingsManager.setInterestedCurrencies(current)
+            requestTileUpdates()
         }
     }
 
@@ -65,6 +84,7 @@ class SettingsViewModel @Inject constructor(
         pendingOrder = merged
         viewModelScope.launch {
             settingsManager.setInterestedCurrencies(merged)
+            requestTileUpdates()
         }
     }
 }

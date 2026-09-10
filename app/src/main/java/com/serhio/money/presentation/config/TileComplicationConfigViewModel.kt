@@ -66,12 +66,16 @@ class TileComplicationConfigViewModel @Inject constructor(
     fun setComplicationCurrency(currency: String) {
         viewModelScope.launch {
             settingsManager.setComplicationDisplayCurrency(currency)
+            // The complication currently follows the first favorite currency.
+            // Keep this value stored for future explicit complication modes, but refresh tiles now.
+            requestTileUpdates()
         }
     }
 
     fun setComplicationMode(mode: String) {
         viewModelScope.launch {
             settingsManager.setComplicationDisplayMode(mode)
+            requestTileUpdates()
         }
     }
 }

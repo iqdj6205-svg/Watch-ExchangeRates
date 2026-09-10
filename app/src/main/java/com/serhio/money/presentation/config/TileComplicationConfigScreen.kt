@@ -1,8 +1,10 @@
 package com.serhio.money.presentation.config
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -69,6 +71,7 @@ fun TileComplicationConfigScreen(
         item {
             PremiumConfigCard(title = stringResource(R.string.section_complication_config)) {
                 Text(stringResource(R.string.section_complication_currency), fontSize = 11.sp, color = SubtextGray, modifier = Modifier.padding(bottom = 6.dp))
+                Text("Follows top favorite", fontSize = 10.sp, color = MoneyGold, modifier = Modifier.padding(bottom = 6.dp))
                 CurrencyGrid(currencies, complicationCurrency, onComplicationCurrencyChange)
                 Spacer(Modifier.height(8.dp))
                 Text(stringResource(R.string.section_tile_mode), fontSize = 11.sp, color = SubtextGray, modifier = Modifier.padding(bottom = 6.dp))
@@ -82,7 +85,8 @@ fun TileComplicationConfigScreen(
                 color = MoneyGold,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier
-                    .clip(RoundedCornerShape(18.dp))
+                    .clip(CircleShape)
+                    .border(1.dp, MoneyGold.copy(alpha = 0.28f), CircleShape)
                     .clickable { onBack() }
                     .padding(horizontal = 18.dp, vertical = 10.dp)
             )
@@ -98,6 +102,7 @@ private fun PremiumConfigCard(title: String, content: @Composable ColumnScope.()
             .padding(vertical = 5.dp)
             .clip(RoundedCornerShape(22.dp))
             .background(Brush.verticalGradient(listOf(CardTop, CardBottom)))
+            .border(1.dp, MoneyGold.copy(alpha = 0.34f), RoundedCornerShape(22.dp))
             .padding(horizontal = 12.dp, vertical = 10.dp)
     ) {
         Text(title, fontSize = 14.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(bottom = 8.dp))
@@ -136,6 +141,7 @@ private fun CompactChip(label: String, selected: Boolean, modifier: Modifier = M
         modifier = modifier
             .clip(RoundedCornerShape(15.dp))
             .background(if (selected) MoneyGold.copy(alpha = 0.2f) else Color.White.copy(alpha = 0.04f))
+            .border(1.dp, if (selected) MoneyGold.copy(alpha = 0.45f) else MoneyGold.copy(alpha = 0.14f), RoundedCornerShape(15.dp))
             .clickable { onClick() }
             .padding(horizontal = 6.dp, vertical = 8.dp),
         contentAlignment = Alignment.Center
