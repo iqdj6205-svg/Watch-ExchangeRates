@@ -8,7 +8,6 @@
     <string name="tile_label_compact">Compact Rate</string>
     <string name="tile_label_change">Rate Change</string>
 
-    <!-- Main Screen -->
     <string name="menu_settings">⚙ Settings</string>
     <string name="menu_tiles">◻ Tiles &amp; Complication</string>
     <string name="menu_refresh">↻ Refresh</string>
@@ -22,12 +21,15 @@
     <string name="status_cached">Cached</string>
     <string name="loading">Loading…</string>
 
-    <!-- Settings Screen -->
     <string name="section_base">Base</string>
     <string name="section_interested">Interested</string>
     <string name="section_interval">Interval</string>
+    <string name="settings_base_hint">Used for all rates</string>
+    <string name="settings_interested_hint">Shown first on the watch</string>
+    <string name="settings_interval_hint">Balance freshness and battery</string>
+    <string name="settings_show_all">Show all</string>
+    <string name="settings_show_less">Show less</string>
 
-    <!-- Graphs Screen -->
     <string name="graph_no_data">Not enough data for this period</string>
     <string name="back">Back</string>
     <string name="period_24h">24h</string>
@@ -37,7 +39,6 @@
     <string name="period_1y">1y</string>
     <string name="period_all">All</string>
 
-    <!-- Tile &amp; Complication Config -->
     <string name="section_tile_config">Tile Configuration</string>
     <string name="section_tile_currency">Display Currency</string>
     <string name="section_tile_mode">Display Mode</string>
@@ -48,10 +49,8 @@
     <string name="mode_arrow">Arrow</string>
     <string name="mode_date">Date</string>
 
-    <!-- Errors -->
     <string name="unknown_error">Unknown error</string>
 
-    <!-- Alerts -->
     <string name="alerts_title">Rate Alerts</string>
     <string name="alerts_empty">No alerts set</string>
     <string name="alert_add">Add Alert</string>

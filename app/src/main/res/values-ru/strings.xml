@@ -17,8 +17,13 @@
     <string name="loading">Загрузка…</string>
 
     <string name="section_base">Базовая</string>
-    <string name="section_interested">Интересующие</string>
+    <string name="section_interested">Избранные</string>
     <string name="section_interval">Интервал</string>
+    <string name="settings_base_hint">Используется для всех курсов</string>
+    <string name="settings_interested_hint">Показываются первыми на часах</string>
+    <string name="settings_interval_hint">Баланс свежести и батареи</string>
+    <string name="settings_show_all">Показать все</string>
+    <string name="settings_show_less">Скрыть</string>
 
     <string name="graph_no_data">Недостаточно данных за этот период</string>
     <string name="back">Назад</string>
