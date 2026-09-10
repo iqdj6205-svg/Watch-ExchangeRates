@@ -30,14 +30,12 @@ class CurrencyComplicationService : SuspendingComplicationDataSourceService() {
     override suspend fun onComplicationRequest(request: ComplicationRequest): ComplicationData? {
         return try {
             val baseCurrency = settingsManager.baseCurrencyFlow.first()
-            // Complications follow the same source of truth as the main watch screen:
-            // the first favorite currency is what appears at the top and what the watch face shows.
-            // This keeps complication behavior predictable after reordering favorites.
             val target = settingsManager.interestedCurrenciesFlow.first().firstOrNull() ?: "EUR"
             val mode = settingsManager.complicationDisplayModeFlow.first()
             val result = repository.fetchLatestRates(baseCurrency)
             val rateValue = result.getOrNull()?.rates?.get(target) ?: 0.0
-            val rateText = formatComplicationValue(mode, rateValue)
+            val changePercent = getChangePercent(baseCurrency, target)
+            val rateText = formatComplicationValue(mode, rateValue, changePercent)
             val pairText = "$baseCurrency/$target"
             val tapPendingIntent = packageManager.getLaunchIntentForPackage(packageName)?.let { intent ->
                 PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
@@ -107,10 +105,19 @@ class CurrencyComplicationService : SuspendingComplicationDataSourceService() {
     override fun onComplicationActivated(complicationInstanceId: Int, type: ComplicationType) { Timber.d("Complication activated: $complicationInstanceId") }
     override fun onComplicationDeactivated(complicationInstanceId: Int) { Timber.d("Complication deactivated: $complicationInstanceId") }
 
-    private fun formatComplicationValue(mode: String, rateValue: Double): String = when (mode) {
+    private suspend fun getChangePercent(baseCurrency: String, target: String): Double? {
+        val history = repository.getRecentHistory(baseCurrency, target, 2).first()
+        if (history.size < 2) return null
+        val latest = history[0].rates[target] ?: return null
+        val previous = history[1].rates[target] ?: return null
+        if (previous == 0.0) return null
+        return ((latest - previous) / previous) * 100.0
+    }
+
+    private fun formatComplicationValue(mode: String, rateValue: Double, changePercent: Double?): String = when (mode) {
         "date" -> SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date())
-        "arrow" -> if (rateValue > 0.0) "↗" else "--"
-        "change" -> String.format(Locale.US, "%.2f%%", 0.0)
+        "arrow" -> changePercent?.let { if (it > 0) "↗" else if (it < 0) "↘" else "→" } ?: "--"
+        "change" -> changePercent?.let { String.format(Locale.US, "%s%.2f%%", if (it > 0) "+" else "", it) } ?: "--"
         else -> when {
             rateValue < 0.01 -> String.format(Locale.US, "%.4f", rateValue)
             rateValue < 1.0 -> String.format(Locale.US, "%.3f", rateValue)
