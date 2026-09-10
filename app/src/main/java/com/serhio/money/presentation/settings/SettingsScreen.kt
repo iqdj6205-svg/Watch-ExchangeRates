@@ -1,8 +1,5 @@
 package com.serhio.money.presentation.settings
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -26,7 +23,6 @@ import com.serhio.money.presentation.components.currencyFlag
 import com.serhio.money.presentation.theme.CardBottom
 import com.serhio.money.presentation.theme.CardTop
 import com.serhio.money.presentation.theme.MoneyGold
-import com.serhio.money.presentation.theme.StrokeGold
 import com.serhio.money.presentation.theme.SubtextGray
 
 @Composable
@@ -121,7 +117,7 @@ fun SettingsScreen(viewModel: SettingsViewModel) {
                 )
                 val currentLabel = intervals.find { it.second == updateInterval }?.first ?: "—"
 
-                Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(
                         "$currentLabel  ▾",
                         fontSize = 18.sp,
@@ -129,10 +125,10 @@ fun SettingsScreen(viewModel: SettingsViewModel) {
                         color = MoneyGold,
                         modifier = Modifier
                             .clip(CircleShape)
-                            .clickable { showPopup = true }
+                            .clickable { showPopup = !showPopup }
                             .padding(horizontal = 18.dp, vertical = 8.dp)
                     )
-                    AnimatedVisibility(visible = showPopup, enter = fadeIn(), exit = fadeOut()) {
+                    if (showPopup) {
                         Column(
                             Modifier
                                 .fillMaxWidth()
