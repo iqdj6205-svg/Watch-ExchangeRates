@@ -22,10 +22,10 @@ import kotlinx.coroutines.flow.first
 class BigNumberCurrencyTileService : BaseCurrencyTileService() {
     override suspend fun buildTile(requestParams: RequestBuilders.TileRequest): TileBuilders.Tile {
         val baseCurrency = settingsManager.baseCurrencyFlow.first()
-        val target = settingsManager.tileDisplayCurrencyFlow.first()
+        val target = configuredTileCurrency()
         val mode = settingsManager.tileDisplayModeFlow.first()
         val rateValue = fetchRate(baseCurrency, target)
-        return createTimeline(createLayout(this, requestParams.deviceConfiguration, baseCurrency, target, formatTileValue(mode, target, rateValue)))
+        return createTimeline(createLayout(this, requestParams.deviceConfiguration, baseCurrency, target, formatTileValue(mode, baseCurrency, target, rateValue)))
     }
 
     private fun createLayout(context: Context, deviceConfiguration: DeviceParameters, baseCurrency: String, currency: String, value: String): LayoutElementBuilders.LayoutElement {

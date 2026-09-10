@@ -23,10 +23,10 @@ import kotlinx.coroutines.flow.first
 class CurrencyTileService : BaseCurrencyTileService() {
     override suspend fun buildTile(requestParams: RequestBuilders.TileRequest): TileBuilders.Tile {
         val baseCurrency = settingsManager.baseCurrencyFlow.first()
-        val target = settingsManager.tileDisplayCurrencyFlow.first()
+        val target = configuredTileCurrency()
         val mode = settingsManager.tileDisplayModeFlow.first()
         val rateValue = fetchRate(baseCurrency, target)
-        val valueText = formatTileValue(mode, target, rateValue)
+        val valueText = formatTileValue(mode, baseCurrency, target, rateValue)
         return createTimeline(createLayout(this, requestParams.deviceConfiguration, baseCurrency, target, valueText))
     }
 

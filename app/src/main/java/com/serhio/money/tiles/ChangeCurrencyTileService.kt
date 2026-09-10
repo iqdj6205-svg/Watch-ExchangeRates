@@ -17,20 +17,13 @@ import androidx.wear.tiles.RequestBuilders
 import androidx.wear.tiles.TileBuilders
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.first
-import java.util.Locale
 
 @AndroidEntryPoint
 class ChangeCurrencyTileService : BaseCurrencyTileService() {
     override suspend fun buildTile(requestParams: RequestBuilders.TileRequest): TileBuilders.Tile {
         val baseCurrency = settingsManager.baseCurrencyFlow.first()
-        val target = settingsManager.tileDisplayCurrencyFlow.first()
-        val history = repository.getRecentHistory(baseCurrency, target, 2).first()
-        val changeText = if (history.size >= 2) {
-            val latest = history[0].rates[target] ?: 0.0
-            val previous = history[1].rates[target] ?: 0.0
-            val pct = if (previous != 0.0) ((latest - previous) / previous) * 100.0 else 0.0
-            String.format(Locale.US, "%s%.2f%%", if (pct > 0) "+" else "", pct)
-        } else "--"
+        val target = configuredTileCurrency()
+        val changeText = formatPercent(fetchChangePercent(baseCurrency, target))
         return createTimeline(createLayout(this, requestParams.deviceConfiguration, baseCurrency, target, changeText))
     }
 
