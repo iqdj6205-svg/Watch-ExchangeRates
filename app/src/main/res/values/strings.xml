@@ -13,6 +13,10 @@
     <string name="menu_refresh">↻ Refresh</string>
     <string name="menu_alerts">🔔 Rate Alerts</string>
     <string name="menu_title">Menu</string>
+    <string name="menu_settings_desc">Base currency, favorites, update interval</string>
+    <string name="menu_tiles_desc">Tile currency, modes, complication display</string>
+    <string name="menu_refresh_desc">Fetch latest rates and refresh cache</string>
+    <string name="menu_alerts_desc">Create and manage rate threshold alerts</string>
     <string name="retry">Retry</string>
     <string name="empty_currencies">Add currencies in Settings</string>
     <string name="page_favorites">★ Favorites</string>

@@ -56,6 +56,10 @@
     <string name="cancel">Отмена</string>
     <string name="confirm">Добавить</string>
     <string name="menu_title">Меню</string>
+    <string name="menu_settings_desc">Базовая валюта, избранное, интервал</string>
+    <string name="menu_tiles_desc">Валюта плитки, режимы, усложнение</string>
+    <string name="menu_refresh_desc">Обновить курсы и локальный кеш</string>
+    <string name="menu_alerts_desc">Создать и управлять порогами курса</string>
     <string name="tile_label_multi">Несколько валют</string>
     <string name="tile_label_big">Большой курс</string>
     <string name="tile_label_compact">Компактный курс</string>
