@@ -62,7 +62,9 @@ class CurrencyComplicationService : SuspendingComplicationDataSourceService() {
                     .apply { tapPendingIntent?.let { setTapAction(it) } }
                     .build()
                 ComplicationType.MONOCHROMATIC_IMAGE -> MonochromaticImageComplicationData.Builder(
-                    monochromaticImage = MonochromaticImage.Builder(android.graphics.drawable.Icon.createWithResource(this@CurrencyComplicationService, R.drawable.ic_exchange)).build(),
+                    monochromaticImage = MonochromaticImage.Builder(
+                        image = android.graphics.drawable.Icon.createWithResource(this@CurrencyComplicationService, R.drawable.ic_exchange)
+                    ).build(),
                     contentDescription = PlainComplicationText.Builder(text = "$pairText $rateText").build()
                 ).apply { tapPendingIntent?.let { setTapAction(it) } }.build()
                 else -> null
@@ -75,10 +77,26 @@ class CurrencyComplicationService : SuspendingComplicationDataSourceService() {
 
     override fun getPreviewData(type: ComplicationType): ComplicationData? {
         return when (type) {
-            ComplicationType.SHORT_TEXT -> ShortTextComplicationData.Builder(PlainComplicationText.Builder("1.09").build(), PlainComplicationText.Builder("Preview").build()).setTitle(PlainComplicationText.Builder("EUR").build()).build()
-            ComplicationType.LONG_TEXT -> LongTextComplicationData.Builder(PlainComplicationText.Builder("USD/EUR 1.09").build(), PlainComplicationText.Builder("Preview Rate").build()).setTitle(PlainComplicationText.Builder("Money").build()).build()
-            ComplicationType.RANGED_VALUE -> RangedValueComplicationData.Builder(1.09f, 0f, 2.18f, PlainComplicationText.Builder("1.09").build()).setText(PlainComplicationText.Builder("EUR").build()).build()
-            ComplicationType.MONOCHROMATIC_IMAGE -> MonochromaticImageComplicationData.Builder(MonochromaticImage.Builder(android.graphics.drawable.Icon.createWithResource(this@CurrencyComplicationService, R.drawable.ic_exchange)).build(), PlainComplicationText.Builder("Preview").build()).build()
+            ComplicationType.SHORT_TEXT -> ShortTextComplicationData.Builder(
+                text = PlainComplicationText.Builder(text = "1.09").build(),
+                contentDescription = PlainComplicationText.Builder(text = "Preview").build()
+            ).setTitle(PlainComplicationText.Builder(text = "EUR").build()).build()
+            ComplicationType.LONG_TEXT -> LongTextComplicationData.Builder(
+                text = PlainComplicationText.Builder(text = "USD/EUR 1.09").build(),
+                contentDescription = PlainComplicationText.Builder(text = "Preview Rate").build()
+            ).setTitle(PlainComplicationText.Builder(text = "Money").build()).build()
+            ComplicationType.RANGED_VALUE -> RangedValueComplicationData.Builder(
+                value = 1.09f,
+                min = 0f,
+                max = 2.18f,
+                contentDescription = PlainComplicationText.Builder(text = "1.09").build()
+            ).setText(PlainComplicationText.Builder(text = "EUR").build()).build()
+            ComplicationType.MONOCHROMATIC_IMAGE -> MonochromaticImageComplicationData.Builder(
+                monochromaticImage = MonochromaticImage.Builder(
+                    image = android.graphics.drawable.Icon.createWithResource(this@CurrencyComplicationService, R.drawable.ic_exchange)
+                ).build(),
+                contentDescription = PlainComplicationText.Builder(text = "Preview").build()
+            ).build()
             else -> null
         }
     }
