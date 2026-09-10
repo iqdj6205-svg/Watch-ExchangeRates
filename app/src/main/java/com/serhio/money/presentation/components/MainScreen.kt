@@ -1,16 +1,15 @@
 package com.serhio.money.presentation.components
 
-import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -45,6 +44,7 @@ import com.serhio.money.presentation.MainUiState
 import com.serhio.money.presentation.theme.Green500
 import com.serhio.money.presentation.theme.Red500
 import android.view.HapticFeedbackConstants
+import kotlinx.coroutines.launch
 import sh.calvin.reorderable.ReorderableItem
 import sh.calvin.reorderable.rememberReorderableLazyListState
 import java.text.SimpleDateFormat
@@ -85,8 +85,7 @@ private fun ErrorContent(message: String?, onRetry: () -> Unit) {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Text(displayMessage, color = MaterialTheme.colorScheme.error,
-            style = MaterialTheme.typography.bodySmall, textAlign = TextAlign.Center)
+        Text(displayMessage, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall, textAlign = TextAlign.Center)
         Spacer(Modifier.height(12.dp))
         TextButton(onClick = onRetry) { Text(stringResource(R.string.retry)) }
     }
@@ -98,39 +97,18 @@ private fun SkeletonLoading() {
     val shimmerOffset by infiniteTransition.animateFloat(
         initialValue = -200f,
         targetValue = 600f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(1200, easing = LinearEasing),
-            repeatMode = RepeatMode.Restart
-        ),
+        animationSpec = infiniteRepeatable(animation = tween(1200, easing = LinearEasing), repeatMode = RepeatMode.Restart),
         label = "shimmer"
     )
-
     val shimmerBrush = Brush.linearGradient(
         colors = listOf(Color(0xFF1A1A1A), Color(0xFF2A2A2A), Color(0xFF1A1A1A)),
         start = Offset(shimmerOffset, 0f),
         end = Offset(shimmerOffset + 200f, 0f)
     )
-
-    Column(
-        Modifier.fillMaxSize().padding(top = 34.dp, start = 12.dp, end = 12.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text(
-            stringResource(R.string.page_favorites),
-            fontSize = 13.sp,
-            fontWeight = FontWeight.Medium,
-            color = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.padding(bottom = 8.dp)
-        )
+    Column(Modifier.fillMaxSize().padding(top = 34.dp, start = 12.dp, end = 12.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+        Text(stringResource(R.string.page_favorites), fontSize = 13.sp, fontWeight = FontWeight.Medium, color = MaterialTheme.colorScheme.primary, modifier = Modifier.padding(bottom = 8.dp))
         repeat(3) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 4.dp)
-                    .height(70.dp)
-                    .clip(RoundedCornerShape(14.dp))
-                    .background(shimmerBrush)
-            )
+            Box(Modifier.fillMaxWidth().padding(vertical = 4.dp).height(70.dp).clip(RoundedCornerShape(14.dp)).background(shimmerBrush))
         }
         Spacer(Modifier.height(16.dp))
         Row(horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
@@ -152,80 +130,57 @@ private fun MainContent(
     onOpenAlerts: () -> Unit,
     onReorderFavorites: (List<String>) -> Unit
 ) {
-    val pagerState = rememberPagerState(pageCount = { 2 })
-    var showMenu by remember { mutableStateOf(false) }
+    val pagerState = rememberPagerState(pageCount = { 3 })
+    val scope = rememberCoroutineScope()
 
     Box(Modifier.fillMaxSize()) {
-        Crossfade(targetState = showMenu, label = "menuCrossfade") { menuVisible ->
-            if (menuVisible) {
-                FullScreenMenu(
-                    onSettings = { showMenu = false; onOpenSettings() },
-                    onTileConfig = { showMenu = false; onOpenTileConfig() },
-                    onRefresh = { showMenu = false; onRefresh() },
-                    onAlerts = { showMenu = false; onOpenAlerts() }
+        HorizontalPager(state = pagerState, modifier = Modifier.fillMaxSize()) { page ->
+            when (page) {
+                0 -> FavoritesPage(state, isOnline, onOpenGraphs, onReorderFavorites)
+                1 -> AllCurrenciesPage(state, isOnline, onOpenGraphs)
+                else -> ActionsPage(
+                    onSettings = onOpenSettings,
+                    onTileConfig = onOpenTileConfig,
+                    onRefresh = onRefresh,
+                    onAlerts = onOpenAlerts
                 )
-            } else {
-                Box(Modifier.fillMaxSize()) {
-                    HorizontalPager(state = pagerState, modifier = Modifier.fillMaxSize()) { page ->
-                        if (page == 0) FavoritesPage(state, isOnline, onOpenGraphs, onReorderFavorites)
-                        else AllCurrenciesPage(state, isOnline, onOpenGraphs)
-                    }
-                    Row(
-                        Modifier.align(Alignment.TopCenter).padding(top = 8.dp),
-                        horizontalArrangement = Arrangement.spacedBy(6.dp)
-                    ) {
-                        repeat(2) { index ->
-                            Box(
-                                modifier = Modifier
-                                    .size(6.dp)
-                                    .clip(CircleShape)
-                                    .background(if (pagerState.currentPage == index) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline)
-                            )
-                        }
-                    }
-                }
             }
         }
-        IconButton(
-            onClick = { showMenu = !showMenu },
-            modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 4.dp)
-        ) { Text(if (showMenu) "\u2715" else "\u2026", fontSize = 20.sp) }
+        Row(Modifier.align(Alignment.TopCenter).padding(top = 8.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+            repeat(3) { index ->
+                Box(
+                    modifier = Modifier
+                        .size(if (pagerState.currentPage == index) 7.dp else 5.dp)
+                        .clip(CircleShape)
+                        .background(if (pagerState.currentPage == index) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline)
+                        .clickable { scope.launch { pagerState.animateScrollToPage(index) } }
+                )
+            }
+        }
     }
 }
 
 @Composable
-private fun FullScreenMenu(
-    onSettings: () -> Unit,
-    onTileConfig: () -> Unit,
-    onRefresh: () -> Unit,
-    onAlerts: () -> Unit
-) {
-    Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
-        ScalingLazyColumn(
-            state = rememberScalingLazyListState(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp)
-        ) {
-            item {
-                Text(
-                    stringResource(R.string.menu_title),
-                    style = MaterialTheme.typography.displayMedium,
-                    color = MaterialTheme.colorScheme.onBackground,
-                    modifier = Modifier.padding(top = 20.dp, bottom = 8.dp)
-                )
-            }
-            item { MenuCard("\u2699", stringResource(R.string.menu_settings).withoutLeadingMenuIcon(), onSettings) }
-            item { MenuCard("\u25A1", stringResource(R.string.menu_tiles).withoutLeadingMenuIcon(), onTileConfig) }
-            item { MenuCard("\u21BB", stringResource(R.string.menu_refresh).withoutLeadingMenuIcon(), onRefresh) }
-            item { MenuCard("\uD83D\uDD14", stringResource(R.string.menu_alerts).withoutLeadingMenuIcon(), onAlerts) }
-            item { Spacer(Modifier.height(48.dp)) }
+private fun ActionsPage(onSettings: () -> Unit, onTileConfig: () -> Unit, onRefresh: () -> Unit, onAlerts: () -> Unit) {
+    ScalingLazyColumn(
+        state = rememberScalingLazyListState(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp),
+        contentPadding = PaddingValues(top = 30.dp, bottom = 28.dp)
+    ) {
+        item {
+            Text(stringResource(R.string.menu_title), style = MaterialTheme.typography.displayMedium, color = MaterialTheme.colorScheme.onBackground, modifier = Modifier.padding(bottom = 8.dp))
         }
+        item { MenuCard("\u2699", stringResource(R.string.menu_settings).withoutLeadingMenuIcon(), onSettings) }
+        item { MenuCard("\u25A1", stringResource(R.string.menu_tiles).withoutLeadingMenuIcon(), onTileConfig) }
+        item { MenuCard("\u21BB", stringResource(R.string.menu_refresh).withoutLeadingMenuIcon(), onRefresh) }
+        item { MenuCard("\uD83D\uDD14", stringResource(R.string.menu_alerts).withoutLeadingMenuIcon(), onAlerts) }
     }
 }
 
 @Composable
 private fun MenuCard(icon: String, label: String, onClick: () -> Unit) {
-    Card(onClick = onClick, modifier = Modifier.fillMaxWidth(), shape = MaterialTheme.shapes.medium) {
+    Card(onClick = onClick, modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp), shape = MaterialTheme.shapes.medium) {
         Row(Modifier.padding(horizontal = 16.dp, vertical = 14.dp), verticalAlignment = Alignment.CenterVertically) {
             Text(icon, fontSize = 18.sp, modifier = Modifier.padding(end = 12.dp))
             Text(label, style = MaterialTheme.typography.titleMedium)
@@ -234,16 +189,10 @@ private fun MenuCard(icon: String, label: String, onClick: () -> Unit) {
 }
 
 @Composable
-private fun FavoritesPage(
-    state: MainUiState.Success,
-    isOnline: Boolean,
-    onOpenGraphs: (String, String) -> Unit,
-    onReorderFavorites: (List<String>) -> Unit
-) {
+private fun FavoritesPage(state: MainUiState.Success, isOnline: Boolean, onOpenGraphs: (String, String) -> Unit, onReorderFavorites: (List<String>) -> Unit) {
     val view = LocalView.current
     val displayed = state.interestedCurrencies.filter { state.rates.containsKey(it) }
     var order by remember(displayed) { mutableStateOf(displayed) }
-
     val lazyListState = rememberLazyListState()
     val reorderState = rememberReorderableLazyListState(lazyListState) { from, to ->
         order = order.toMutableList().apply { add(to.index - 1, removeAt(from.index - 1)) }
@@ -254,16 +203,10 @@ private fun FavoritesPage(
         state = lazyListState,
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
-        contentPadding = PaddingValues(top = 34.dp, bottom = 76.dp, start = 4.dp, end = 4.dp)
+        contentPadding = PaddingValues(top = 34.dp, bottom = 28.dp, start = 4.dp, end = 4.dp)
     ) {
         item(key = "header") {
-            Text(
-                stringResource(R.string.page_favorites),
-                fontSize = 13.sp,
-                fontWeight = FontWeight.Medium,
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.padding(bottom = 4.dp)
-            )
+            Text(stringResource(R.string.page_favorites), fontSize = 13.sp, fontWeight = FontWeight.Medium, color = MaterialTheme.colorScheme.primary, modifier = Modifier.padding(bottom = 4.dp))
         }
         if (order.isEmpty()) {
             item(key = "empty") {
@@ -285,12 +228,12 @@ private fun FavoritesPage(
                 CurrencyCard(
                     modifier = Modifier
                         .graphicsLayer { alpha = animProgress.value; translationY = (1f - animProgress.value) * 20f }
-                        .longPressDraggableHandle(
-                            onDragStarted = { view.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS) },
-                            onDragStopped = { view.performHapticFeedback(HapticFeedbackConstants.CONTEXT_CLICK); onReorderFavorites(order) },
-                            interactionSource = interactionSource
-                        )
                         .clickable(interactionSource = interactionSource, indication = null) { onOpenGraphs(state.baseCurrency, code) },
+                    dragHandleModifier = Modifier.longPressDraggableHandle(
+                        onDragStarted = { view.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS) },
+                        onDragStopped = { view.performHapticFeedback(HapticFeedbackConstants.CONTEXT_CLICK); onReorderFavorites(order) },
+                        interactionSource = interactionSource
+                    ),
                     baseCurrency = state.baseCurrency,
                     currencyCode = code,
                     rateValue = state.rates[code] ?: 0.0,
@@ -308,16 +251,12 @@ private fun FavoritesPage(
 @Composable
 private fun AllCurrenciesPage(state: MainUiState.Success, isOnline: Boolean, onOpenGraphs: (String, String) -> Unit) {
     val entries = state.rates.entries.toList()
-    ScalingLazyColumn(state = rememberScalingLazyListState(), horizontalAlignment = Alignment.CenterHorizontally) {
-        item {
-            Text(
-                stringResource(R.string.page_all),
-                fontSize = 13.sp,
-                fontWeight = FontWeight.Medium,
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.padding(top = 12.dp, bottom = 4.dp)
-            )
-        }
+    ScalingLazyColumn(
+        state = rememberScalingLazyListState(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        contentPadding = PaddingValues(top = 30.dp, bottom = 28.dp)
+    ) {
+        item { Text(stringResource(R.string.page_all), fontSize = 13.sp, fontWeight = FontWeight.Medium, color = MaterialTheme.colorScheme.primary, modifier = Modifier.padding(bottom = 4.dp)) }
         items(entries.size, key = { entries[it].key }) { index ->
             val entry = entries[index]
             val animProgress = remember { Animatable(0f) }
@@ -326,9 +265,7 @@ private fun AllCurrenciesPage(state: MainUiState.Success, isOnline: Boolean, onO
                 animProgress.animateTo(1f, tween(durationMillis = 300, delayMillis = index * 40, easing = LinearOutSlowInEasing))
             }
             CurrencyCard(
-                modifier = Modifier
-                    .graphicsLayer { alpha = animProgress.value; translationY = (1f - animProgress.value) * 20f }
-                    .clickable { onOpenGraphs(state.baseCurrency, entry.key) },
+                modifier = Modifier.graphicsLayer { alpha = animProgress.value; translationY = (1f - animProgress.value) * 20f }.clickable { onOpenGraphs(state.baseCurrency, entry.key) },
                 baseCurrency = state.baseCurrency,
                 currencyCode = entry.key,
                 rateValue = entry.value,
@@ -337,7 +274,6 @@ private fun AllCurrenciesPage(state: MainUiState.Success, isOnline: Boolean, onO
             )
         }
         item { StatusFooter(isOnline = isOnline, isFromCache = state.isFromCache, lastUpdate = state.lastUpdate) }
-        item { Spacer(Modifier.height(72.dp)) }
     }
 }
 
@@ -358,6 +294,7 @@ private fun StatusFooter(isOnline: Boolean, isFromCache: Boolean, lastUpdate: Lo
 @Composable
 private fun CurrencyCard(
     modifier: Modifier = Modifier,
+    dragHandleModifier: Modifier = Modifier,
     baseCurrency: String,
     currencyCode: String,
     rateValue: Double,
@@ -386,26 +323,24 @@ private fun CurrencyCard(
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text("${currencyFlag(currencyCode)} $currencyCode", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                    if (isFavorite) {
-                        Spacer(Modifier.width(4.dp))
-                        Text("\u2605", fontSize = 12.sp, color = MaterialTheme.colorScheme.primary)
-                    }
+                    if (isFavorite) { Spacer(Modifier.width(4.dp)); Text("\u2605", fontSize = 12.sp, color = MaterialTheme.colorScheme.primary) }
                 }
-                if (changePercent != null && change != null) {
-                    Text("${if (change > 0) "+" else ""}${String.format(Locale.ROOT, "%.2f", changePercent)}%", color = changeColor, style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold)
-                }
+                if (changePercent != null && change != null) Text("${if (change > 0) "+" else ""}${String.format(Locale.ROOT, "%.2f", changePercent)}%", color = changeColor, style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold)
             }
             Spacer(Modifier.height(6.dp))
             Box(Modifier.fillMaxWidth().height(1.dp).background(MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)))
             Spacer(Modifier.height(6.dp))
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-                Column {
+                Column(Modifier.weight(1f)) {
                     Text("1 $baseCurrency = ${formatRate(animatedRate)}", fontSize = 13.sp, fontWeight = FontWeight.Medium)
                     Spacer(Modifier.height(2.dp))
                     Text("1 $currencyCode = ${formatRate(animatedRecip)}", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
                 Column(horizontalAlignment = Alignment.End) {
-                    if (change != null) Text(if (change > 0) "\u25B2" else "\u25BC", color = changeColor, fontSize = 16.sp)
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        if (change != null) Text(if (change > 0) "\u25B2" else "\u25BC", color = changeColor, fontSize = 16.sp)
+                        if (dragHandleModifier != Modifier) Text("  ⋮⋮", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 13.sp, modifier = dragHandleModifier.padding(start = 4.dp))
+                    }
                     if (rateValues != null && rateValues.isNotEmpty()) {
                         Spacer(Modifier.height(6.dp))
                         SparklineChart(data = rateValues, modifier = Modifier.width(56.dp).height(22.dp), color = changeColor)
