@@ -48,7 +48,9 @@ fun SettingsScreen(viewModel: SettingsViewModel) {
 
 @Composable
 private fun ShowToggle(expanded: Boolean, onClick: () -> Unit) {
-    Text(if (expanded) stringResource(R.string.settings_show_less) else stringResource(R.string.settings_show_all), color = MoneyGold, fontSize = 11.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.align(Alignment.CenterHorizontally).clip(CircleShape).border(1.dp, MoneyGold.copy(alpha = 0.28f), CircleShape).clickable { onClick() }.padding(horizontal = 12.dp, vertical = 6.dp))
+    Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+        Text(if (expanded) stringResource(R.string.settings_show_less) else stringResource(R.string.settings_show_all), color = MoneyGold, fontSize = 11.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.clip(CircleShape).border(1.dp, MoneyGold.copy(alpha = 0.28f), CircleShape).clickable { onClick() }.padding(horizontal = 12.dp, vertical = 6.dp))
+    }
 }
 
 @Composable
