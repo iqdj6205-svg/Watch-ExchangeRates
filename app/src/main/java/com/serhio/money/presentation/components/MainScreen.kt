@@ -1,5 +1,6 @@
 package com.serhio.money.presentation.components
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.LinearOutSlowInEasing
@@ -10,14 +11,15 @@ import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.*
@@ -44,7 +46,6 @@ import com.serhio.money.presentation.MainUiState
 import com.serhio.money.presentation.theme.Green500
 import com.serhio.money.presentation.theme.Red500
 import android.view.HapticFeedbackConstants
-import kotlinx.coroutines.launch
 import sh.calvin.reorderable.ReorderableItem
 import sh.calvin.reorderable.rememberReorderableLazyListState
 import java.text.SimpleDateFormat
@@ -80,11 +81,7 @@ fun MainScreen(
 @Composable
 private fun ErrorContent(message: String?, onRetry: () -> Unit) {
     val displayMessage = message ?: stringResource(R.string.unknown_error)
-    Column(
-        Modifier.fillMaxSize().padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
+    Column(Modifier.fillMaxSize().padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
         Text(displayMessage, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall, textAlign = TextAlign.Center)
         Spacer(Modifier.height(12.dp))
         TextButton(onClick = onRetry) { Text(stringResource(R.string.retry)) }
@@ -100,16 +97,10 @@ private fun SkeletonLoading() {
         animationSpec = infiniteRepeatable(animation = tween(1200, easing = LinearEasing), repeatMode = RepeatMode.Restart),
         label = "shimmer"
     )
-    val shimmerBrush = Brush.linearGradient(
-        colors = listOf(Color(0xFF1A1A1A), Color(0xFF2A2A2A), Color(0xFF1A1A1A)),
-        start = Offset(shimmerOffset, 0f),
-        end = Offset(shimmerOffset + 200f, 0f)
-    )
+    val shimmerBrush = Brush.linearGradient(listOf(Color(0xFF1A1A1A), Color(0xFF2A2A2A), Color(0xFF1A1A1A)), Offset(shimmerOffset, 0f), Offset(shimmerOffset + 200f, 0f))
     Column(Modifier.fillMaxSize().padding(top = 34.dp, start = 12.dp, end = 12.dp), horizontalAlignment = Alignment.CenterHorizontally) {
         Text(stringResource(R.string.page_favorites), fontSize = 13.sp, fontWeight = FontWeight.Medium, color = MaterialTheme.colorScheme.primary, modifier = Modifier.padding(bottom = 8.dp))
-        repeat(3) {
-            Box(Modifier.fillMaxWidth().padding(vertical = 4.dp).height(70.dp).clip(RoundedCornerShape(14.dp)).background(shimmerBrush))
-        }
+        repeat(3) { Box(Modifier.fillMaxWidth().padding(vertical = 4.dp).height(70.dp).clip(RoundedCornerShape(14.dp)).background(shimmerBrush)) }
         Spacer(Modifier.height(16.dp))
         Row(horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
             CircularProgressIndicator(modifier = Modifier.size(12.dp), strokeWidth = 2.dp)
@@ -130,32 +121,40 @@ private fun MainContent(
     onOpenAlerts: () -> Unit,
     onReorderFavorites: (List<String>) -> Unit
 ) {
-    val pagerState = rememberPagerState(pageCount = { 3 })
-    val scope = rememberCoroutineScope()
+    var page by remember { mutableIntStateOf(0) }
 
     Box(Modifier.fillMaxSize()) {
-        HorizontalPager(state = pagerState, modifier = Modifier.fillMaxSize()) { page ->
-            when (page) {
+        AnimatedContent(
+            targetState = page,
+            transitionSpec = { fadeIn(tween(180)) togetherWith fadeOut(tween(120)) },
+            label = "mainPageContent"
+        ) { selectedPage ->
+            when (selectedPage) {
                 0 -> FavoritesPage(state, isOnline, onOpenGraphs, onReorderFavorites)
                 1 -> AllCurrenciesPage(state, isOnline, onOpenGraphs)
-                else -> ActionsPage(
-                    onSettings = onOpenSettings,
-                    onTileConfig = onOpenTileConfig,
-                    onRefresh = onRefresh,
-                    onAlerts = onOpenAlerts
-                )
+                else -> ActionsPage(onSettings = onOpenSettings, onTileConfig = onOpenTileConfig, onRefresh = onRefresh, onAlerts = onOpenAlerts)
             }
         }
-        Row(Modifier.align(Alignment.TopCenter).padding(top = 8.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-            repeat(3) { index ->
-                Box(
-                    modifier = Modifier
-                        .size(if (pagerState.currentPage == index) 7.dp else 5.dp)
-                        .clip(CircleShape)
-                        .background(if (pagerState.currentPage == index) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline)
-                        .clickable { scope.launch { pagerState.animateScrollToPage(index) } }
-                )
-            }
+        PageDots(
+            selectedPage = page,
+            pageCount = 3,
+            onSelectPage = { page = it },
+            modifier = Modifier.align(Alignment.TopCenter).padding(top = 8.dp)
+        )
+    }
+}
+
+@Composable
+private fun PageDots(selectedPage: Int, pageCount: Int, onSelectPage: (Int) -> Unit, modifier: Modifier = Modifier) {
+    Row(modifier, horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
+        repeat(pageCount) { index ->
+            Box(
+                modifier = Modifier
+                    .size(if (selectedPage == index) 8.dp else 6.dp)
+                    .clip(CircleShape)
+                    .background(if (selectedPage == index) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline)
+                    .clickable { onSelectPage(index) }
+            )
         }
     }
 }
@@ -168,9 +167,7 @@ private fun ActionsPage(onSettings: () -> Unit, onTileConfig: () -> Unit, onRefr
         modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp),
         contentPadding = PaddingValues(top = 30.dp, bottom = 28.dp)
     ) {
-        item {
-            Text(stringResource(R.string.menu_title), style = MaterialTheme.typography.displayMedium, color = MaterialTheme.colorScheme.onBackground, modifier = Modifier.padding(bottom = 8.dp))
-        }
+        item { Text(stringResource(R.string.menu_title), style = MaterialTheme.typography.displayMedium, color = MaterialTheme.colorScheme.onBackground, modifier = Modifier.padding(bottom = 8.dp)) }
         item { MenuCard("\u2699", stringResource(R.string.menu_settings).withoutLeadingMenuIcon(), onSettings) }
         item { MenuCard("\u25A1", stringResource(R.string.menu_tiles).withoutLeadingMenuIcon(), onTileConfig) }
         item { MenuCard("\u21BB", stringResource(R.string.menu_refresh).withoutLeadingMenuIcon(), onRefresh) }
@@ -205,35 +202,20 @@ private fun FavoritesPage(state: MainUiState.Success, isOnline: Boolean, onOpenG
         horizontalAlignment = Alignment.CenterHorizontally,
         contentPadding = PaddingValues(top = 34.dp, bottom = 28.dp, start = 4.dp, end = 4.dp)
     ) {
-        item(key = "header") {
-            Text(stringResource(R.string.page_favorites), fontSize = 13.sp, fontWeight = FontWeight.Medium, color = MaterialTheme.colorScheme.primary, modifier = Modifier.padding(bottom = 4.dp))
-        }
+        item(key = "header") { Text(stringResource(R.string.page_favorites), fontSize = 13.sp, fontWeight = FontWeight.Medium, color = MaterialTheme.colorScheme.primary, modifier = Modifier.padding(bottom = 4.dp)) }
         if (order.isEmpty()) {
-            item(key = "empty") {
-                Box(Modifier.fillMaxWidth().padding(top = 40.dp), contentAlignment = Alignment.Center) {
-                    Text(stringResource(R.string.empty_currencies), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurface)
-                }
-            }
+            item(key = "empty") { Box(Modifier.fillMaxWidth().padding(top = 40.dp), contentAlignment = Alignment.Center) { Text(stringResource(R.string.empty_currencies), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurface) } }
         }
         items(order.size, key = { order[it] }) { index ->
             val code = order[index]
             val animProgress = remember { Animatable(0f) }
-            LaunchedEffect(code) {
-                animProgress.snapTo(0f)
-                animProgress.animateTo(1f, tween(durationMillis = 300, delayMillis = index * 50, easing = LinearOutSlowInEasing))
-            }
+            LaunchedEffect(code) { animProgress.snapTo(0f); animProgress.animateTo(1f, tween(durationMillis = 300, delayMillis = index * 50, easing = LinearOutSlowInEasing)) }
             ReorderableItem(reorderState, key = code) { isDragging ->
                 val elevation by animateDpAsState(if (isDragging) 8.dp else 0.dp, label = "elevation")
                 val interactionSource = remember { MutableInteractionSource() }
                 CurrencyCard(
-                    modifier = Modifier
-                        .graphicsLayer { alpha = animProgress.value; translationY = (1f - animProgress.value) * 20f }
-                        .clickable(interactionSource = interactionSource, indication = null) { onOpenGraphs(state.baseCurrency, code) },
-                    dragHandleModifier = Modifier.longPressDraggableHandle(
-                        onDragStarted = { view.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS) },
-                        onDragStopped = { view.performHapticFeedback(HapticFeedbackConstants.CONTEXT_CLICK); onReorderFavorites(order) },
-                        interactionSource = interactionSource
-                    ),
+                    modifier = Modifier.graphicsLayer { alpha = animProgress.value; translationY = (1f - animProgress.value) * 20f }.clickable(interactionSource = interactionSource, indication = null) { onOpenGraphs(state.baseCurrency, code) },
+                    dragHandleModifier = Modifier.longPressDraggableHandle(onDragStarted = { view.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS) }, onDragStopped = { view.performHapticFeedback(HapticFeedbackConstants.CONTEXT_CLICK); onReorderFavorites(order) }, interactionSource = interactionSource),
                     baseCurrency = state.baseCurrency,
                     currencyCode = code,
                     rateValue = state.rates[code] ?: 0.0,
@@ -260,10 +242,7 @@ private fun AllCurrenciesPage(state: MainUiState.Success, isOnline: Boolean, onO
         items(entries.size, key = { entries[it].key }) { index ->
             val entry = entries[index]
             val animProgress = remember { Animatable(0f) }
-            LaunchedEffect(entry.key) {
-                animProgress.snapTo(0f)
-                animProgress.animateTo(1f, tween(durationMillis = 300, delayMillis = index * 40, easing = LinearOutSlowInEasing))
-            }
+            LaunchedEffect(entry.key) { animProgress.snapTo(0f); animProgress.animateTo(1f, tween(durationMillis = 300, delayMillis = index * 40, easing = LinearOutSlowInEasing)) }
             CurrencyCard(
                 modifier = Modifier.graphicsLayer { alpha = animProgress.value; translationY = (1f - animProgress.value) * 20f }.clickable { onOpenGraphs(state.baseCurrency, entry.key) },
                 baseCurrency = state.baseCurrency,
@@ -312,11 +291,7 @@ private fun CurrencyCard(
     val animatedRecip by animateFloatAsState(targetValue = reciprocal.toFloat(), animationSpec = tween(400))
 
     Box(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(horizontal = 8.dp, vertical = 4.dp)
-            .shadow(elevation, MaterialTheme.shapes.medium)
-            .clip(MaterialTheme.shapes.medium)
+        modifier = modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 4.dp).shadow(elevation, MaterialTheme.shapes.medium).clip(MaterialTheme.shapes.medium)
             .background(Brush.verticalGradient(if (isDragging) listOf(Color(0xFF2A2A2A), Color(0xFF1E1E1E)) else listOf(Color(0xFF1E1E1E), Color(0xFF161616))))
     ) {
         Column(Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 10.dp)) {
@@ -341,10 +316,7 @@ private fun CurrencyCard(
                         if (change != null) Text(if (change > 0) "\u25B2" else "\u25BC", color = changeColor, fontSize = 16.sp)
                         if (dragHandleModifier != Modifier) Text("  ⋮⋮", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 13.sp, modifier = dragHandleModifier.padding(start = 4.dp))
                     }
-                    if (rateValues != null && rateValues.isNotEmpty()) {
-                        Spacer(Modifier.height(6.dp))
-                        SparklineChart(data = rateValues, modifier = Modifier.width(56.dp).height(22.dp), color = changeColor)
-                    }
+                    if (rateValues != null && rateValues.isNotEmpty()) { Spacer(Modifier.height(6.dp)); SparklineChart(data = rateValues, modifier = Modifier.width(56.dp).height(22.dp), color = changeColor) }
                 }
             }
         }
