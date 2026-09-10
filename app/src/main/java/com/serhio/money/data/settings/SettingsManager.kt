@@ -37,7 +37,10 @@ class SettingsManager @Inject constructor(
 
     val interestedCurrenciesFlow: Flow<List<String>> = context.dataStore.data.map { preferences ->
         val raw = preferences[INTERESTED_CURRENCIES] ?: "EUR,PLN,UAH"
-        raw.split(",").filter { it.isNotBlank() }
+        raw.split(",")
+            .map { it.trim().uppercase() }
+            .filter { it.isNotBlank() }
+            .distinct()
     }
 
     val updateIntervalFlow: Flow<Long> = context.dataStore.data.map { preferences ->
@@ -61,11 +64,12 @@ class SettingsManager @Inject constructor(
     }
 
     suspend fun setBaseCurrency(currency: String) {
-        context.dataStore.edit { it[BASE_CURRENCY] = currency }
+        context.dataStore.edit { it[BASE_CURRENCY] = currency.trim().uppercase() }
     }
 
     suspend fun setInterestedCurrencies(currencies: List<String>) {
-        context.dataStore.edit { it[INTERESTED_CURRENCIES] = currencies.joinToString(",") }
+        val normalized = currencies.map { it.trim().uppercase() }.filter { it.isNotBlank() }.distinct()
+        context.dataStore.edit { it[INTERESTED_CURRENCIES] = normalized.joinToString(",") }
     }
 
     suspend fun setUpdateInterval(intervalMs: Long) {
@@ -77,7 +81,7 @@ class SettingsManager @Inject constructor(
     }
 
     suspend fun setTileDisplayCurrency(currency: String) {
-        context.dataStore.edit { it[tileDisplayCurrency] = currency }
+        context.dataStore.edit { it[tileDisplayCurrency] = currency.trim().uppercase() }
     }
 
     suspend fun setTileDisplayMode(mode: String) {
@@ -85,7 +89,7 @@ class SettingsManager @Inject constructor(
     }
 
     suspend fun setComplicationDisplayCurrency(currency: String) {
-        context.dataStore.edit { it[complicationDisplayCurrency] = currency }
+        context.dataStore.edit { it[complicationDisplayCurrency] = currency.trim().uppercase() }
     }
 
     suspend fun setComplicationDisplayMode(mode: String) {

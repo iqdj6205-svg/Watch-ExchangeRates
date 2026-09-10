@@ -30,7 +30,10 @@ class CurrencyComplicationService : SuspendingComplicationDataSourceService() {
     override suspend fun onComplicationRequest(request: ComplicationRequest): ComplicationData? {
         return try {
             val baseCurrency = settingsManager.baseCurrencyFlow.first()
-            val target = settingsManager.complicationDisplayCurrencyFlow.first()
+            // Complications follow the same source of truth as the main watch screen:
+            // the first favorite currency is what appears at the top and what the watch face shows.
+            // This keeps complication behavior predictable after reordering favorites.
+            val target = settingsManager.interestedCurrenciesFlow.first().firstOrNull() ?: "EUR"
             val mode = settingsManager.complicationDisplayModeFlow.first()
             val result = repository.fetchLatestRates(baseCurrency)
             val rateValue = result.getOrNull()?.rates?.get(target) ?: 0.0
