@@ -3,7 +3,64 @@
     android:height="24dp"
     android:viewportWidth="24"
     android:viewportHeight="24">
+
+    <!-- Premium round money mark: coin + trend line + exchange arrows. Kept as a vector
+         so Wear OS tile/complication pickers can render it reliably on different watches. -->
     <path
-        android:fillColor="#FFFFFF"
-        android:pathData="M6.99,11L3,15l3.99,4v-3H14v-2H6.99v-3zM21,9l-3.99,-4v3H10v2h7.01v3L21,9z" />
+        android:fillColor="#05070D"
+        android:pathData="M12,2.2a9.8,9.8 0,1 0,0.1 0z" />
+
+    <path
+        android:fillColor="#FFFFD166"
+        android:fillAlpha="0.22"
+        android:pathData="M12,3.4a8.6,8.6 0,1 0,0 17.2a8.6,8.6 0,0 0,0 -17.2z" />
+
+    <path
+        android:strokeColor="#FFFFD166"
+        android:strokeWidth="1.35"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:fillColor="@android:color/transparent"
+        android:pathData="M12,3.4a8.6,8.6 0,1 0,0 17.2a8.6,8.6 0,0 0,0 -17.2z" />
+
+    <path
+        android:strokeColor="#FFFFD166"
+        android:strokeWidth="1.45"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:fillColor="@android:color/transparent"
+        android:pathData="M6.5,14.7l2.5,-2.3l2.1,1.6l3.1,-4.4l1.9,1.4l1.5,-4" />
+
+    <path
+        android:fillColor="#FFFFD166"
+        android:pathData="M16.2,6.7l2.6,-0.4l-1,2.45z" />
+
+    <path
+        android:strokeColor="#FF00D18F"
+        android:strokeWidth="1.2"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:fillColor="@android:color/transparent"
+        android:pathData="M7.1,8.15h5.6" />
+
+    <path
+        android:fillColor="#FF00D18F"
+        android:pathData="M11.25,6.45l2,1.7l-2,1.7z" />
+
+    <path
+        android:strokeColor="#FFFFD166"
+        android:strokeWidth="1.2"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:fillColor="@android:color/transparent"
+        android:pathData="M16.9,15.85h-5.6" />
+
+    <path
+        android:fillColor="#FFFFD166"
+        android:pathData="M12.75,17.55l-2,-1.7l2,-1.7z" />
+
+    <path
+        android:fillColor="#FFFFD166"
+        android:fillAlpha="0.75"
+        android:pathData="M11.25,5.2h1.5v13.6h-1.5z" />
 </vector>
