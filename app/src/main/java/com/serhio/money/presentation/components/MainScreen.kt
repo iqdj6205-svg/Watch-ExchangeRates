@@ -155,7 +155,8 @@ private fun ActionMenuCard(icon: String, title: String, description: String, onC
 @Composable
 private fun FavoritesPage(state: MainUiState.Success, isOnline: Boolean, reorderMode: Boolean, onOpenGraphs: (String, String) -> Unit, onStartReorder: () -> Unit, onCancelReorder: () -> Unit, onSaveReorder: (List<String>) -> Unit) {
     val displayed = state.interestedCurrencies.filter { state.rates.containsKey(it) }
-    var editOrder by remember(displayed, reorderMode) { mutableStateOf(displayed) }
+    var editOrder by remember(reorderMode) { mutableStateOf(displayed) }
+    LaunchedEffect(displayed) { if (!reorderMode) editOrder = displayed }
     if (reorderMode) FavoritesReorderList(state, isOnline, editOrder, onOrderChanged = { editOrder = it }, onCancelReorder, onSaveReorder) else {
         ScalingLazyColumn(state = rememberScalingLazyListState(), horizontalAlignment = Alignment.CenterHorizontally, contentPadding = PaddingValues(top = 40.dp, bottom = 28.dp)) {
             item { Text(stringResource(R.string.page_favorites), fontSize = 13.sp, fontWeight = FontWeight.Medium, color = MaterialTheme.colorScheme.primary, modifier = Modifier.padding(bottom = 4.dp)) }
@@ -175,26 +176,30 @@ private fun FavoritesReorderList(state: MainUiState.Success, isOnline: Boolean, 
     val view = LocalView.current
     val listState = rememberLazyListState()
     val reorderState = rememberReorderableLazyListState(listState) { from, to ->
-        val fromIndex = from.index - 2
-        val toIndex = to.index - 2
+        val fromIndex = from.index
+        val toIndex = to.index
         if (fromIndex in order.indices && toIndex in order.indices) {
             onOrderChanged(order.toMutableList().apply { add(toIndex, removeAt(fromIndex)) })
             view.performHapticFeedback(HapticFeedbackConstants.CLOCK_TICK)
         }
     }
-    LazyColumn(state = listState, modifier = Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally, contentPadding = PaddingValues(top = 42.dp, bottom = 28.dp, start = 4.dp, end = 4.dp)) {
-        item(key = "edit_title") { Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.padding(bottom = 6.dp)) { Text("Edit order", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary); Text("Tap selects, hold ⋮⋮ to move", fontSize = 9.sp, color = MaterialTheme.colorScheme.onSurfaceVariant) } }
-        item(key = "edit_actions_top") { ReorderActions(onCancel = onCancel, onSave = { onSave(order) }) }
-        items(order.size, key = { order[it] }) { index ->
-            val code = order[index]
-            ReorderableItem(reorderState, key = code) { isDragging ->
-                val elevation by animateDpAsState(if (isDragging) 8.dp else 0.dp, label = "reorderElevation")
-                val interactionSource = remember { MutableInteractionSource() }
-                CurrencyCard(modifier = Modifier, baseCurrency = state.baseCurrency, currencyCode = code, rateValue = state.rates[code] ?: 0.0, history = state.history[code], isFavorite = true, elevation = elevation, trailingContent = { Text("⋮⋮", color = MaterialTheme.colorScheme.primary, fontSize = 14.sp, modifier = Modifier.longPressDraggableHandle(interactionSource = interactionSource, onDragStarted = { view.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS) }, onDragStopped = { view.performHapticFeedback(HapticFeedbackConstants.CONTEXT_CLICK) }).padding(start = 6.dp)) })
-            }
+    Column(Modifier.fillMaxSize()) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth().padding(top = 42.dp, bottom = 4.dp)) {
+            Text("Edit order", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
+            Text("Hold ⋮⋮ to move, then Save", fontSize = 9.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            ReorderActions(onCancel = onCancel, onSave = { onSave(order) })
         }
-        item(key = "edit_actions_bottom") { ReorderActions(onCancel = onCancel, onSave = { onSave(order) }) }
-        item { StatusFooter(isOnline = isOnline, isFromCache = state.isFromCache, lastUpdate = state.lastUpdate) }
+        LazyColumn(state = listState, modifier = Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally, contentPadding = PaddingValues(bottom = 28.dp, start = 4.dp, end = 4.dp)) {
+            items(order.size, key = { order[it] }) { index ->
+                val code = order[index]
+                ReorderableItem(reorderState, key = code) { isDragging ->
+                    val elevation by animateDpAsState(if (isDragging) 8.dp else 0.dp, label = "reorderElevation")
+                    val interactionSource = remember { MutableInteractionSource() }
+                    CurrencyCard(modifier = Modifier, baseCurrency = state.baseCurrency, currencyCode = code, rateValue = state.rates[code] ?: 0.0, history = state.history[code], isFavorite = true, elevation = elevation, trailingContent = { Text("⋮⋮", color = MaterialTheme.colorScheme.primary, fontSize = 14.sp, modifier = Modifier.longPressDraggableHandle(interactionSource = interactionSource, onDragStarted = { view.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS) }, onDragStopped = { view.performHapticFeedback(HapticFeedbackConstants.CONTEXT_CLICK) }).padding(start = 6.dp)) })
+                }
+            }
+            item { StatusFooter(isOnline = isOnline, isFromCache = state.isFromCache, lastUpdate = state.lastUpdate) }
+        }
     }
 }
 
