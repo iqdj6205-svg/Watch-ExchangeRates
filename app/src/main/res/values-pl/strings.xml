@@ -48,6 +48,7 @@
     <string name="section_tile_mode">Tryb</string>
     <string name="section_complication_config">Konfiguracja komplikacji</string>
     <string name="section_complication_currency">Waluta komplikacji</string>
+    <string name="complication_follows_top_favorite">Pokazuje górną walutę z listy głównej</string>
     <string name="mode_rate">Kurs</string>
     <string name="mode_change_pct">Zmiana %</string>
     <string name="mode_arrow">Strzałka</string>

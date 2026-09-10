@@ -48,6 +48,7 @@
     <string name="section_tile_mode">Modus</string>
     <string name="section_complication_config">Komplikationskonfiguration</string>
     <string name="section_complication_currency">Komplikationswährung</string>
+    <string name="complication_follows_top_favorite">Zeigt die oberste Währung der Hauptliste</string>
     <string name="mode_rate">Kurs</string>
     <string name="mode_change_pct">Änderung %</string>
     <string name="mode_arrow">Pfeil</string>

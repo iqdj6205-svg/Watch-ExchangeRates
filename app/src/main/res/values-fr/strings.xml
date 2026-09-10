@@ -48,6 +48,7 @@
     <string name="section_tile_mode">Mode</string>
     <string name="section_complication_config">Configuration de la complication</string>
     <string name="section_complication_currency">Devise de complication</string>
+    <string name="complication_follows_top_favorite">Affiche la devise en haut de la liste principale</string>
     <string name="mode_rate">Taux</string>
     <string name="mode_change_pct">Variation %</string>
     <string name="mode_arrow">Flèche</string>
