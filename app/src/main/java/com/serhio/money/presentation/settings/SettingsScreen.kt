@@ -20,6 +20,7 @@ import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.foundation.lazy.rememberScalingLazyListState
 import androidx.wear.compose.material3.*
 import com.serhio.money.R
+import com.serhio.money.data.settings.SettingsLogic
 import com.serhio.money.presentation.components.currencyFlag
 import com.serhio.money.presentation.theme.CardBottom
 import com.serhio.money.presentation.theme.CardTop
@@ -43,8 +44,8 @@ fun SettingsScreen(viewModel: SettingsViewModel) {
         item { Text(stringResource(R.string.menu_settings).removePrefix("⚙ "), style = MaterialTheme.typography.displayMedium, color = MaterialTheme.colorScheme.onBackground, modifier = Modifier.padding(bottom = 4.dp)) }
         item { PremiumSectionCard(title = stringResource(R.string.section_base), subtitle = stringResource(R.string.settings_base_hint)) { CurrencyChipGrid(if (showAllBase) currencies else priorityCurrencies, listOf(baseCurrency), 2, viewModel::setBaseCurrency); ShowToggle(showAllBase) { showAllBase = !showAllBase } } }
         item { PremiumSectionCard(title = stringResource(R.string.section_interested), subtitle = stringResource(R.string.settings_interested_hint)) { CurrencyChipGrid(if (showAllInterested) currencies else priorityCurrencies + otherCurrencies.take(6), interestedCurrencies, 2, viewModel::toggleInterestedCurrency); ShowToggle(showAllInterested) { showAllInterested = !showAllInterested } } }
-        item { PremiumSectionCard(title = stringResource(R.string.section_interval), subtitle = stringResource(R.string.settings_interval_hint)) { IntervalPicker(updateInterval = updateInterval, onSelect = viewModel::setUpdateInterval) } }
-        item { PremiumSectionCard(title = stringResource(R.string.section_alert_interval), subtitle = stringResource(R.string.settings_alert_interval_hint)) { IntervalPicker(updateInterval = alertInterval, onSelect = viewModel::setAlertInterval, alertMode = true) } }
+        item { PremiumSectionCard(title = stringResource(R.string.section_interval), subtitle = stringResource(R.string.settings_interval_hint)) { IntervalPicker(updateInterval = updateInterval, intervals = SettingsLogic.updateIntervalOptions, onSelect = viewModel::setUpdateInterval) } }
+        item { PremiumSectionCard(title = stringResource(R.string.section_alert_interval), subtitle = stringResource(R.string.settings_alert_interval_hint)) { IntervalPicker(updateInterval = alertInterval, intervals = SettingsLogic.alertIntervalOptions, onSelect = viewModel::setAlertInterval) } }
     }
 }
 
@@ -56,9 +57,8 @@ private fun ShowToggle(expanded: Boolean, onClick: () -> Unit) {
 }
 
 @Composable
-private fun IntervalPicker(updateInterval: Long, onSelect: (Long) -> Unit, alertMode: Boolean = false) {
+private fun IntervalPicker(updateInterval: Long, intervals: List<Pair<String, Long>>, onSelect: (Long) -> Unit) {
     var showPopup by remember { mutableStateOf(false) }
-    val intervals = if (alertMode) listOf("15m" to (15 * 60 * 1000L), "30m" to (30 * 60 * 1000L), "1h" to (60 * 60 * 1000L), "2h" to (2 * 60 * 60 * 1000L), "6h" to (6 * 60 * 60 * 1000L)) else listOf("15m" to (15 * 60 * 1000L), "30m" to (30 * 60 * 1000L), "1h" to (60 * 60 * 1000L), "2h" to (2 * 60 * 60 * 1000L), "6h" to (6 * 60 * 60 * 1000L), "12h" to (12 * 60 * 60 * 1000L), "24h" to (24 * 60 * 60 * 1000L))
     val currentLabel = intervals.find { it.second == updateInterval }?.first ?: "—"
     Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
         Text("$currentLabel  ▾", fontSize = 18.sp, fontWeight = FontWeight.ExtraBold, color = MoneyGold, modifier = Modifier.clip(CircleShape).border(1.dp, MoneyGold.copy(alpha = 0.32f), CircleShape).clickable { showPopup = !showPopup }.padding(horizontal = 18.dp, vertical = 8.dp))

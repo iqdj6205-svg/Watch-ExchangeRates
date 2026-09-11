@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.wear.tiles.TileService
+import com.serhio.money.data.settings.SettingsLogic
 import com.serhio.money.data.settings.SettingsManager
 import com.serhio.money.tiles.BigNumberCurrencyTileService
 import com.serhio.money.tiles.ChangeCurrencyTileService
@@ -25,10 +26,10 @@ class SettingsViewModel @Inject constructor(
     @ApplicationContext private val context: Context
 ) : ViewModel() {
 
-    val baseCurrency: StateFlow<String> = settingsManager.baseCurrencyFlow.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), "USD")
-    val interestedCurrencies: StateFlow<List<String>> = settingsManager.interestedCurrenciesFlow.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), listOf("EUR", "PLN", "UAH"))
-    val updateInterval: StateFlow<Long> = settingsManager.updateIntervalFlow.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 3600 * 1000L)
-    val alertInterval: StateFlow<Long> = settingsManager.alertIntervalFlow.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 15 * 60 * 1000L)
+    val baseCurrency: StateFlow<String> = settingsManager.baseCurrencyFlow.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), SettingsLogic.DEFAULT_BASE_CURRENCY)
+    val interestedCurrencies: StateFlow<List<String>> = settingsManager.interestedCurrenciesFlow.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), SettingsLogic.parseCurrencyList(SettingsLogic.DEFAULT_INTERESTED_CURRENCIES))
+    val updateInterval: StateFlow<Long> = settingsManager.updateIntervalFlow.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), SettingsLogic.DEFAULT_UPDATE_INTERVAL_MS)
+    val alertInterval: StateFlow<Long> = settingsManager.alertIntervalFlow.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), SettingsLogic.DEFAULT_ALERT_INTERVAL_MS)
 
     private val tileUpdater = TileService.getUpdater(context)
 
@@ -49,15 +50,16 @@ class SettingsViewModel @Inject constructor(
     private var pendingOrder: List<String>? = null
 
     fun toggleInterestedCurrency(currency: String) {
+        val normalizedCurrency = SettingsLogic.normalizeCurrency(currency)
         val current = (pendingOrder ?: interestedCurrencies.value).toMutableList()
-        if (current.contains(currency)) current.remove(currency) else current.add(currency)
-        pendingOrder = current
+        if (current.contains(normalizedCurrency)) current.remove(normalizedCurrency) else current.add(normalizedCurrency)
+        pendingOrder = SettingsLogic.normalizeCurrencies(current)
         viewModelScope.launch { settingsManager.setInterestedCurrencies(current); requestTileUpdates() }
     }
 
     fun reorderCurrencies(newOrder: List<String>) {
         val existing = pendingOrder ?: interestedCurrencies.value
-        val merged = newOrder + existing.filter { it !in newOrder }
+        val merged = SettingsLogic.mergeReorderedCurrencies(newOrder, existing)
         pendingOrder = merged
         viewModelScope.launch { settingsManager.setInterestedCurrencies(merged); requestTileUpdates() }
     }
