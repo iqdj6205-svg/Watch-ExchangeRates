@@ -1,73 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Money Wear</string>
-    <string name="tile_label">Wechselkurs</string>
-    <string name="complication_label">Wechselkurs</string>
-    <string name="tile_label_multi">Mehrere Währungen</string>
-    <string name="tile_label_big">Großer Kurs</string>
-    <string name="tile_label_compact">Kompakter Kurs</string>
-    <string name="tile_label_change">Kursänderung</string>
-
-    <string name="menu_settings">⚙ Einstellungen</string>
-    <string name="menu_tiles">◻ Kacheln &amp; Komplikation</string>
-    <string name="menu_refresh">↻ Aktualisieren</string>
-    <string name="menu_alerts">🔔 Kursalarme</string>
-    <string name="menu_title">Menü</string>
-    <string name="menu_settings_desc">Basiswährung, Favoriten, Intervall</string>
-    <string name="menu_tiles_desc">Kachelwährung, Modi, Komplikation</string>
-    <string name="menu_refresh_desc">Kurse abrufen und Cache aktualisieren</string>
-    <string name="menu_alerts_desc">Kurs-Schwellen erstellen und verwalten</string>
-    <string name="retry">Wiederholen</string>
-    <string name="empty_currencies">Währungen in Einstellungen hinzufügen</string>
-    <string name="page_favorites">★ Favoriten</string>
-    <string name="page_all">☆ Alle</string>
-    <string name="status_offline">Offline</string>
-    <string name="status_cached">Cache</string>
-    <string name="loading">Laden…</string>
-
-    <string name="section_base">Basis</string>
-    <string name="section_interested">Favoriten</string>
-    <string name="section_interval">Intervall</string>
-    <string name="settings_base_hint">Wird für alle Kurse verwendet</string>
-    <string name="settings_interested_hint">Zuerst auf der Uhr angezeigt</string>
-    <string name="settings_interval_hint">Balance zwischen Aktualität und Akku</string>
-    <string name="settings_show_all">Alle anzeigen</string>
-    <string name="settings_show_less">Weniger anzeigen</string>
-
-    <string name="graph_no_data">Nicht genug Daten für diesen Zeitraum</string>
-    <string name="back">Zurück</string>
-    <string name="period_24h">24h</string>
-    <string name="period_7d">7T</string>
-    <string name="period_30d">30T</string>
-    <string name="period_90d">90T</string>
-    <string name="period_1y">1J</string>
-    <string name="period_all">Alle</string>
-
-    <string name="section_tile_config">Kachelkonfiguration</string>
-    <string name="section_tile_currency">Währung</string>
-    <string name="section_tile_mode">Modus</string>
-    <string name="section_complication_config">Komplikationskonfiguration</string>
-    <string name="section_complication_currency">Komplikationswährung</string>
-    <string name="complication_follows_top_favorite">Zeigt die oberste Währung der Hauptliste</string>
-    <string name="mode_rate">Kurs</string>
-    <string name="mode_change_pct">Änderung %</string>
-    <string name="mode_arrow">Pfeil</string>
-    <string name="mode_date">Datum</string>
-
-    <string name="unknown_error">Unbekannter Fehler</string>
-
-    <string name="alerts_title">Kursalarme</string>
-    <string name="alerts_empty">Keine Alarme</string>
-    <string name="alert_add">Hinzufügen</string>
-    <string name="alert_add_desc">Währung, Bedingung und Zielkurs wählen</string>
-    <string name="alert_currency">Währung</string>
-    <string name="alert_rate">Zielkurs</string>
-    <string name="alert_direction">Auslösen bei</string>
-    <string name="alert_above">Über</string>
-    <string name="alert_below">Unter</string>
-    <string name="alert_on">EIN</string>
-    <string name="alert_off">AUS</string>
-    <string name="alert_triggered">Ausgelöst!</string>
-    <string name="cancel">Abbrechen</string>
-    <string name="confirm">Hinzufügen</string>
+    <string name="app_name">Money Wear</string><string name="tile_label">Wechselkurs</string><string name="complication_label">Wechselkurs</string><string name="tile_label_multi">Mehrere Währungen</string><string name="tile_label_big">Großer Kurs</string><string name="tile_label_compact">Kompakter Kurs</string><string name="tile_label_change">Kursänderung</string>
+    <string name="menu_settings">⚙ Einstellungen</string><string name="menu_tiles">◻ Kacheln &amp; Komplikation</string><string name="menu_refresh">↻ Aktualisieren</string><string name="menu_alerts">🔔 Kursalarme</string><string name="menu_title">Menü</string><string name="menu_settings_desc">Basiswährung, Favoriten, Intervall</string><string name="menu_tiles_desc">Kachelwährung, Modi, Komplikation</string><string name="menu_refresh_desc">Kurse abrufen und Cache aktualisieren</string><string name="menu_alerts_desc">Kurs-Schwellen erstellen und verwalten</string>
+    <string name="retry">Wiederholen</string><string name="empty_currencies">Währungen in Einstellungen hinzufügen</string><string name="page_favorites">★ Favoriten</string><string name="page_all">☆ Alle</string><string name="status_offline">Offline</string><string name="status_cached">Cache</string><string name="loading">Laden…</string>
+    <string name="edit_order">✎ Reihenfolge</string><string name="reorder_hint">⋮⋮ halten zum Verschieben, dann speichern</string><string name="save">Speichern</string>
+    <string name="section_base">Basis</string><string name="section_interested">Favoriten</string><string name="section_interval">Intervall</string><string name="section_alert_interval">Alarmprüfung</string><string name="settings_base_hint">Wird für alle Kurse verwendet</string><string name="settings_interested_hint">Zuerst auf der Uhr angezeigt</string><string name="settings_interval_hint">Balance zwischen Aktualität und Akku</string><string name="settings_alert_interval_hint">Wie oft Alarme Kurse prüfen</string><string name="settings_show_all">Alle anzeigen</string><string name="settings_show_less">Weniger anzeigen</string>
+    <string name="graph_no_data">Nicht genug Daten für diesen Zeitraum</string><string name="back">Zurück</string><string name="period_24h">24h</string><string name="period_7d">7T</string><string name="period_30d">30T</string><string name="period_90d">90T</string><string name="period_1y">1J</string><string name="period_all">Alle</string>
+    <string name="section_tile_config">Kachelkonfiguration</string><string name="section_tile_currency">Währung</string><string name="section_tile_mode">Modus</string><string name="section_complication_config">Komplikationskonfiguration</string><string name="section_complication_currency">Komplikationswährung</string><string name="complication_follows_top_favorite">Zeigt die oberste Währung der Hauptliste</string><string name="mode_rate">Kurs</string><string name="mode_change_pct">Änderung %</string><string name="mode_arrow">Pfeil</string><string name="mode_date">Datum</string>
+    <string name="unknown_error">Unbekannter Fehler</string><string name="alerts_title">Kursalarme</string><string name="alerts_empty">Keine Alarme</string><string name="alert_add">Hinzufügen</string><string name="alert_add_desc">Währung, Bedingung und Zielkurs wählen</string><string name="alert_currency">Währung</string><string name="alert_rate">Zielkurs</string><string name="alert_direction">Auslösen bei</string><string name="alert_above">Über</string><string name="alert_below">Unter</string><string name="alert_on">EIN</string><string name="alert_off">AUS</string><string name="alert_triggered">Ausgelöst!</string><string name="alert_channel_desc">Benachrichtigungen, wenn Kurse den Zielwert überschreiten</string><string name="alert_notification_title">Kursalarm: %1$s/%2$s</string><string name="alert_notification_text">1 %1$s ist jetzt %2$s %3$s (%4$s %5$s)</string><string name="cancel">Abbrechen</string><string name="confirm">Hinzufügen</string>
 </resources>

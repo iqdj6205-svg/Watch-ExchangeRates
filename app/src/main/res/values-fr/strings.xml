@@ -1,73 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Money Wear</string>
-    <string name="tile_label">Taux de change</string>
-    <string name="complication_label">Taux de change</string>
-    <string name="tile_label_multi">Plusieurs devises</string>
-    <string name="tile_label_big">Grand taux</string>
-    <string name="tile_label_compact">Taux compact</string>
-    <string name="tile_label_change">Changement de taux</string>
-
-    <string name="menu_settings">⚙ Paramètres</string>
-    <string name="menu_tiles">◻ Tuiles &amp; complication</string>
-    <string name="menu_refresh">↻ Actualiser</string>
-    <string name="menu_alerts">🔔 Alertes de taux</string>
-    <string name="menu_title">Menu</string>
-    <string name="menu_settings_desc">Devise de base, favoris, intervalle</string>
-    <string name="menu_tiles_desc">Devise de tuile, modes, complication</string>
-    <string name="menu_refresh_desc">Récupérer les taux et actualiser le cache</string>
-    <string name="menu_alerts_desc">Créer et gérer des seuils de taux</string>
-    <string name="retry">Réessayer</string>
-    <string name="empty_currencies">Ajoutez des devises dans les paramètres</string>
-    <string name="page_favorites">★ Favoris</string>
-    <string name="page_all">☆ Toutes</string>
-    <string name="status_offline">Hors ligne</string>
-    <string name="status_cached">En cache</string>
-    <string name="loading">Chargement…</string>
-
-    <string name="section_base">Base</string>
-    <string name="section_interested">Favoris</string>
-    <string name="section_interval">Intervalle</string>
-    <string name="settings_base_hint">Utilisée pour tous les taux</string>
-    <string name="settings_interested_hint">Affichées en premier sur la montre</string>
-    <string name="settings_interval_hint">Équilibre fraîcheur et batterie</string>
-    <string name="settings_show_all">Tout afficher</string>
-    <string name="settings_show_less">Réduire</string>
-
-    <string name="graph_no_data">Pas assez de données pour cette période</string>
-    <string name="back">Retour</string>
-    <string name="period_24h">24h</string>
-    <string name="period_7d">7j</string>
-    <string name="period_30d">30j</string>
-    <string name="period_90d">90j</string>
-    <string name="period_1y">1a</string>
-    <string name="period_all">Tout</string>
-
-    <string name="section_tile_config">Configuration de la tuile</string>
-    <string name="section_tile_currency">Devise</string>
-    <string name="section_tile_mode">Mode</string>
-    <string name="section_complication_config">Configuration de la complication</string>
-    <string name="section_complication_currency">Devise de complication</string>
-    <string name="complication_follows_top_favorite">Affiche la devise en haut de la liste principale</string>
-    <string name="mode_rate">Taux</string>
-    <string name="mode_change_pct">Variation %</string>
-    <string name="mode_arrow">Flèche</string>
-    <string name="mode_date">Date</string>
-
-    <string name="unknown_error">Erreur inconnue</string>
-
-    <string name="alerts_title">Alertes de taux</string>
-    <string name="alerts_empty">Aucune alerte</string>
-    <string name="alert_add">Ajouter</string>
-    <string name="alert_add_desc">Choisissez devise, condition et taux cible</string>
-    <string name="alert_currency">Devise</string>
-    <string name="alert_rate">Taux cible</string>
-    <string name="alert_direction">Déclencher quand</string>
-    <string name="alert_above">Au-dessus</string>
-    <string name="alert_below">En dessous</string>
-    <string name="alert_on">ON</string>
-    <string name="alert_off">OFF</string>
-    <string name="alert_triggered">Déclenché !</string>
-    <string name="cancel">Annuler</string>
-    <string name="confirm">Ajouter</string>
+    <string name="app_name">Money Wear</string><string name="tile_label">Taux de change</string><string name="complication_label">Taux de change</string><string name="tile_label_multi">Plusieurs devises</string><string name="tile_label_big">Grand taux</string><string name="tile_label_compact">Taux compact</string><string name="tile_label_change">Changement de taux</string>
+    <string name="menu_settings">⚙ Paramètres</string><string name="menu_tiles">◻ Tuiles &amp; complication</string><string name="menu_refresh">↻ Actualiser</string><string name="menu_alerts">🔔 Alertes de taux</string><string name="menu_title">Menu</string><string name="menu_settings_desc">Devise de base, favoris, intervalle</string><string name="menu_tiles_desc">Devise de tuile, modes, complication</string><string name="menu_refresh_desc">Récupérer les taux et actualiser le cache</string><string name="menu_alerts_desc">Créer et gérer des seuils de taux</string>
+    <string name="retry">Réessayer</string><string name="empty_currencies">Ajoutez des devises dans les paramètres</string><string name="page_favorites">★ Favoris</string><string name="page_all">☆ Toutes</string><string name="status_offline">Hors ligne</string><string name="status_cached">En cache</string><string name="loading">Chargement…</string>
+    <string name="edit_order">✎ Ordre</string><string name="reorder_hint">Maintenez ⋮⋮ pour déplacer, puis enregistrez</string><string name="save">Enregistrer</string>
+    <string name="section_base">Base</string><string name="section_interested">Favoris</string><string name="section_interval">Intervalle</string><string name="section_alert_interval">Vérification des alertes</string><string name="settings_base_hint">Utilisée pour tous les taux</string><string name="settings_interested_hint">Affichées en premier sur la montre</string><string name="settings_interval_hint">Équilibre fraîcheur et batterie</string><string name="settings_alert_interval_hint">Fréquence de vérification des alertes</string><string name="settings_show_all">Tout afficher</string><string name="settings_show_less">Réduire</string>
+    <string name="graph_no_data">Pas assez de données pour cette période</string><string name="back">Retour</string><string name="period_24h">24h</string><string name="period_7d">7j</string><string name="period_30d">30j</string><string name="period_90d">90j</string><string name="period_1y">1a</string><string name="period_all">Tout</string>
+    <string name="section_tile_config">Configuration de la tuile</string><string name="section_tile_currency">Devise</string><string name="section_tile_mode">Mode</string><string name="section_complication_config">Configuration de la complication</string><string name="section_complication_currency">Devise de complication</string><string name="complication_follows_top_favorite">Affiche la devise en haut de la liste principale</string><string name="mode_rate">Taux</string><string name="mode_change_pct">Variation %</string><string name="mode_arrow">Flèche</string><string name="mode_date">Date</string>
+    <string name="unknown_error">Erreur inconnue</string><string name="alerts_title">Alertes de taux</string><string name="alerts_empty">Aucune alerte</string><string name="alert_add">Ajouter</string><string name="alert_add_desc">Choisissez devise, condition et taux cible</string><string name="alert_currency">Devise</string><string name="alert_rate">Taux cible</string><string name="alert_direction">Déclencher quand</string><string name="alert_above">Au-dessus</string><string name="alert_below">En dessous</string><string name="alert_on">ON</string><string name="alert_off">OFF</string><string name="alert_triggered">Déclenché !</string><string name="alert_channel_desc">Notifications quand le taux dépasse votre seuil</string><string name="alert_notification_title">Alerte de taux : %1$s/%2$s</string><string name="alert_notification_text">1 %1$s vaut maintenant %2$s %3$s (%4$s %5$s)</string><string name="cancel">Annuler</string><string name="confirm">Ajouter</string>
 </resources>
