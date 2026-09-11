@@ -7,6 +7,7 @@ import com.serhio.money.domain.model.HistoryPoint
 import com.serhio.money.domain.repository.CurrencyRepository
 import com.serhio.money.utils.NetworkMonitor
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -31,6 +32,8 @@ class MainViewModel @Inject constructor(
         viewModelScope, SharingStarted.WhileSubscribed(5000), true
     )
 
+    private var refreshJob: Job? = null
+
     init {
         observeRates()
     }
@@ -43,14 +46,18 @@ class MainViewModel @Inject constructor(
             ) { base, interested ->
                 Pair(base, interested)
             }.collect { (base, interested) ->
-                refreshRates(base, interested)
+                refreshRates(base, interested, keepCurrentContent = true)
             }
         }
     }
 
-    fun refreshRates(base: String? = null, interested: List<String>? = null) {
-        viewModelScope.launch {
-            _uiState.value = MainUiState.Loading
+    fun refreshRates(base: String? = null, interested: List<String>? = null, keepCurrentContent: Boolean = false) {
+        refreshJob?.cancel()
+        refreshJob = viewModelScope.launch {
+            val previousState = _uiState.value
+            if (!keepCurrentContent || previousState !is MainUiState.Success) {
+                _uiState.value = MainUiState.Loading
+            }
 
             val currentBase = base ?: settingsManager.baseCurrencyFlow.first()
             val currentInterested = interested ?: settingsManager.interestedCurrenciesFlow.first()
@@ -60,15 +67,14 @@ class MainViewModel @Inject constructor(
             if (result.isSuccess) {
                 val rate = result.getOrThrow()
                 val isFromCache = rate.lastUpdate < System.currentTimeMillis() - 60000
-
                 val rates = rate.rates
 
                 val historyMap = mutableMapOf<String, List<HistoryPoint>>()
                 currentInterested.forEach { target ->
                     val historyEntities = repository.getRecentHistory(currentBase, target, 500).first()
                     historyMap[target] = historyEntities.mapNotNull { entity ->
-                        val rate = entity.rates[target] ?: return@mapNotNull null
-                        HistoryPoint(timestamp = entity.lastUpdate, rate = rate)
+                        val historyRate = entity.rates[target] ?: return@mapNotNull null
+                        HistoryPoint(timestamp = entity.lastUpdate, rate = historyRate)
                     }.reversed()
                 }
 
@@ -86,7 +92,15 @@ class MainViewModel @Inject constructor(
                 }
             } else {
                 val errorMsg = result.exceptionOrNull()?.message
-                _uiState.value = MainUiState.Error(errorMsg)
+                if (previousState is MainUiState.Success && keepCurrentContent) {
+                    _uiState.value = previousState.copy(
+                        baseCurrency = currentBase,
+                        interestedCurrencies = currentInterested,
+                        isFromCache = true
+                    )
+                } else {
+                    _uiState.value = MainUiState.Error(errorMsg)
+                }
             }
         }
     }

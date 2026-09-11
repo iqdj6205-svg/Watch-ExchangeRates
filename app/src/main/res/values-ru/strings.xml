@@ -1,58 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Money Wear</string>
-    <string name="tile_label">Курс валют</string>
-    <string name="complication_label">Курс валют</string>
-
-    <string name="menu_settings">⚙ Настройки</string>
-    <string name="menu_tiles">◻ Плитки и усложнения</string>
-    <string name="menu_refresh">↻ Обновить</string>
-    <string name="menu_alerts">🔔 Оповещения</string>
-    <string name="retry">Повторить</string>
-    <string name="empty_currencies">Добавьте валюты в настройках</string>
-    <string name="page_favorites">★ Избранное</string>
-    <string name="page_all">☆ Все</string>
-    <string name="status_offline">Офлайн</string>
-    <string name="status_cached">Кеш</string>
-    <string name="loading">Загрузка…</string>
-
-    <string name="section_base">Базовая</string>
-    <string name="section_interested">Интересующие</string>
-    <string name="section_interval">Интервал</string>
-
-    <string name="graph_no_data">Недостаточно данных за этот период</string>
-    <string name="back">Назад</string>
-    <string name="period_24h">24ч</string>
-    <string name="period_7d">7д</string>
-    <string name="period_30d">30д</string>
-    <string name="period_90d">90д</string>
-    <string name="period_1y">1г</string>
-    <string name="period_all">Всё</string>
-
-    <string name="section_tile_config">Настройка плитки</string>
-    <string name="section_tile_currency">Валюта</string>
-    <string name="section_tile_mode">Режим</string>
-    <string name="section_complication_config">Настройка усложнения</string>
-    <string name="section_complication_currency">Валюта усложнения</string>
-    <string name="mode_rate">Курс</string>
-    <string name="mode_change_pct">Изменение %</string>
-    <string name="mode_arrow">Стрелка</string>
-    <string name="mode_date">Дата</string>
-
-    <string name="unknown_error">Неизвестная ошибка</string>
-
-    <string name="alerts_title">Оповещения</string>
-    <string name="alerts_empty">Нет оповещений</string>
-    <string name="alert_add">Добавить</string>
-    <string name="alert_currency">Валюта</string>
-    <string name="alert_rate">Целевой курс</string>
-    <string name="alert_direction">Сработать при</string>
-    <string name="alert_triggered">Сработало!</string>
-    <string name="cancel">Отмена</string>
-    <string name="confirm">Добавить</string>
-    <string name="menu_title">Меню</string>
-    <string name="tile_label_multi">Несколько валют</string>
-    <string name="tile_label_big">Большой курс</string>
-    <string name="tile_label_compact">Компактный курс</string>
-    <string name="tile_label_change">Изменение курса</string>
+    <string name="app_name">Money Wear</string><string name="tile_label">Курс валют</string><string name="complication_label">Курс валют</string><string name="tile_label_multi">Несколько валют</string><string name="tile_label_big">Большой курс</string><string name="tile_label_compact">Компактный курс</string><string name="tile_label_change">Изменение курса</string>
+    <string name="menu_settings">⚙ Настройки</string><string name="menu_tiles">◻ Плитки и усложнения</string><string name="menu_refresh">↻ Обновить</string><string name="menu_alerts">🔔 Оповещения</string><string name="menu_title">Меню</string><string name="menu_settings_desc">Базовая валюта, избранное, интервал</string><string name="menu_tiles_desc">Валюта плитки, режимы, усложнение</string><string name="menu_refresh_desc">Обновить курсы и локальный кеш</string><string name="menu_alerts_desc">Создать и управлять порогами курса</string>
+    <string name="retry">Повторить</string><string name="empty_currencies">Добавьте валюты в настройках</string><string name="page_favorites">★ Избранное</string><string name="page_all">☆ Все</string><string name="status_offline">Офлайн</string><string name="status_cached">Кеш</string><string name="loading">Загрузка…</string>
+    <string name="edit_order">✎ Порядок</string><string name="reorder_hint">Удерживайте ⋮⋮ для перемещения, затем сохраните</string><string name="save">Сохранить</string>
+    <string name="section_base">Базовая</string><string name="section_interested">Избранные</string><string name="section_interval">Интервал</string><string name="section_alert_interval">Проверка оповещений</string><string name="settings_base_hint">Используется для всех курсов</string><string name="settings_interested_hint">Показываются первыми на часах</string><string name="settings_interval_hint">Баланс свежести и батареи</string><string name="settings_alert_interval_hint">Как часто проверять условия оповещений</string><string name="settings_show_all">Показать все</string><string name="settings_show_less">Скрыть</string>
+    <string name="graph_no_data">Недостаточно данных за этот период</string><string name="back">Назад</string><string name="period_24h">24ч</string><string name="period_7d">7д</string><string name="period_30d">30д</string><string name="period_90d">90д</string><string name="period_1y">1г</string><string name="period_all">Всё</string>
+    <string name="section_tile_config">Настройка плитки</string><string name="section_tile_currency">Валюта</string><string name="section_tile_mode">Режим</string><string name="section_complication_config">Настройка усложнения</string><string name="section_complication_currency">Валюта усложнения</string><string name="complication_follows_top_favorite">Показывает верхнюю валюту главного списка</string><string name="mode_rate">Курс</string><string name="mode_change_pct">Изменение %</string><string name="mode_arrow">Стрелка</string><string name="mode_date">Дата</string>
+    <string name="unknown_error">Неизвестная ошибка</string><string name="alerts_title">Оповещения</string><string name="alerts_empty">Нет оповещений</string><string name="alert_add">Добавить</string><string name="alert_add_desc">Выберите валюту, условие и целевой курс</string><string name="alert_currency">Валюта</string><string name="alert_rate">Целевой курс</string><string name="alert_direction">Сработать при</string><string name="alert_above">Выше</string><string name="alert_below">Ниже</string><string name="alert_on">ВКЛ</string><string name="alert_off">ВЫКЛ</string><string name="alert_triggered">Сработало!</string><string name="alert_channel_desc">Оповещения, когда курс пересекает заданный порог</string><string name="alert_notification_title">Оповещение: %1$s/%2$s</string><string name="alert_notification_text">1 %1$s теперь %2$s %3$s (%4$s %5$s)</string><string name="cancel">Отмена</string><string name="confirm">Добавить</string>
 </resources>

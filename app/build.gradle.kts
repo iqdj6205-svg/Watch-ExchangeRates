@@ -30,13 +30,13 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        
+
         buildConfigField("String", "API_KEY", "\"$apiKey\"")
     }
 
     androidResources {
-        // Шаг 1: Оставляем только нужные локали
-        localeFilters += listOf("en", "ru")
+        // Keep all shipped locales in sync with README/spec.
+        localeFilters += listOf("en", "ru", "uk", "pl", "de", "fr")
     }
 
     buildTypes {
@@ -51,6 +51,7 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            // TODO: Replace debug signing with a release keystore before publishing.
             signingConfig = signingConfigs.getByName("debug")
         }
     }
@@ -59,14 +60,13 @@ android {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
-    
+
     buildFeatures {
         compose = true
         buildConfig = true
     }
 
     packaging {
-        // Шаг 5: Сжимаем DEX для уменьшения размера APK (совместимо с AGP 8+)
         jniLibs {
             useLegacyPackaging = true
         }
@@ -88,7 +88,7 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.core.splashscreen)
     implementation(libs.play.services.wearable)
-    
+
     // Compose
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.ui)
@@ -99,8 +99,7 @@ dependencies {
     implementation(libs.androidx.wear.compose.navigation)
     implementation(libs.androidx.foundation)
     implementation(libs.reorderable)
-    implementation(libs.androidx.foundation)
-    
+
     // Hilt
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
@@ -158,7 +157,11 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.ui.test.junit4)
-    androidTestImplementation(libs.androidx.wear.tiles.testing)
+    androidTestImplementation(libs.androidx.wear.tiles.testing) {
+        // tiles-testing pulls Robolectric (for JVM unit tests); on-device it
+        // breaks instrumented tests (Looper ClassCastException), so exclude it.
+        exclude(group = "org.robolectric")
+    }
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 }

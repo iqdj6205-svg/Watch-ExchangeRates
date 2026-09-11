@@ -25,16 +25,20 @@
 
 ## Phase 5: i18n [DONE ✅]
 - [x] 6 locale files (en, ru, uk, pl, de, fr)
+- [x] Gradle locale filters include all shipped locales
 
 ## Phase 6: Testing [DONE ✅]
 - [x] 17 unit tests (Mapper, Repository, ViewModel, Worker)
 
-## Phase 7: Polish [DONE ✅]
+## Phase 7: Polish [IN PROGRESS]
 - [x] Remove debug logs (`REORDER_DBG` in CurrencyCard, SettingsViewModel)
 - [x] Remove temporary `semantics` blocks
-- [x] Verify release APK builds
-- [x] Full lint pass
-- [x] Spec Kit integration (spec.md, plan.md, tasks.md — this file)
+- [x] Premium dark/gold finance visual language
+- [x] Smooth sparkline polish
+- [x] Round-screen settings/config layout pass
+- [ ] Verify release APK builds
+- [ ] Full lint pass
+- [ ] Replace debug signing config before publishing
 
 ## Phase 8: Future [COMPLETE]
 - [x] Rate alerts (push notifications when rate crosses threshold)
