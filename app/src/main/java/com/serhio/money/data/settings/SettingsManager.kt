@@ -23,6 +23,7 @@ class SettingsManager @Inject constructor(
         private val BASE_CURRENCY = stringPreferencesKey("base_currency")
         private val INTERESTED_CURRENCIES = stringPreferencesKey("interested_currencies_list")
         private val UPDATE_INTERVAL_MS = longPreferencesKey("update_interval_ms")
+        private val ALERT_INTERVAL_MS = longPreferencesKey("alert_interval_ms")
         private val LAST_UPDATE_TIMESTAMP = longPreferencesKey("last_update_timestamp")
 
         private val tileDisplayCurrency = stringPreferencesKey("tile_display_currency")
@@ -45,6 +46,10 @@ class SettingsManager @Inject constructor(
 
     val updateIntervalFlow: Flow<Long> = context.dataStore.data.map { preferences ->
         preferences[UPDATE_INTERVAL_MS] ?: (3600 * 1000L)
+    }
+
+    val alertIntervalFlow: Flow<Long> = context.dataStore.data.map { preferences ->
+        preferences[ALERT_INTERVAL_MS] ?: (15 * 60 * 1000L)
     }
 
     val tileDisplayCurrencyFlow: Flow<String> = context.dataStore.data.map { preferences ->
@@ -74,6 +79,10 @@ class SettingsManager @Inject constructor(
 
     suspend fun setUpdateInterval(intervalMs: Long) {
         context.dataStore.edit { it[UPDATE_INTERVAL_MS] = intervalMs }
+    }
+
+    suspend fun setAlertInterval(intervalMs: Long) {
+        context.dataStore.edit { it[ALERT_INTERVAL_MS] = intervalMs }
     }
 
     suspend fun updateLastUpdateTimestamp(timestamp: Long) {

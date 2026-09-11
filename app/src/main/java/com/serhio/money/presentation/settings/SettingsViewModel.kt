@@ -25,17 +25,10 @@ class SettingsViewModel @Inject constructor(
     @ApplicationContext private val context: Context
 ) : ViewModel() {
 
-    val baseCurrency: StateFlow<String> = settingsManager.baseCurrencyFlow.stateIn(
-        viewModelScope, SharingStarted.WhileSubscribed(5000), "USD"
-    )
-
-    val interestedCurrencies: StateFlow<List<String>> = settingsManager.interestedCurrenciesFlow.stateIn(
-        viewModelScope, SharingStarted.WhileSubscribed(5000), listOf("EUR", "PLN", "UAH")
-    )
-
-    val updateInterval: StateFlow<Long> = settingsManager.updateIntervalFlow.stateIn(
-        viewModelScope, SharingStarted.WhileSubscribed(5000), 3600 * 1000L
-    )
+    val baseCurrency: StateFlow<String> = settingsManager.baseCurrencyFlow.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), "USD")
+    val interestedCurrencies: StateFlow<List<String>> = settingsManager.interestedCurrenciesFlow.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), listOf("EUR", "PLN", "UAH"))
+    val updateInterval: StateFlow<Long> = settingsManager.updateIntervalFlow.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 3600 * 1000L)
+    val alertInterval: StateFlow<Long> = settingsManager.alertIntervalFlow.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 15 * 60 * 1000L)
 
     private val tileUpdater = TileService.getUpdater(context)
 
@@ -47,44 +40,25 @@ class SettingsViewModel @Inject constructor(
         tileUpdater.requestUpdate(ChangeCurrencyTileService::class.java)
     }
 
-    fun setBaseCurrency(currency: String) {
-        viewModelScope.launch {
-            settingsManager.setBaseCurrency(currency)
-            requestTileUpdates()
-        }
-    }
+    fun setBaseCurrency(currency: String) { viewModelScope.launch { settingsManager.setBaseCurrency(currency); requestTileUpdates() } }
 
-    fun setUpdateInterval(intervalMs: Long) {
-        viewModelScope.launch {
-            settingsManager.setUpdateInterval(intervalMs)
-            WorkerUtils.schedulePeriodicUpdate(context, intervalMs)
-            requestTileUpdates()
-        }
-    }
+    fun setUpdateInterval(intervalMs: Long) { viewModelScope.launch { settingsManager.setUpdateInterval(intervalMs); WorkerUtils.schedulePeriodicUpdate(context, intervalMs); requestTileUpdates() } }
+
+    fun setAlertInterval(intervalMs: Long) { viewModelScope.launch { settingsManager.setAlertInterval(intervalMs); WorkerUtils.scheduleAlertCheck(context, intervalMs) } }
 
     private var pendingOrder: List<String>? = null
 
     fun toggleInterestedCurrency(currency: String) {
         val current = (pendingOrder ?: interestedCurrencies.value).toMutableList()
-        if (current.contains(currency)) {
-            current.remove(currency)
-        } else {
-            current.add(currency)
-        }
+        if (current.contains(currency)) current.remove(currency) else current.add(currency)
         pendingOrder = current
-        viewModelScope.launch {
-            settingsManager.setInterestedCurrencies(current)
-            requestTileUpdates()
-        }
+        viewModelScope.launch { settingsManager.setInterestedCurrencies(current); requestTileUpdates() }
     }
 
     fun reorderCurrencies(newOrder: List<String>) {
         val existing = pendingOrder ?: interestedCurrencies.value
         val merged = newOrder + existing.filter { it !in newOrder }
         pendingOrder = merged
-        viewModelScope.launch {
-            settingsManager.setInterestedCurrencies(merged)
-            requestTileUpdates()
-        }
+        viewModelScope.launch { settingsManager.setInterestedCurrencies(merged); requestTileUpdates() }
     }
 }

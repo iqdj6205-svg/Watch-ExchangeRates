@@ -29,13 +29,13 @@ object WorkerUtils {
         )
     }
 
-    fun scheduleAlertCheck(context: Context) {
+    fun scheduleAlertCheck(context: Context, intervalMs: Long = 15 * 60 * 1000L) {
         val constraints = Constraints.Builder()
             .setRequiredNetworkType(NetworkType.CONNECTED)
             .build()
 
         val workRequest = PeriodicWorkRequestBuilder<AlertWorker>(
-            15, TimeUnit.MINUTES
+            intervalMs, TimeUnit.MILLISECONDS
         )
             .setConstraints(constraints)
             .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 1, TimeUnit.MINUTES)
@@ -43,7 +43,7 @@ object WorkerUtils {
 
         WorkManager.getInstance(context).enqueueUniquePeriodicWork(
             ALERT_WORK_NAME,
-            ExistingPeriodicWorkPolicy.KEEP,
+            ExistingPeriodicWorkPolicy.UPDATE,
             workRequest
         )
     }

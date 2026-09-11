@@ -66,15 +66,17 @@ class AlertWorker @AssistedInject constructor(
             return
         }
         val manager = applicationContext.getSystemService(NotificationManager::class.java) ?: return
-        val channel = NotificationChannel(CHANNEL_ID, "Rate Alerts", NotificationManager.IMPORTANCE_HIGH).apply {
-            description = "Notifications when exchange rates cross your target"
+        val channel = NotificationChannel(CHANNEL_ID, applicationContext.getString(R.string.alerts_title), NotificationManager.IMPORTANCE_HIGH).apply {
+            description = applicationContext.getString(R.string.alert_channel_desc)
         }
         manager.createNotificationChannel(channel)
-        val direction = if (isAbove) "above" else "below"
+        val direction = applicationContext.getString(if (isAbove) R.string.alert_above else R.string.alert_below).lowercase(Locale.getDefault())
+        val rate = String.format(Locale.getDefault(), "%.4f", currentRate)
+        val target = String.format(Locale.getDefault(), "%.4f", targetRate)
         val notification = NotificationCompat.Builder(applicationContext, CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_exchange)
-            .setContentTitle("Rate Alert: $baseCurrency/$currencyCode")
-            .setContentText("1 $baseCurrency is now ${String.format(Locale.US, "%.4f", currentRate)} $currencyCode ($direction ${String.format(Locale.US, "%.4f", targetRate)})")
+            .setContentTitle(applicationContext.getString(R.string.alert_notification_title, baseCurrency, currencyCode))
+            .setContentText(applicationContext.getString(R.string.alert_notification_text, baseCurrency, rate, currencyCode, direction, target))
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setAutoCancel(true)
             .build()
