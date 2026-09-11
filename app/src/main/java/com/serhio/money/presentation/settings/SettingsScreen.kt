@@ -31,6 +31,7 @@ fun SettingsScreen(viewModel: SettingsViewModel) {
     val baseCurrency by viewModel.baseCurrency.collectAsState()
     val interestedCurrencies by viewModel.interestedCurrencies.collectAsState()
     val updateInterval by viewModel.updateInterval.collectAsState()
+    val alertInterval by viewModel.alertInterval.collectAsState()
     val listState = rememberScalingLazyListState()
     val currencies = remember { listOf("USD", "EUR", "GBP", "JPY", "CHF", "AUD", "CAD", "CNY", "PLN", "UAH", "CZK", "DKK", "NOK", "SEK", "HUF", "RON", "INR", "KRW", "SGD", "HKD", "MXN", "BRL", "ZAR", "TRY", "RUB", "ILS", "NZD", "BTC", "ETH", "XAU", "XAG") }
     val priorityCurrencies = remember(interestedCurrencies, baseCurrency) { (listOf(baseCurrency) + interestedCurrencies + listOf("USD", "EUR", "PLN", "UAH", "GBP", "CHF")).distinct() }
@@ -43,6 +44,7 @@ fun SettingsScreen(viewModel: SettingsViewModel) {
         item { PremiumSectionCard(title = stringResource(R.string.section_base), subtitle = stringResource(R.string.settings_base_hint)) { CurrencyChipGrid(if (showAllBase) currencies else priorityCurrencies, listOf(baseCurrency), 2, viewModel::setBaseCurrency); ShowToggle(showAllBase) { showAllBase = !showAllBase } } }
         item { PremiumSectionCard(title = stringResource(R.string.section_interested), subtitle = stringResource(R.string.settings_interested_hint)) { CurrencyChipGrid(if (showAllInterested) currencies else priorityCurrencies + otherCurrencies.take(6), interestedCurrencies, 2, viewModel::toggleInterestedCurrency); ShowToggle(showAllInterested) { showAllInterested = !showAllInterested } } }
         item { PremiumSectionCard(title = stringResource(R.string.section_interval), subtitle = stringResource(R.string.settings_interval_hint)) { IntervalPicker(updateInterval = updateInterval, onSelect = viewModel::setUpdateInterval) } }
+        item { PremiumSectionCard(title = stringResource(R.string.section_alert_interval), subtitle = stringResource(R.string.settings_alert_interval_hint)) { IntervalPicker(updateInterval = alertInterval, onSelect = viewModel::setAlertInterval, alertMode = true) } }
     }
 }
 
@@ -54,9 +56,9 @@ private fun ShowToggle(expanded: Boolean, onClick: () -> Unit) {
 }
 
 @Composable
-private fun IntervalPicker(updateInterval: Long, onSelect: (Long) -> Unit) {
+private fun IntervalPicker(updateInterval: Long, onSelect: (Long) -> Unit, alertMode: Boolean = false) {
     var showPopup by remember { mutableStateOf(false) }
-    val intervals = listOf("15m" to (15 * 60 * 1000L), "30m" to (30 * 60 * 1000L), "1h" to (60 * 60 * 1000L), "2h" to (2 * 60 * 60 * 1000L), "6h" to (6 * 60 * 60 * 1000L), "12h" to (12 * 60 * 60 * 1000L), "24h" to (24 * 60 * 60 * 1000L))
+    val intervals = if (alertMode) listOf("15m" to (15 * 60 * 1000L), "30m" to (30 * 60 * 1000L), "1h" to (60 * 60 * 1000L), "2h" to (2 * 60 * 60 * 1000L), "6h" to (6 * 60 * 60 * 1000L)) else listOf("15m" to (15 * 60 * 1000L), "30m" to (30 * 60 * 1000L), "1h" to (60 * 60 * 1000L), "2h" to (2 * 60 * 60 * 1000L), "6h" to (6 * 60 * 60 * 1000L), "12h" to (12 * 60 * 60 * 1000L), "24h" to (24 * 60 * 60 * 1000L))
     val currentLabel = intervals.find { it.second == updateInterval }?.first ?: "—"
     Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
         Text("$currentLabel  ▾", fontSize = 18.sp, fontWeight = FontWeight.ExtraBold, color = MoneyGold, modifier = Modifier.clip(CircleShape).border(1.dp, MoneyGold.copy(alpha = 0.32f), CircleShape).clickable { showPopup = !showPopup }.padding(horizontal = 18.dp, vertical = 8.dp))
