@@ -1,6 +1,7 @@
 package com.serhio.money.presentation.components
 
 import android.view.HapticFeedbackConstants
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearEasing
@@ -88,6 +89,7 @@ private fun SkeletonLoading() {
 private fun MainContent(state: MainUiState.Success, isOnline: Boolean, onRefresh: () -> Unit, onOpenSettings: () -> Unit, onOpenTileConfig: () -> Unit, onOpenGraphs: (String, String) -> Unit, onOpenAlerts: () -> Unit, onReorderFavorites: (List<String>) -> Unit) {
     var page by remember { mutableIntStateOf(0) }
     var reorderMode by remember { mutableStateOf(false) }
+    BackHandler(enabled = reorderMode) { reorderMode = false }
     LaunchedEffect(page) { if (page != 0) reorderMode = false }
     Box(Modifier.fillMaxSize()) {
         AnimatedContent(targetState = page, transitionSpec = { fadeIn(tween(180)) togetherWith fadeOut(tween(120)) }, label = "mainPageContent") { selectedPage ->
