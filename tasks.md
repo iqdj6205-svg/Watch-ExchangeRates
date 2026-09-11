@@ -5,9 +5,9 @@
 - [x] #task Remove REORDER_DBG debug logs from CurrencyCard
 - [x] #task Remove REORDER_DBG from SettingsViewModel
 - [x] #task Remove temporary `semantics` blocks from reorderable items
-- [ ] #task Build release APK (ARM-only)
-- [ ] #task Run full lint pass
-- [ ] #task Replace debug signing config before publishing
+- [x] #task Build release APK (ARM-only; universal ARM32/ARM64, R8-minified 3.96 MB)
+- [x] #task Run full lint pass (0 errors, 2 warnings, 1 hint)
+- [ ] #task Replace debug signing config before publishing (release APK currently signed with debug cert)
 ```
 
 ## Completed Tasks

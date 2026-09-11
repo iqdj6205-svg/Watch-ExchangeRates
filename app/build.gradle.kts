@@ -157,7 +157,11 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.ui.test.junit4)
-    androidTestImplementation(libs.androidx.wear.tiles.testing)
+    androidTestImplementation(libs.androidx.wear.tiles.testing) {
+        // tiles-testing pulls Robolectric (for JVM unit tests); on-device it
+        // breaks instrumented tests (Looper ClassCastException), so exclude it.
+        exclude(group = "org.robolectric")
+    }
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 }
